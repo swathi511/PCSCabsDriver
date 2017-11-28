@@ -33,9 +33,10 @@ public class SpecificRideFragment extends Fragment {
     TextView tvFrom,tvTo,tvDistance,tvTime,tvFare,tvRideStartTime,tvRideStopTime,tvTotalFare,tvTaxes,tvTotalBill,tvTripId,tvOSBatta;
     long diff=0;
     double dis=0;
-    LinearLayout llOsBatta;
+    LinearLayout llOsBatta,llOtherCharges;
     String osbatta;
-    TextView tvPayment;
+    TextView tvPayment,tvOtherCharges;
+    double otherCharges=0;
 
 
     @Nullable
@@ -57,10 +58,14 @@ public class SpecificRideFragment extends Fragment {
         tvTotalBill=(TextView)rootView.findViewById(R.id.fsr_tv_total_bill);
         tvOSBatta=(TextView)rootView.findViewById(R.id.fsr_tv_os_batta);
         llOsBatta=(LinearLayout)rootView.findViewById(R.id.fsr_ll_os_batta);
+        llOtherCharges=(LinearLayout)rootView.findViewById(R.id.fsr_ll_other_charges);
         llOsBatta.setVisibility(View.GONE);
+        llOtherCharges.setVisibility(View.GONE);
         tvOSBatta.setVisibility(View.GONE);
 
         tvPayment=(TextView)rootView.findViewById(R.id.fsr_tv_payment);
+        tvOtherCharges=(TextView)rootView.findViewById(R.id.fsr_tv_charges);
+
 
         tvFrom.setText(data.getFromLocation());
         tvTo.setText(data.getToLocation());
@@ -74,6 +79,16 @@ public class SpecificRideFragment extends Fragment {
             tvOSBatta.setVisibility(View.VISIBLE);
             tvOSBatta.setText(getString(R.string.Rs)+" "+data.getOsBatta());
             osbatta=data.getOsBatta();
+        }
+
+        if(data.getOtherCharges()==null||data.getOtherCharges().equals("0"))
+        {
+
+        }
+        else {
+            llOtherCharges.setVisibility(View.VISIBLE);
+            tvOtherCharges.setText(getString(R.string.Rs)+" "+data.getOtherCharges());
+            otherCharges=Double.parseDouble(data.getOtherCharges());
         }
 
         if(data.getTotalAmount().equals("")) {
@@ -97,13 +112,14 @@ public class SpecificRideFragment extends Fragment {
 
                 if(data.getTravelType().equals("outstation"))
                 {
-                    Double finalFare=Double.parseDouble(fare)-Double.parseDouble(osbatta);
+                    Double finalFare=Double.parseDouble(fare)-Double.parseDouble(osbatta)-otherCharges;
                     tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
                     tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
                 }
                 else {
-                    tvFare.setText(getString(R.string.Rs)+" "+ fare);
-                    tvTotalFare.setText(getString(R.string.Rs)+" "+ fare);
+                    Double finalFare=Double.parseDouble(fare)-otherCharges;
+                    tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
+                    tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
                 }
 
 
@@ -171,30 +187,60 @@ public class SpecificRideFragment extends Fragment {
         tvRideStopTime.setText(data.getRideStopTime());
 
        // SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a", Locale.ENGLISH);
-        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        if(data.getTravelType().equals("local")||data.getTravelType().equals("Packages")) {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a", Locale.ENGLISH);
+            timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        try {
-            Date date1 = timeFormat.parse(data.getRideStartTime());
-            Date date2 = timeFormat.parse(data.getRideStopTime());
+            try {
+                Date date1 = timeFormat.parse(data.getRideStartTime());
+                Date date2 = timeFormat.parse(data.getRideStopTime());
 
                 diff = (date2.getTime() - date1.getTime());
 
-        } catch (ParseException e) {
-            e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            int Hours = (int) (diff / (1000 * 60 * 60));
+            int Mins = (int) (diff / (1000 * 60)) % 60;
+            long Secs = (int) (diff / 1000) % 60;
+
+            DecimalFormat formatter = new DecimalFormat("00");
+            String hFormatted = formatter.format(Hours);
+            String mFormatted = formatter.format(Mins);
+            String sFormatted = formatter.format(Secs);
+            String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
+
+            tvTime.setText(time);
         }
+        else {
 
-        int Hours = (int) (diff/(1000 * 60 * 60));
-        int Mins = (int) (diff/(1000*60)) % 60;
-        long Secs = (int) (diff / 1000) % 60;
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.ENGLISH);
+            timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        DecimalFormat formatter = new DecimalFormat("00");
-        String hFormatted = formatter.format(Hours);
-        String mFormatted = formatter.format(Mins);
-        String sFormatted = formatter.format(Secs);
-        String time=hFormatted+":"+mFormatted+":"+sFormatted;
+            try {
+                Date date1 = timeFormat.parse(data.getRideStartTime());
+                Date date2 = timeFormat.parse(data.getRideStopTime());
 
-        tvTime.setText(time);
+                diff = (date2.getTime() - date1.getTime());
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            int Hours = (int) (diff / (1000 * 60 * 60));
+            int Mins = (int) (diff / (1000 * 60)) % 60;
+            long Secs = (int) (diff / 1000) % 60;
+
+            DecimalFormat formatter = new DecimalFormat("00");
+            String hFormatted = formatter.format(Hours);
+            String mFormatted = formatter.format(Mins);
+            String sFormatted = formatter.format(Secs);
+            String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
+
+            tvTime.setText(time);
+
+        }
 
         tvPayment.setText(data.getPaymentMode());
 

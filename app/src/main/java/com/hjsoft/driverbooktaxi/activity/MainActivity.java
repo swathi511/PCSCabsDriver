@@ -57,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     int j=0;
-    //String version="3.7";
-    String version="1";//20
+    String version="3.9";
+    //String version="1";//20
     String city="Visakhapatnam";
 
     @Override
@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             v.addProperty("pwd",stPd);
             v.addProperty("companyid",companyId);
             v.addProperty("version",version);
+            v.addProperty("profileid","-");
 
             Call<Pojo> call=REST_CLIENT.validateLogin(v);
             call.enqueue(new Callback<Pojo>() {
@@ -122,10 +123,10 @@ public class MainActivity extends AppCompatActivity {
 
                     if(response.isSuccessful())
                     {
-
-                        Log.w("data", "Login finished");
-
                         // selectServiceLocations();
+                        editor.putString("status","online");
+                        editor.commit();
+
                         Intent i = new Intent(MainActivity.this, HomeActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -207,6 +208,8 @@ public class MainActivity extends AppCompatActivity {
                     v.addProperty("pwd",stPwd);
                     v.addProperty("companyid",companyId);
                     v.addProperty("version",version);
+                    v.addProperty("profileid","-");
+                    //login // online
 
                     System.out.println(stUname+":"+stPwd+":"+companyId+":"+version);
                     Call<Pojo> call=REST_CLIENT.validateLogin(v);

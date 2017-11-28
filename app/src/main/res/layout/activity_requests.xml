@@ -113,6 +113,18 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/ar_rl_1"
             android:visibility="gone"/>
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switchButton"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:checked="true"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Online"
+            android:layout_below="@+id/ar_rl_1"
+            android:background="@drawable/rect_online"
+            android:padding="10dp"
+            android:textSize="14sp"/>
 
         <LinearLayout android:id="@+id/ar_ll_below"
             android:layout_width="match_parent"

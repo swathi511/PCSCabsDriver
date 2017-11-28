@@ -213,12 +213,12 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
         int pos=b.getInt("position");
         data=cabData.get(pos);
 
-        System.out.println("request id issss "+data.getRequestId());
+       // System.out.println("request id issss "+data.getRequestId());
 
         requestId=data.getRequestId();
 
         SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-        System.out.println("date issssssss "+data.getRideDate());
+        //System.out.println("date issssssss "+data.getRideDate());
         tvDateTime.setText(format.format(data.getRideDate()));
 
         dataList=dbAdapter.getAllLocUpdates(requestId);
@@ -227,7 +227,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
         tvPaymentMode.setText(upperString+" Payment");
 
 
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+dataList.size());
+        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+dataList.size());
         locationData=dataList.get(0);
 
         /*latitude=locationData.getLatitude();
@@ -1549,7 +1549,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
         current_long=gps.getLongitude();*/
 
 
-        System.out.println("data isss "+current_lat+":"+current_long);
+        //System.out.println("data isss "+current_lat+":"+current_long);
 
         if (gPickup != null) {
 
@@ -1694,7 +1694,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
             rideStartingTime = pref.getString("rideStartingTime",null);
             rideStoppingTime = getCurrentTime();
 
-            System.out.println("ride starting time is "+rideStartingTime);
+            //System.out.println("ride starting time is "+rideStartingTime);
 
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -1746,7 +1746,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
             pickupLat = pref.getString("pickup_lat", null);
             pickupLong = pref.getString("pickup_long", null);
 
-            System.out.println("pickup lat & long is "+pickupLat+" , "+pickupLong);
+            //System.out.println("pickup lat & long is "+pickupLat+" , "+pickupLong);
 
 
                                 /*if (pickupLat.equals("-") && pickupLong.equals("-")) {
@@ -1771,7 +1771,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
             rideData=rideData+"*"+urlString;
 
-            System.out.println(rideData);
+            //System.out.println(rideData);
 
             Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
 
@@ -1833,6 +1833,9 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
                             v.addProperty("ridestoptime", rideStoppingTime);
                             v.addProperty("companyid", companyId);
                             v.addProperty("billing",billing);
+                            v.addProperty("startingKms",0);
+                            v.addProperty("closingKms",0);
+                            v.addProperty("totalKms",0);
 
                             System.out.println(stProfileId+":"+data.getRequestId()+":"+finalDistance+":"+movingTimeFormat+":"+rideData+":"+rideStartingTime+":"+rideStoppingTime+":"+companyId+":"+billing);
 
@@ -2017,7 +2020,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
                 if (current_lat != 0.0 && current_long != 0.0) {
 
-                    System.out.println("****** "+current_lat+":"+current_long);
+                    //System.out.println("****** "+current_lat+":"+current_long);
 
                     if (first) {
 

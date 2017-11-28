@@ -116,7 +116,7 @@ public class GPSTracker extends Service implements LocationListener {
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
-                                Log.d("GPS Enabled", "GPS Enabled"+location.getLatitude()+":"+location.getLongitude());
+                                //Log.d("GPS Enabled", "GPS Enabled"+location.getLatitude()+":"+location.getLongitude());
                                 //latitude = location.getLatitude();
                                 //longitude = location.getLongitude();
                             }
@@ -135,7 +135,7 @@ public class GPSTracker extends Service implements LocationListener {
                         location = locationManager
                                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
-                            Log.d("Network", "Network"+location.getLatitude()+":"+location.getLongitude());
+                           // Log.d("Network", "Network"+location.getLatitude()+":"+location.getLongitude());
                             //latitude = location.getLatitude();
                             //longitude = location.getLongitude();
                         }
@@ -235,8 +235,8 @@ public class GPSTracker extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        System.out.println("location changed ...."+location.getLatitude()+":"+location.getLongitude()+"****"+location.getProvider());
-        System.out.println("accuracy issssss "+location.getAccuracy());
+        /*System.out.println("location changed ...."+location.getLatitude()+":"+location.getLongitude()+"****"+location.getProvider());
+        System.out.println("accuracy issssss "+location.getAccuracy());*/
 
         if(location!=null&&location.hasAccuracy()) {
 

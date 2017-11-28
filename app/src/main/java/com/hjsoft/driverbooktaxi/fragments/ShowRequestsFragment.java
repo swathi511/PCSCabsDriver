@@ -26,12 +26,15 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SwitchCompat;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -167,6 +170,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     ArrayList<FormattedAllRidesData> rideDataList=new ArrayList<>();
     HomeActivity a;
     //NotificationManager notificationManager;
+    SwitchCompat switchCompat;
+    //String version="1";
+    String version="3.9";
 
 
     @Nullable
@@ -185,6 +191,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
         llBottom=(LinearLayout)rootView.findViewById(R.id.ar_ll_below);
         btOk=(TextView)rootView.findViewById(R.id.ar_bt_ok);
+        switchCompat=(SwitchCompat)rootView.findViewById(R.id.switchButton);
 
         REST_CLIENT= RestClient.get();
         session = new SessionManager(getActivity());
@@ -219,6 +226,36 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             public void onClick(View view) {
 
                 selectServiceLocations();
+            }
+        });
+
+        String currentStatus=pref.getString("status","online");
+
+        if(currentStatus.equals("online"))
+        {
+            switchCompat.setText("Online");
+            switchCompat.setChecked(true);
+        }
+        else {
+
+            switchCompat.setText("Offline");
+            switchCompat.setChecked(false);
+        }
+
+        switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                String status=pref.getString("status","online");
+
+                if(status.equals("online")) {
+
+                    goingOffline();
+                }
+                else {
+
+                    goingOnline();
+                }
             }
         });
 
@@ -614,9 +651,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     @Override
     public void onLocationChanged(Location location) {
 
-       // int accuracyDelta = (int) (location.getAccuracy() - mLastLocation.getAccuracy());
+        // int accuracyDelta = (int) (location.getAccuracy() - mLastLocation.getAccuracy());
 
-       // System.out.println("location changed "+location.getLatitude()+":::"+location.getLongitude()+"@@@"+location.getAccuracy()+"&&&&&&"+accuracyDelta+"***"+location.bearingTo(mLastLocation));
+        // System.out.println("location changed "+location.getLatitude()+":::"+location.getLongitude()+"@@@"+location.getAccuracy()+"&&&&&&"+accuracyDelta+"***"+location.bearingTo(mLastLocation));
 
         if(mLastLocation==null)
         {
@@ -838,7 +875,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             @Override
             public void run() {
 
-                //System.out.println("***********************getting data"+cabData.size());
+                System.out.println("***********************getting data"+cabData.size());
 
                 //changing the intervalfrom 2 sec to 10 sec :(
                 handler.postDelayed(r,10000);
@@ -940,7 +977,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                             @Override
                             public void onResponse(Call<List<CabRequestsPojo>> call, Response<List<CabRequestsPojo>> response) {
 
-                               //System.out.println("inside onRespons ....e");
+                                //System.out.println("inside onRespons ....e");
 
                                 if (response.isSuccessful()) {
 
@@ -1106,6 +1143,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                         //notificationManager.cancel(0);
 
                                                         editor.putString("booking","in");
+                                                        editor.putBoolean("saved",false);
                                                         editor.commit();
 
                                                         if (data.getTravelType().equals("local")||data.getTravelType().equals("Packages")) {
@@ -1316,6 +1354,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                     if (response.isSuccessful()) {
 
                                                         editor.putString("booking","in");
+                                                        editor.putBoolean("saved",false);
                                                         editor.commit();
 
                                                         h.removeCallbacks(rr);
@@ -1896,12 +1935,13 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         rideDataList.add(new FormattedAllRidesData(date1, d.getRequestid(), d.getFromlocation(), d.getTolocation(), d.getVehicleCategory(),
                                 d.getVehicleType(), d.getDistancetravelled(), d.getStatusofride(), d.getRidestarttime(), d.getRidestoptime(),
                                 d.getTotalamount(), d.getDrivername(),d.getDriverpic(),d.getTravelType(),d.getBookingType(),d.getTravelpackage(),d.getDrivermobile(),d.getGuestProfileId(),d.getGuestName(),d.getGuestMobile(),
-                                d.getPickupLatitude(),d.getPickupLongitude(),d.getDropLatitude(),d.getDropLongitude(),d.getOTPStatus(),d.getDriverBattaAmt(),d.getPaymentMode()));
+                                d.getPickupLatitude(),d.getPickupLongitude(),d.getDropLatitude(),d.getDropLongitude(),d.getOTPStatus(),d.getDriverBattaAmt(),d.getPaymentMode(),d.getOtherCharges()));
 
 
                         if(d.getStatusofride().equals("ONGOING")) {
 
                             llBottom.setVisibility(View.VISIBLE);
+                            switchCompat.setVisibility(View.GONE);
 
                             position=i;
 
@@ -1912,6 +1952,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     //System.out.println("############################ ONDUTY");
                     progressDialog.dismiss();
                     getDetails();
+                    String date=new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date());
+                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    System.out.println(date);
                     Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();
                 }
 
@@ -1940,6 +1983,121 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     }
 
 
+    public void goingOnline()
+    {
+
+        JsonObject v=new JsonObject();
+        v.addProperty("login","-");
+        v.addProperty("pwd","-");
+        v.addProperty("companyid",companyId);
+        v.addProperty("version",version);
+        v.addProperty("profileid",stProfileId);
+
+        Call<Pojo> call=REST_CLIENT.validateLogin(v);
+        call.enqueue(new Callback<Pojo>() {
+            @Override
+            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
+
+                if(response.isSuccessful())
+                {
+                    switchCompat.setChecked(true);
+                    switchCompat.setText("Online");
+                    switchCompat.setBackgroundResource(R.drawable.rect_online);
+                    editor.putString("status","online");
+                    editor.commit();
+
+                    ((HomeActivity) a).enableDisableDrawer(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+                    handler.post(r);
+                    hLoc.post(rLoc);
+                }
+                else {
+
+                    switchCompat.setChecked(false);
+
+                    if(response.message().equals("Version mismatched")) {
+
+                        // Toast.makeText(MainActivity.this,response.message(),Toast.LENGTH_SHORT).show();
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+                        final View dialogView = inflater.inflate(R.layout.alert_update, null);
+
+                        dialogBuilder.setView(dialogView);
+
+                        final AlertDialog alertDialog = dialogBuilder.create();
+                        alertDialog.show();
+                        alertDialog.setCancelable(false);
+                        alertDialog.setCanceledOnTouchOutside(false);
+
+                        TextView tvOk = (TextView) dialogView.findViewById(R.id.au_bt_ok);
+                        tvOk.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                alertDialog.dismiss();
+                                getActivity().finish();
+                            }
+                        });
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Pojo> call, Throwable t) {
+
+            }
+        });
+    }
+
+
+    public void goingOffline()
+    {
+
+        JsonObject v=new JsonObject();
+        v.addProperty("profileid",stProfileId);
+        v.addProperty("companyid",companyId);
+
+        Call<Pojo> call=REST_CLIENT.toOffline(v);
+        call.enqueue(new Callback<Pojo>() {
+            @Override
+            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
+
+                if(response.isSuccessful())
+                {
+
+                    switchCompat.setChecked(false);
+                    switchCompat.setText("Offline");
+                    switchCompat.setBackgroundResource(R.drawable.rect_offline);
+                    editor.putString("status","offline");
+                    editor.commit();
+
+                    if(handler!=null) {
+                        handler.removeCallbacks(r);
+                    }
+
+                    if(hLoc!=null) {
+                        hLoc.removeCallbacks(rLoc);
+                    }
+
+                    ((HomeActivity) a).enableDisableDrawer(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+                }
+                else {
+
+                    Toast.makeText(getActivity(),"Unknown error! Please try again!",Toast.LENGTH_LONG).show();
+                    alertDialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Pojo> call, Throwable t) {
+
+                Toast.makeText(getActivity(),"No Internet Connection!\nPlease try again.",Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
 
 

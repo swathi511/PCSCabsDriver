@@ -227,6 +227,35 @@
 
     </LinearLayout>
 
+    <LinearLayout android:id="@+id/fsr_ll_other_charges"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Other Charges"
+            android:textSize="14sp"
+            android:gravity="left"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/fsr_tv_charges"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/xxx"
+            android:textSize="14sp"
+            android:gravity="right"
+            android:textColor="@color/colorBlack"/>
+
+
+    </LinearLayout>
+
     <LinearLayout android:id="@+id/fsr_ll_os_batta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -284,6 +313,10 @@
 
 
     </LinearLayout>
+
+
+
+
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -51,8 +51,8 @@ public class RideInvoiceFragment extends Fragment {
     double stDistance;
     GuestData data;
     TextView tvTripId,tvPickup,tvDrop,tvDistance,tvTime,tvFare,tvRideStart,tvRideStop,tvTotalFare,tvTaxes,tvTotalBill,tvOutstationBatta;
-    TextView tvWalletAmnt,tvCash;
-    LinearLayout llWallet,llCash,llOSBatta,llCashInfo,llWalletInfo;
+    TextView tvWalletAmnt,tvCash,tvOtherCharges;
+    LinearLayout llWallet,llCash,llOSBatta,llCashInfo,llWalletInfo,llOtherCharges;
     ImageButton ibLogout;
     SessionManager session;
     API REST_CLIENT;
@@ -61,7 +61,7 @@ public class RideInvoiceFragment extends Fragment {
     long diff=0;
     String companyId="CMP00001";
     DBAdapter dbAdapter;
-    double totalBill;
+    double totalBill,otherCharges=0;
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     SharedPreferences pref;
@@ -97,11 +97,14 @@ public class RideInvoiceFragment extends Fragment {
         ivPayU=(ImageView)rootView.findViewById(R.id.arfd_iv_payu);
         llCashInfo=(LinearLayout)rootView.findViewById(R.id.arfd_ll_cash_info);
         llWalletInfo=(LinearLayout)rootView.findViewById(R.id.arfd_ll_wallet_info);
+        tvOtherCharges=(TextView)rootView.findViewById(R.id.arfd_tv_charges);
+        llOtherCharges=(LinearLayout)rootView.findViewById(R.id.arfd_ll_other_charges);
 
         REST_CLIENT= RestClient.get();
         tvOutstationBatta.setVisibility(View.GONE);
         llOSBatta.setVisibility(View.GONE);
         ivPayU.setVisibility(View.GONE);
+        llOtherCharges.setVisibility(View.GONE);
 
         dbAdapter=new DBAdapter(getContext());
         dbAdapter=dbAdapter.open();
@@ -151,7 +154,8 @@ public class RideInvoiceFragment extends Fragment {
                     tvTripId.setText(data.getgRequestId());
                     tvPickup.setText(data.getgPickup());
                     tvDrop.setText(data.getgDrop());
-                    tvDistance.setText(String.valueOf((float)stDistance));
+                    System.out.println("distance isss "+data1.getDistancetravelled()+"@@@@@@@@"+String.valueOf((float)stDistance));
+                    tvDistance.setText(data1.getDistancetravelled());
                     tvTime.setText(stTime);
                    /* tvFare.setText("Rs. "+data.getTotalfare());
                     tvTotalFare.setText("Rs. "+data.getTotalfare());
@@ -166,6 +170,16 @@ public class RideInvoiceFragment extends Fragment {
                         tvOutstationBatta.setVisibility(View.VISIBLE);
                         tvOutstationBatta.setText(getString(R.string.Rs)+" "+data1.getDriverBattaAmt());
                         osbatta=data1.getDriverBattaAmt();
+                    }
+
+                    if(data1.getOtherCharges()==null||data1.getOtherCharges().equals("0"))
+                    {
+
+                    }
+                    else {
+                       llOtherCharges.setVisibility(View.VISIBLE);
+                        tvOtherCharges.setText(getString(R.string.Rs)+" "+data1.getOtherCharges());
+                        otherCharges=Double.parseDouble(data1.getOtherCharges());
                     }
 
 
@@ -191,13 +205,14 @@ public class RideInvoiceFragment extends Fragment {
 
                             if(data1.getTravelType().equals("outstation"))
                             {
-                                Double finalFare=Double.parseDouble(fare)-Double.parseDouble(osbatta);
+                                Double finalFare=Double.parseDouble(fare)-Double.parseDouble(osbatta)-otherCharges;
                                 tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
                                 tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
                             }
                             else {
-                                tvFare.setText(getString(R.string.Rs)+" "+ fare);
-                                tvTotalFare.setText(getString(R.string.Rs)+" "+ fare);
+                                Double finalFare=Double.parseDouble(fare)-otherCharges;
+                                tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
+                                tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
                             }
 
 
@@ -214,30 +229,62 @@ public class RideInvoiceFragment extends Fragment {
 
                     tvDistance.setText(data1.getDistancetravelled());
 
-                    SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
-                    timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    if(data1.getTravelType().equals("local")||data1.getTravelType().equals("Packages")) {
 
-                    try {
-                        Date date1 = timeFormat.parse(data1.getRidestarttime());
-                        Date date2 = timeFormat.parse(data1.getRidestoptime());
+                        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+                        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-                        diff = (date2.getTime() - date1.getTime());
+                        try {
+                            Date date1 = timeFormat.parse(data1.getRidestarttime());
+                            Date date2 = timeFormat.parse(data1.getRidestoptime());
 
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                            diff = (date2.getTime() - date1.getTime());
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        int Hours = (int) (diff / (1000 * 60 * 60));
+                        int Mins = (int) (diff / (1000 * 60)) % 60;
+                        long Secs = (int) (diff / 1000) % 60;
+
+                        DecimalFormat formatter = new DecimalFormat("00");
+                        String hFormatted = formatter.format(Hours);
+                        String mFormatted = formatter.format(Mins);
+                        String sFormatted = formatter.format(Secs);
+                        String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
+
+                        tvTime.setText(time);
                     }
+                    else {
 
-                    int Hours = (int) (diff/(1000 * 60 * 60));
-                    int Mins = (int) (diff/(1000*60)) % 60;
-                    long Secs = (int) (diff / 1000) % 60;
+                        SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+                        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-                    DecimalFormat formatter = new DecimalFormat("00");
-                    String hFormatted = formatter.format(Hours);
-                    String mFormatted = formatter.format(Mins);
-                    String sFormatted = formatter.format(Secs);
-                    String time=hFormatted+":"+mFormatted+":"+sFormatted;
+                        try {
+                            Date date1 = timeFormat.parse(data1.getRidestarttime());
+                            Date date2 = timeFormat.parse(data1.getRidestoptime());
 
-                    tvTime.setText(time);
+                            diff = (date2.getTime() - date1.getTime());
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        int Hours = (int) (diff / (1000 * 60 * 60));
+                        int Mins = (int) (diff / (1000 * 60)) % 60;
+                        long Secs = (int) (diff / 1000) % 60;
+
+                        DecimalFormat formatter = new DecimalFormat("00");
+                        String hFormatted = formatter.format(Hours);
+                        String mFormatted = formatter.format(Mins);
+                        String sFormatted = formatter.format(Secs);
+                        String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
+
+                        tvTime.setText(time);
+
+
+                    }
 
                     //System.out.println(data1.getPaymentMode()+":"+data1.getPaymentCash()+":"+data1.getPaymentWallet()+":"+data1.getWalletBalance());
 
@@ -266,6 +313,8 @@ public class RideInvoiceFragment extends Fragment {
                         tvCash.setText(getString(R.string.Rs)+" "+totalBill);
                         llCashInfo.setVisibility(View.VISIBLE);
                     }
+
+
                 }
                 else {
                     //System.out.println(response.message()+"::"+response.code()+"::"+response.errorBody()+":");

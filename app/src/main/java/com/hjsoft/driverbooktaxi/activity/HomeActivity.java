@@ -39,7 +39,7 @@ import retrofit2.Response;
 /**
  * Created by hjsoft on 26/12/16.
  */
-public class HomeActivity extends AppCompatActivity{
+public class HomeActivity extends AppCompatActivity {
 
     private String[] mNavigationDrawerItemTitles;
     private DrawerLayout mDrawerLayout;
@@ -278,6 +278,13 @@ public class HomeActivity extends AppCompatActivity{
                 //System.out.println("cancel done");
             }
         });
+    }
+
+
+    public void enableDisableDrawer(int mode) {
+        if (mDrawerLayout != null) {
+            mDrawerLayout.setDrawerLockMode(mode);
+        }
     }
 
 

@@ -8,8 +8,8 @@ android {
         applicationId "com.hjsoft.driverbooktaxi"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 44
-        versionName "1.5.7"
+        versionCode 46
+        versionName "1.5.9"
 
     }
     buildTypes {

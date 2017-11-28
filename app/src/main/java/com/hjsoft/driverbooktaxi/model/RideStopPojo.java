@@ -50,6 +50,9 @@ public class RideStopPojo
     @SerializedName("DriverBattaAmt")
     @Expose
     private String driverBattaAmt;
+    @SerializedName("othercharges")
+    @Expose
+    private String otherCharges;
 
 
 
@@ -163,5 +166,13 @@ public class RideStopPojo
 
     public void setDriverBattaAmt(String driverBattaAmt) {
         this.driverBattaAmt = driverBattaAmt;
+    }
+
+    public String getOtherCharges() {
+        return otherCharges;
+    }
+
+    public void setOtherCharges(String otherCharges) {
+        this.otherCharges = otherCharges;
     }
 }

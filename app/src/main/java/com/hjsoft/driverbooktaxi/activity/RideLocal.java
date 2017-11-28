@@ -903,6 +903,8 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
         if(requestCode==REQUEST_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+                Toast.makeText(RideLocal.this,"called",Toast.LENGTH_SHORT).show();
+
                 establishConnection();
 
             } else {
@@ -1682,7 +1684,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
         latitude1=b.getDouble("current_lat",0.0);
         longitude1=b.getDouble("current_long",0.0);
 
-        System.out.println("currrent lat & long issss "+latitude1+" : "+longitude1);
+        //System.out.println("currrent lat & long issss "+latitude1+" : "+longitude1);
 
         if (gPickup != null) {
 
@@ -1712,7 +1714,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
 
 
-            System.out.println("onMapReady " + current_lat + ":" + current_long);
+            //System.out.println("onMapReady " + current_lat + ":" + current_long);
 
             if (cab != null) {
 
@@ -1808,7 +1810,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             rideStoppingTime = getCurrentTime();
             rideStartingTime=pref.getString("rideStartingTime",null);
 
-            System.out.println("ride starting time is "+rideStartingTime);
+            //System.out.println("ride starting time is "+rideStartingTime);
 
 
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
@@ -1831,7 +1833,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             String mFormatted = formatter.format(Mins);
             String sFormatted = formatter.format(Secs);
             movingTimeFormat = hFormatted + "." + mFormatted;
-            //movingTimeFormat="06"+"."+"00";
+            //movingTimeFormat="06"+"."+F"00";
 
             //Toast.makeText(RideStartActivity.this,"time is "+movingTimeFormat,Toast.LENGTH_SHORT).show();
 
@@ -1879,7 +1881,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                                 finish();
                             }*/
 
-            System.out.println("Pickup data  " + pickupLat + "::" + pickupLong);
+            //System.out.println("Pickup data  " + pickupLat + "::" + pickupLong);
 
 //                            dropLat = String.valueOf(current_lat);
 //                            dropLong = String.valueOf(current_long);
@@ -1892,7 +1894,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
             rideData=rideData+"*"+urlString;
 
-            System.out.println(rideData);
+            //System.out.println(rideData);
 
 
             Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
@@ -1957,10 +1959,13 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                             v.addProperty("ridestoptime", rideStoppingTime);
                             v.addProperty("companyid", companyId);
                             v.addProperty("billing",billing);
+                            v.addProperty("startingKms",0);
+                            v.addProperty("closingKms",0);
+                            v.addProperty("totalKms",0);
 
                             System.out.println(stProfileId+":"+data.getgRequestId()+":"+finalDistance+":"+movingTimeFormat+":"+rideData+":"+rideStartingTime+":"+rideStoppingTime+":"+companyId+":"+billing);
 
-                            System.out.println("billing isssss "+billing);
+                            //System.out.println("billing isssss "+billing);
                                             /*
                                             System.out.println("*****************!!!!!*********************");
                                             System.out.println(stProfileId);
@@ -2100,7 +2105,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                 current_lat = gps.getLatitude();
                 current_long = gps.getLongitude();
 
-                System.out.println("data is "+current_lat+":"+current_long);
+                //System.out.println("data is "+current_lat+":"+current_long);
 
                 if (current_lat != 0.0 && current_long != 0.0) {
 

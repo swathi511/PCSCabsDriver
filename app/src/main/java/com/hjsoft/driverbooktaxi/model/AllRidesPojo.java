@@ -91,6 +91,9 @@ public class AllRidesPojo implements Serializable {
     @SerializedName("payment_mode")
     @Expose
     private String paymentMode;
+    @SerializedName("othercharges")
+    @Expose
+    private String otherCharges;
 
 
 
@@ -309,6 +312,14 @@ public class AllRidesPojo implements Serializable {
 
     public void setPaymentMode(String paymentMode) {
         this.paymentMode = paymentMode;
+    }
+
+    public String getOtherCharges() {
+        return otherCharges;
+    }
+
+    public void setOtherCharges(String otherCharges) {
+        this.otherCharges = otherCharges;
     }
 }
 

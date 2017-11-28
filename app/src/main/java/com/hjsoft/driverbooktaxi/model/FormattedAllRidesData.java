@@ -11,12 +11,12 @@ public class FormattedAllRidesData implements Serializable {
         String requestId,fromLocation,toLocation,vehicleCategory,vehicleType,distanceTravelled;
         String rideStatus,rideStartTime,rideStopTime,totalAmount,driverName,driverPic,travelType,bookingType,travelPackage,osBatta;
         Date rideDate;
-        String driverMobile,guestProfileId,guestName,guestMobile,pickupLat,pickupLong,dropLat,dropLong,otpStatus,paymentMode;
+        String driverMobile,guestProfileId,guestName,guestMobile,pickupLat,pickupLong,dropLat,dropLong,otpStatus,paymentMode,otherCharges;
 
         public FormattedAllRidesData(Date rideDate, String requestId,String fromLocation,String toLocation,String vehicleCategory,String vehicleType,String distanceTravelled,
                                      String rideStatus,String rideStartTime,String rideStopTime,String totalAmount,String driverName,String driverPic,String travelType,String bookingType,String travelPackage,
                                      String driverMobile,String guestProfileId,String guestName,String guestMobile,String pickupLat,String pickupLong,String dropLat,String dropLong,
-                                     String otpStatus,String osBatta,String paymentMode)
+                                     String otpStatus,String osBatta,String paymentMode,String otherCharges)
         {
                 this.rideDate=rideDate;
                 this.requestId=requestId;
@@ -45,6 +45,7 @@ public class FormattedAllRidesData implements Serializable {
                 this.otpStatus=otpStatus;
                 this.osBatta=osBatta;
                 this.paymentMode=paymentMode;
+                this.otherCharges=otherCharges;
         }
 
         public String getRequestId() {
@@ -261,6 +262,14 @@ public class FormattedAllRidesData implements Serializable {
 
         public void setPaymentMode(String paymentMode) {
                 this.paymentMode = paymentMode;
+        }
+
+        public String getOtherCharges() {
+                return otherCharges;
+        }
+
+        public void setOtherCharges(String otherCharges) {
+                this.otherCharges = otherCharges;
         }
 }
 

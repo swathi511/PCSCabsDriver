@@ -632,15 +632,8 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                                             myBottomSheet.dismiss();
                                                         }
 
-                                                        h.removeCallbacks(r);
-                                                        stopLocationUpdates();
-                                                        //mGoogleApiClient.disconnect();
-                                                        Intent i = new Intent(OutStationTrackRideActivity.this, RideOutstation.class);
-                                                        i.putExtra("cabData", cabData);
-                                                        i.putExtra("current_lat", current_lat);
-                                                        i.putExtra("current_long", current_long);
-                                                        startActivity(i);
-                                                        finish();
+                                                        getStartingKms();
+
                                                     } else {
                                                         alertDialog.dismiss();
                                                         Toast.makeText(OutStationTrackRideActivity.this, "OTP Authentication Failed", Toast.LENGTH_LONG).show();
@@ -1265,10 +1258,12 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         }
         else
         {
-            LatLng pickLatLng=new LatLng(Double.parseDouble(data.getpLat()),Double.parseDouble(data.getpLng()));
-            gPickup= mMap.addMarker(new MarkerOptions().position(pickLatLng)
-                    .title(data.getgPickup())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            if(!(data.getpLat().equals(""))&&!(data.getpLng().equals(""))) {
+                LatLng pickLatLng = new LatLng(Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()));
+                gPickup = mMap.addMarker(new MarkerOptions().position(pickLatLng)
+                        .title(data.getgPickup())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            }
         }
 
         if(gDrop!=null)
@@ -1277,10 +1272,12 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         }
         else
         {
-            LatLng dropLatLng=new LatLng(Double.parseDouble(data.getdLat()),Double.parseDouble(data.getdLng()));
-            gPickup= mMap.addMarker(new MarkerOptions().position(dropLatLng)
-                    .title(data.getgDrop())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_pink)));
+            if(!(data.getdLat().equals(""))&&!(data.getdLng().equals(""))) {
+                LatLng dropLatLng = new LatLng(Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()));
+                gDrop = mMap.addMarker(new MarkerOptions().position(dropLatLng)
+                        .title(data.getgDrop())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_pink)));
+            }
         }
 
         if(cab!=null)
@@ -1446,6 +1443,54 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
+    }
+
+    public void getStartingKms()
+    {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationTrackRideActivity.this);
+
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.alert_starting_kms, null);
+        dialogBuilder.setView(dialogView);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.setCancelable(false);
+        alertDialog.show();
+
+        Button btOk=(Button)dialogView.findViewById(R.id.ask_bt_ok);
+        final EditText etValue=(EditText)dialogView.findViewById(R.id.ask_et_otp);
+
+        btOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String value=etValue.getText().toString().trim();
+
+                if(value.equals(""))
+                {
+                    Toast.makeText(OutStationTrackRideActivity.this,"Please enter starting Kms",Toast.LENGTH_LONG).show();
+                }
+                else {
+
+                    editor.putString("startingKms",value);
+                    editor.commit();
+                    alertDialog.dismiss();
+
+                    h.removeCallbacks(r);
+                    stopLocationUpdates();
+                    //mGoogleApiClient.disconnect();
+                    Intent i = new Intent(OutStationTrackRideActivity.this, RideOutstation.class);
+                    i.putExtra("cabData", cabData);
+                    i.putExtra("current_lat", current_lat);
+                    i.putExtra("current_long", current_long);
+                    startActivity(i);
+                    finish();
+                }
+            }
+        });
+
     }
 }
 

@@ -169,7 +169,7 @@ public class AllRidesFragment extends Fragment implements RecyclerAdapter.Adapte
                                 dataList.add(new FormattedAllRidesData(date1, data.getRequestid(), data.getFromlocation(), data.getTolocation(), data.getVehicleCategory(),
                                         data.getVehicleType(), data.getDistancetravelled(), data.getStatusofride(), data.getRidestarttime(), data.getRidestoptime(),
                                         data.getTotalamount(), data.getDrivername(),data.getDriverpic(),data.getTravelType(),data.getBookingType(),data.getTravelpackage(),data.getDrivermobile(),data.getGuestProfileId(),data.getGuestName(),data.getGuestMobile(),
-                                        data.getPickupLatitude(),data.getPickupLongitude(),data.getDropLatitude(),data.getDropLongitude(),data.getOTPStatus(),data.getDriverBattaAmt(),data.getPaymentMode()));
+                                        data.getPickupLatitude(),data.getPickupLongitude(),data.getDropLatitude(),data.getDropLongitude(),data.getOTPStatus(),data.getDriverBattaAmt(),data.getPaymentMode(),data.getOtherCharges()));
 
                             }
                     }

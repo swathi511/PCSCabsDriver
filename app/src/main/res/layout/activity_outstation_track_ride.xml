@@ -239,66 +239,66 @@
 
         </LinearLayout>
 
-        <LinearLayout android:id="@+id/aotr_ll3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="6dp"
-            android:layout_below="@+id/aotr_ll2">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:src="@drawable/clock"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="6dp"/>
-            <TextView android:id="@+id/aotr_tv_date_time"
-                android:layout_width="wrap_content"
+            <LinearLayout android:id="@+id/aotr_ll3"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/xxx"
-                android:textColor="@color/colorAsh"
-                android:layout_marginRight="6dp"
-                android:textSize="10sp"
-                android:layout_gravity="center"
-                android:gravity="center"/>
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:layout_marginBottom="6dp"
+                android:layout_below="@+id/aotr_ll2">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:layout_marginRight="8dp">
+                android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:src="@drawable/info"
+                    android:src="@drawable/clock"
                     android:layout_marginLeft="16dp"
-                    android:layout_marginRight="6dp"
-                    android:layout_gravity="center"/>
-
-                <TextView android:id="@+id/aotr_tv_payment"
+                    android:layout_marginRight="6dp"/>
+                <TextView android:id="@+id/aotr_tv_date_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="XXX Payment"
-                    android:textColor="@color/colorTextBlue"
+                    android:text="@string/xxx"
+                    android:textColor="@color/colorAsh"
                     android:layout_marginRight="6dp"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:layout_gravity="center"
-                    android:gravity="center" />
-
+                    android:gravity="center"/>
             </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:layout_marginRight="8dp">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/info"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="6dp"
+                        android:layout_gravity="center"/>
+
+                    <TextView android:id="@+id/aotr_tv_payment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="XXX Payment"
+                        android:textColor="@color/colorTextBlue"
+                        android:layout_marginRight="6dp"
+                        android:textSize="11sp"
+                        android:layout_gravity="center"
+                        android:gravity="center" />
+
+                </LinearLayout>
 
 
-        </LinearLayout>
+
+            </LinearLayout>
 
         <Button android:id="@+id/aotr_bt_arrived"
             android:layout_width="wrap_content"

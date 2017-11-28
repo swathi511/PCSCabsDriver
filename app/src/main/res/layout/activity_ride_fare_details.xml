@@ -151,7 +151,8 @@
                 android:textSize="12sp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="8dp"
-                android:gravity="center"/>
+                android:gravity="center"
+               />
 
             <TextView
                 android:layout_width="8dp"
@@ -170,7 +171,8 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:gravity="left"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                />
 
         </LinearLayout>
 
@@ -357,6 +359,34 @@
 
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/arfd_ll_other_charges"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Other Charges"
+                    android:textSize="14sp"
+                    android:gravity="left"
+                    android:textColor="@color/colorAsh"/>
+
+                <TextView android:id="@+id/arfd_tv_charges"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/xxx"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:textColor="@color/colorBlack"/>
+
+            </LinearLayout>
+
             <LinearLayout android:id="@+id/arfd_ll_os_batta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -412,6 +442,8 @@
                     android:textColor="@color/colorBlack"/>
 
             </LinearLayout>
+
+
 
 
 

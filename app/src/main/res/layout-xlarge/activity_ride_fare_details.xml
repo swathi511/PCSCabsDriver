@@ -37,8 +37,62 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_alignParentRight="true"
-                android:layout_centerInParent="true"/>
+                android:layout_centerInParent="true" />
         </RelativeLayout>
+
+        <LinearLayout android:id="@+id/arfd_ll_cash_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="left"
+            android:layout_margin="18dp"
+            android:background="@drawable/rect_red_cn_bg"
+            android:visibility="gone">
+
+            <ImageView android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/info_white"
+                android:layout_gravity="center"
+                android:layout_marginLeft="6dp"/>
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cash Payment"
+                android:textColor="@color/colorWhite"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:layout_marginLeft="4dp" />
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/arfd_ll_wallet_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="left"
+            android:layout_margin="18dp"
+            android:background="@drawable/rect_green_cn_bg"
+            android:visibility="gone">
+
+            <ImageView android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/info_white"
+                android:layout_gravity="center"
+                android:layout_marginLeft="6dp"/>
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wallet Payment"
+                android:textColor="@color/colorWhite"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:layout_marginLeft="4dp"/>
+
+        </LinearLayout>
 
         <LinearLayout android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -97,7 +151,8 @@
                 android:textSize="12sp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="8dp"
-                android:gravity="center"/>
+                android:gravity="center"
+                />
 
             <TextView
                 android:layout_width="8dp"
@@ -116,7 +171,8 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:gravity="left"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                />
 
         </LinearLayout>
 
@@ -303,6 +359,34 @@
 
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/arfd_ll_other_charges"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Other Charges"
+                    android:textSize="14sp"
+                    android:gravity="left"
+                    android:textColor="@color/colorAsh"/>
+
+                <TextView android:id="@+id/arfd_tv_charges"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/xxx"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:textColor="@color/colorBlack"/>
+
+            </LinearLayout>
+
             <LinearLayout android:id="@+id/arfd_ll_os_batta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -362,13 +446,15 @@
 
 
 
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -423,46 +509,13 @@
 
         </LinearLayout>
 
-
-        <LinearLayout android:id="@+id/arfd_ll_wallet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="24dp"
-            android:layout_marginTop="16dp">
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Deducted From Wallet "
-                android:textColor="@color/colorAsh"
-                android:textSize="12sp"
-                android:layout_weight="1"
-                android:textAllCaps="true"
-                android:gravity="left"
-
-                android:textStyle="bold"/>
-            <TextView android:id="@+id/arfd_tv_wallet_amnt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rs. xx"
-                android:textColor="@color/colorTextBlue"
-                android:textSize="16sp"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textStyle="bold"/>
-
-
-        </LinearLayout>
         <LinearLayout android:id="@+id/arfd_ll_cash"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginLeft="24dp"
             android:layout_marginRight="24dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="4dp"
             android:layout_marginBottom="16dp">
 
 
@@ -489,6 +542,44 @@
         </LinearLayout>
 
 
+        <LinearLayout android:id="@+id/arfd_ll_wallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deducted From Wallet "
+                android:textColor="@color/colorAsh"
+                android:textSize="12sp"
+                android:layout_weight="1"
+                android:textAllCaps="true"
+                android:gravity="left"
+                android:textStyle="bold"/>
+            <TextView android:id="@+id/arfd_tv_wallet_amnt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. xx"
+                android:textColor="@color/colorTextBlue"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textStyle="bold"/>
+
+
+        </LinearLayout>
+
+        <ImageView android:id="@+id/arfd_iv_payu"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right"
+            android:src="@drawable/payumoney"
+            android:layout_marginRight="16dp" />
+
 
         <Button android:id="@+id/arfd_bt_next_duty"
             android:layout_width="wrap_content"
@@ -497,10 +588,11 @@
             android:textSize="14sp"
             android:gravity="center"
             android:layout_margin="24dp"
-            android:textColor="@color/colorWhite"
-            android:background="@drawable/login_bt_bg"
+            android:textColor="#ffd600"
+            android:background="@drawable/btn_bg"
             android:padding="12dp"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:textAllCaps="false"/>
 
 
     </LinearLayout>

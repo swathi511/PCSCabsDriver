@@ -152,8 +152,9 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
                 finish();
                 break;
             case 1:
-                // Intent i=new Intent(HomeActivity.this,RideActivity.class);
-                //  startActivity(i);
+                Intent j=new Intent(AllRidesActivity.this,AllRidesActivity.class);
+                startActivity(j);
+                finish();
                 break;
             case 2:
                 System.out.println("checkig");
