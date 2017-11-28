@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+
+    <TextView android:id="@+id/fsr_tv_trip_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/colorTextBlue"
+        android:text="TRIP ID"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:textStyle="bold"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAshLight"
+        android:layout_margin="16dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="12dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1">
+
+            <TextView android:id="@+id/fsr_tv_fare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xxx"
+                android:textColor="@color/colorTextBlue"
+                android:textSize="14sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/total_fare"
+                android:textColor="@color/colorAshLight"
+                android:textSize="12sp"
+                android:layout_marginTop="6dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1">
+
+            <TextView android:id="@+id/fsr_tv_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xxx"
+                android:textColor="@color/colorBlack"
+                android:textSize="14sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/kilometers"
+                android:textColor="@color/colorAshLight"
+                android:textSize="12sp"
+                android:layout_marginTop="6dp"/>
+
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1">
+
+            <TextView android:id="@+id/fsr_tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xxx"
+                android:textColor="@color/colorBlack"
+                android:textSize="14sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/trip_time"
+                android:textColor="@color/colorAshLight"
+                android:textSize="12sp"
+                android:layout_marginTop="6dp"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:gravity="center">
+
+        <TextView android:id="@+id/fsr_tv_ride_start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ride_start_time"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="4dp"
+            android:textColor="@color/colorAsh"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/round_green"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"/>
+        <TextView android:id="@+id/fsr_tv_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/xxx"
+            android:textColor="@color/colorAsh"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:gravity="center">
+
+        <TextView android:id="@+id/fsr_tv_ride_stop_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ride_stop_time"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="4dp"
+            android:textColor="@color/colorAsh"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/round_pink"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"/>
+        <TextView android:id="@+id/fsr_tv_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/xxx"
+            android:textColor="@color/colorAsh"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
+
+        <View android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/colorAshLight"
+            android:layout_weight="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bill Details"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            android:textColor="@color/colorBlack"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"/>
+        <View android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/colorAshLight"
+            android:layout_weight="1"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/total_fare"
+            android:textSize="14sp"
+            android:gravity="left"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/fsr_tv_total_fare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/xxx"
+            android:textSize="14sp"
+            android:gravity="right"
+            android:textColor="@color/colorBlack"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/fsr_ll_os_batta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/outstation_batta"
+            android:textSize="14sp"
+            android:gravity="left"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/fsr_tv_os_batta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/xxx"
+            android:textSize="14sp"
+            android:gravity="right"
+            android:textColor="@color/colorBlack"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/taxes"
+            android:textSize="14sp"
+            android:gravity="left"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/fsr_tv_taxes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/xxx"
+            android:textSize="14sp"
+            android:gravity="right"
+            android:textColor="@color/colorBlack"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/total_bill"
+            android:textSize="16sp"
+            android:gravity="left"
+            android:textColor="@color/colorAsh"
+            android:textAllCaps="true"
+            android:textStyle="bold"/>
+
+        <TextView android:id="@+id/fsr_tv_total_bill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/xxx"
+            android:textSize="16sp"
+            android:gravity="right"
+            android:textColor="@color/colorTextBlue"
+            android:textStyle="bold"/>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
+
+        <View android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/colorAshLight"
+            android:layout_weight="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Payment Details"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            android:textColor="@color/colorBlack"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"/>
+        <View android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/colorAshLight"
+            android:layout_weight="1"/>
+
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Payment"
+            android:textSize="14sp"
+            android:gravity="left"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/fsr_tv_payment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/xxx"
+            android:textSize="14sp"
+            android:gravity="right"
+            android:textColor="@color/colorLoginBlue"
+            android:textStyle="bold"
+            android:textAllCaps="true"/>
+
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAshLight"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        </LinearLayout>
+
+
+
+</LinearLayout>
+
+    </ScrollView>
+
+

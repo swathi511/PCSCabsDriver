@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rect_ash_bg"
+    android:paddingTop="16dp"
+    android:paddingBottom="24dp"
+    android:layout_margin="12dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Are you sure you want to pause the trip ?"
+        android:textColor="@color/colorBlack"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:layout_width="64dp"
+        android:layout_height="40dp"
+        android:text="Ok"
+        android:textSize="14sp"
+        android:background="@drawable/btn_bg"
+        android:textColor="@color/colorYellow"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:textAllCaps="false"/>
+
+</LinearLayout>
+
+<!--  can change the text size to 14sp if needed...  -->

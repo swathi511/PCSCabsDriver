@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_title">PCS Cabs </string>
+    <string name="app_name">PCS Cabs Driver</string>
+    <string name="title_activity_maps">DriverBookTaxi</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="pickup">Start Trip</string>
+    <string name="otp">Enter OTP</string>
+    <string name="drop">Finish Trip</string>
+    <string name="g_name">Guest: </string>
+    <string name="g_mobile">Mob: </string>
+    <string name="pickup_colon">Pickup: </string>
+    <string name="drop_colon">Drop: </string>
+    <string name="c_loc">Current Location</string>
+    <string name="c_req_from">Cab Request From</string>
+    <string name="ok">Confirm</string>
+    <string name="cancel">Back</string>
+    <string name="enter_uname">Username</string>
+    <string name="enter_pwd">Password</string>
+    <string name="login">Login</string>
+    <string name="arrived">I Have Arrived</string>
+    <string name="cab_req">CAB REQUESTS</string>
+    <string name="scroll">Scroll Up to see Cab Requests !</string>
+
+    <string-array name="navigation_drawer_items_array">
+        <item>Book a Taxi</item>
+        <item>Your Profile</item>
+        <item>Your Rides</item>
+    </string-array>
+    <string name="Signup">Signup</string>
+    <string name="fpwd">forgot password ?</string>
+    <string name="tripId">Trip Id</string>
+    <string name="xxx">xxx</string>
+    <string name="ride_start_time">Ride Start Time</string>
+    <string name="ride_stop_time">Ride Stop Time</string>
+    <string name="pickup_loc">Pickup Location</string>
+    <string name="drop_loc">Drop Location</string>
+    <string name="total_fare">Total Fare</string>
+    <string name="distance_travelled">Kilometers</string>
+    <string name="time_taken">Trip Time</string>
+    <string name="taxes">GST</string>
+    <string name="total_bill">Total Bill</string>
+    <string name="bill_details">Bill Details</string>
+    <string name="next_duty">Next Duty</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="status">Status</string>
+    <string name="kilometers">Kilometers</string>
+    <string name="trip_time">Trip Time</string>
+    <string name="pay">Pay</string>
+    <string name="ride_progress">Ride In Progress</string>
+    <string name="cab_request">Cab Request</string>
+    <string name="travel_type">Travel Type</string>
+    <string name="travel_package">Travel Package</string>
+    <string name="reporting_time">Reporting Time</string>
+    <string name="start_duty">Start Duty</string>
+    <string name="booking_type">Booking Type</string>
+    <string name="reporting_date">Reporting Date</string>
+    <string name="Rs">\u20B9</string>
+    <string name="outstation_batta">Outstation Batta</string>
+
+</resources>

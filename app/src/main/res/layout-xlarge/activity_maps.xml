@@ -1,0 +1,102 @@
+<android.support.design.widget.CoordinatorLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".activity.MapsActivity"/>
+
+        <RelativeLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:background="@color/colorAsh">
+
+            <LinearLayout android:id="@+id/ma_ll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/ll_bg"
+                android:layout_margin="12dp">
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/car_image"
+                    android:background="@color/colorWhite"
+                    android:layout_margin="8dp"/>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorAsh"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"/>
+                <TextView android:id="@+id/ma_tv_cloc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/c_loc"
+                    android:layout_margin="8dp"
+                    android:gravity="left"
+                    android:layout_gravity="center"
+                    android:textSize="12sp"
+                    android:textColor="@color/colorBlack"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <LinearLayout android:id="@+id/ma_ll3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:paddingRight="10dp">
+            <ImageButton android:id="@+id/ma_ib_call"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_phone"
+                android:layout_margin="12dp"
+                android:background="@drawable/round_btn_red"/>
+            <ImageButton android:id="@+id/ma_ib_dots"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_dots_vertical"
+                android:layout_margin="12dp"
+                android:background="@drawable/round_btn_red"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+
+    <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/ma_rl_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:behavior_peekHeight="210dp"
+        app:behavior_hideable="true"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+        android:elevation="4dp"
+        android:background="#ffffff">
+
+        <android.support.v7.widget.RecyclerView android:id="@+id/ma_rview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>
+
+
+
+
+

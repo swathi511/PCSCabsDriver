@@ -1,0 +1,181 @@
+<android.support.design.widget.CoordinatorLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".activity.MapsActivity"
+            android:layout_above="@+id/ar_ll_below"/>
+
+
+        <!--
+
+        <TextView android:id="@+id/ar_tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="BOOK A TAXI"
+            android:gravity="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="16sp"
+            android:textAllCaps="true"
+            android:background="@drawable/rect_bg" />-->
+
+
+        <RelativeLayout android:id="@+id/ar_ll_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rect_bg"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:visibility="gone">
+
+            <TextView android:id="@+id/ar_tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="@string/app_title"
+                android:gravity="center"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:textAllCaps="true"
+                android:layout_gravity="center"/>
+
+            <ImageButton android:id="@+id/ar_ib_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_power"
+                android:background="@color/colorAshLight"
+                android:layout_gravity="center"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout android:id="@+id/ar_rl_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:background="@color/colorAshLight"
+            android:layout_below="@+id/ar_ll_main">
+
+            <LinearLayout android:id="@+id/ar_ll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/ll_bg"
+                android:layout_margin="8dp"
+                >
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/car_image"
+                    android:background="@color/colorWhite"
+                    android:layout_margin="8dp"/>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorAsh"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"/>
+                <TextView android:id="@+id/ar_tv_cloc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/c_loc"
+                    android:layout_margin="8dp"
+                    android:gravity="left"
+                    android:layout_gravity="center"
+                    android:textSize="12sp"
+                    android:textColor="@color/colorBlack"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <TextView android:id="@+id/ar_tv_city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPaleYellow"
+            android:text="My Location"
+            android:textColor="@color/colorBlack"
+            android:padding="4dp"
+            android:textSize="10sp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/ar_rl_1"
+            android:visibility="gone"/>
+
+        <LinearLayout android:id="@+id/ar_ll_below"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorWhite"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone">
+
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ALERT !"
+                android:textColor="@color/colorTextBlue"
+                android:textSize="16sp"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:gravity="left"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="18dp"
+                android:visibility="gone"/>
+
+            <ImageButton android:id="@+id/atr_ib_call"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_alert"
+                android:background="@drawable/round_btn_yellow"
+                android:layout_below="@+id/atr_rl"
+                android:scaleX="0.9"
+                android:scaleY="0.9"
+                android:layout_marginLeft="16dp"/>
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Previous Duty in ONGOING.\nClick ' Confirm ' to finish!"
+                android:layout_margin="16dp"
+                android:textSize="13sp"
+                android:textColor="@color/colorBlack"
+                android:gravity="left"
+                android:layout_weight="1"/>
+
+            <TextView android:id="@+id/ar_bt_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ok"
+                android:background="@drawable/btn_bg"
+                android:textAllCaps="false"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:layout_marginRight="24dp"
+                android:textColor="#ffd600"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>
+
+
+
+
+

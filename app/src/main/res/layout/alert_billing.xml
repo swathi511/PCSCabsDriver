@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rect_ash_bg"
+    android:padding="16dp">
+
+    <TextView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Billing"
+        android:textSize="13sp"
+        android:textColor="@color/colorTextBlue"
+        android:textAllCaps="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:textStyle="bold"/>
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ab_rg_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+        <RadioButton android:id="@+id/ab_rb_one"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="One way billing"
+            android:layout_margin="4dp"
+            android:layout_gravity="center_horizontal"
+            android:textSize="14sp"
+            android:textColor="@color/colorBlack" />
+        <RadioButton android:id="@+id/ab_rb_two"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Two way billing"
+            android:layout_margin="4dp"
+            android:checked="false"
+            android:textColor="@color/colorBlack"
+            android:layout_gravity="center_horizontal"
+            android:textSize="14sp" />
+    </RadioGroup>
+
+    <Button android:id="@+id/ab_bt_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ok"
+        android:textColor="@color/colorTextBlue"
+        android:background="@drawable/rect_blue_stroke_nc_bg"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="14dp"/>
+
+
+</LinearLayout>

@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="6dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rect_bg"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:visibility="gone">
+
+        <TextView android:id="@+id/arfd_tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="@string/app_title"
+            android:gravity="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="16sp"
+            android:textAllCaps="true"
+            android:layout_gravity="center"/>
+
+            <ImageButton android:id="@+id/arfd_ib_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_power"
+                android:background="@color/colorAshLight"
+                android:layout_gravity="center"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
+
+        <LinearLayout android:id="@+id/arfd_ll_cash_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="left"
+            android:layout_margin="18dp"
+            android:background="@drawable/rect_red_cn_bg"
+            android:visibility="gone">
+
+            <ImageView android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/info_white"
+                android:layout_gravity="center"
+                android:layout_marginLeft="6dp"/>
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cash Payment"
+                android:textColor="@color/colorWhite"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:layout_marginLeft="4dp" />
+
+            </LinearLayout>
+
+        <LinearLayout android:id="@+id/arfd_ll_wallet_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="left"
+            android:layout_margin="18dp"
+            android:background="@drawable/rect_green_cn_bg"
+            android:visibility="gone">
+
+            <ImageView android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/info_white"
+                android:layout_gravity="center"
+                android:layout_marginLeft="6dp"/>
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wallet Payment"
+                android:textColor="@color/colorWhite"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:layout_marginLeft="4dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="6dp"
+            android:gravity="left"
+            android:layout_gravity="center"
+            android:layout_margin="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/tripId"
+                android:textColor="@color/colorBlack"
+                android:textSize="14sp"
+                android:gravity="left"
+                android:layout_gravity="center"
+                android:textAllCaps="true"
+                android:layout_weight="1"/>
+
+            <TextView android:id="@+id/arfd_tv_trip_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/xxx"
+                android:textColor="@color/colorTextBlue"
+                android:textSize="14sp"
+                android:gravity="right"
+                android:layout_gravity="center"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorAshLight"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"/>
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:gravity="center">
+
+            <TextView android:id="@+id/arfd_tv_ride_start_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ride_start_time"
+                android:textColor="@color/colorAsh"
+                android:textSize="12sp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/round_green"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center"/>
+
+            <TextView android:id="@+id/arfd_tv_pickup_loc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pickup_loc"
+                android:textColor="@color/colorAsh"
+                android:textSize="14sp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="left"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:gravity="center">
+
+            <TextView android:id="@+id/arfd_tv_ride_stop_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ride_stop_time"
+                android:textColor="@color/colorAsh"
+                android:textSize="12sp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/round_pink"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center"/>
+
+            <TextView android:id="@+id/arfd_tv_drop_loc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/drop_loc"
+                android:textColor="@color/colorAsh"
+                android:textSize="14sp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="left"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="6dp"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView android:id="@+id/arfd_tv_fare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xxx"
+                    android:textColor="@color/colorTextBlue"
+                    android:textSize="16sp"
+                    android:layout_margin="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_fare"
+                    android:textColor="@color/colorAshLight"
+                    android:textSize="12sp"
+                    android:layout_margin="4dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView android:id="@+id/arfd_tv_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xxx"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="14sp"
+                    android:layout_margin="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/distance_travelled"
+                    android:textColor="@color/colorAshLight"
+                    android:textSize="12sp"
+                    android:layout_margin="4dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView android:id="@+id/arfd_tv_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xxx"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="14sp"
+                    android:layout_margin="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/time_taken"
+                    android:textColor="@color/colorAshLight"
+                    android:textSize="12sp"
+                    android:layout_margin="4dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:layout_margin="16dp">
+
+                <View android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/colorAshLight"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bill Details"
+                    android:textAllCaps="true"
+                    android:textSize="14sp"
+                    android:textColor="@color/colorBlack"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"/>
+                <View android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/colorAshLight"
+                    android:layout_weight="1"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/total_fare"
+                    android:textSize="14sp"
+                    android:gravity="left"
+                    android:textColor="@color/colorAsh"/>
+
+                <TextView android:id="@+id/arfd_tv_total_fare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/xxx"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:textColor="@color/colorBlack"/>
+
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/arfd_ll_os_batta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/outstation_batta"
+                    android:textSize="14sp"
+                    android:gravity="left"
+                    android:textColor="@color/colorAsh"/>
+
+                <TextView android:id="@+id/arfd_tv_os_batta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/xxx"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:textColor="@color/colorBlack"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/taxes"
+                    android:textSize="14sp"
+                    android:gravity="left"
+                    android:textColor="@color/colorAsh"/>
+
+                <TextView android:id="@+id/arfd_tv_taxes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/xxx"
+                    android:textSize="14sp"
+                    android:gravity="right"
+                    android:textColor="@color/colorBlack"/>
+
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/total_bill"
+                    android:textSize="16sp"
+                    android:gravity="left"
+                    android:textColor="@color/colorBlack"
+                    android:textAllCaps="true"
+                    android:textStyle="bold"/>
+
+                <TextView android:id="@+id/arfd_tv_total_bill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/xxx"
+                    android:textSize="16sp"
+                    android:gravity="right"
+                    android:textColor="@color/colorTextBlue"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:layout_margin="16dp">
+
+                <View android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/colorAshLight"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Payment Details"
+                    android:textAllCaps="true"
+                    android:textSize="14sp"
+                    android:textColor="@color/colorBlack"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"/>
+                <View android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/colorAshLight"
+                    android:layout_weight="1"/>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/arfd_ll_cash"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Collect By Cash "
+                android:textColor="@color/colorAsh"
+                android:textSize="12sp"
+                android:layout_weight="1"
+                android:textAllCaps="true"
+                android:gravity="left"
+
+                android:textStyle="bold"/>
+            <TextView android:id="@+id/arfd_tv_cash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. xx"
+                android:textColor="@color/colorTextBlue"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+
+        <LinearLayout android:id="@+id/arfd_ll_wallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deducted From Wallet "
+                android:textColor="@color/colorAsh"
+                android:textSize="12sp"
+                android:layout_weight="1"
+                android:textAllCaps="true"
+                android:gravity="left"
+                android:textStyle="bold"/>
+            <TextView android:id="@+id/arfd_tv_wallet_amnt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. xx"
+                android:textColor="@color/colorTextBlue"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textStyle="bold"/>
+
+
+            </LinearLayout>
+
+        <ImageView android:id="@+id/arfd_iv_payu"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right"
+            android:src="@drawable/payumoney"
+            android:layout_marginRight="16dp" />
+
+
+        <Button android:id="@+id/arfd_bt_next_duty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_duty"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_margin="24dp"
+            android:textColor="#ffd600"
+            android:background="@drawable/btn_bg"
+            android:padding="12dp"
+            android:layout_gravity="center"
+            android:textAllCaps="false"/>
+
+
+    </LinearLayout>
+
+
+</ScrollView>

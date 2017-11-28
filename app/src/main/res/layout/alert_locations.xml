@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:background="@drawable/rect_yellow_stroke_bg">
+
+    <TextView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Your City"
+        android:textColor="@color/colorTextBlue"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textAllCaps="true"
+        android:layout_margin="16dp"/>
+
+    <View android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorTextBlue"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView android:id="@+id/ale_tv_loc1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/xxx"
+        android:textColor="@color/colorAsh"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_margin="6dp"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/ale_tv_loc2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/xxx"
+        android:textColor="@color/colorAsh"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_margin="6dp"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/ale_tv_loc3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/xxx"
+        android:textColor="@color/colorAsh"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_margin="6dp"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/ale_tv_loc4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/xxx"
+        android:textColor="@color/colorAsh"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_margin="6dp"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/ale_tv_loc5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/xxx"
+        android:textColor="@color/colorAsh"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_margin="6dp"
+        android:visibility="gone"/>
+
+
+
+</LinearLayout>

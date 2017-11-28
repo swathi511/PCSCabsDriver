@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:id="@+id/ari_tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="@string/app_title"
+        android:gravity="center"
+        android:textColor="@color/colorBlack"
+        android:textSize="16sp"
+        android:textAllCaps="true"
+        android:background="@drawable/rect_bg" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ride details"
+        android:textAllCaps="true"
+        android:textColor="@color/colorTextBlue"
+        android:textSize="16sp"
+        android:layout_above="@+id/ari_ll_data"
+        android:gravity="center"/>
+
+    <LinearLayout android:id="@+id/ari_ll_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="16dp"
+        android:layout_centerInParent="true"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+      >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="12dp"
+        android:background="#cccbcb"
+        android:padding="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TRIP ID"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="left"
+            android:textSize="14sp"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/ari_tv_trip_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="xxxx"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/colorBlack"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="12dp"
+            android:paddingLeft="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pickup Location"
+
+            android:layout_gravity="center"
+            android:gravity="left"
+            android:textSize="14sp"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/ari_tv_pickup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ABC colony,Hyderabad"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textColor="@color/colorBlack"
+            android:layout_weight="1"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"/>
+
+            </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="12dp"
+            android:paddingLeft="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Drop location"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="left"
+            android:textSize="14sp"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/ari_tv_drop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XYZ colony,Hyderabad"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textColor="@color/colorBlack"/>
+
+            </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="12dp"
+            android:paddingLeft="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Distance travelled "
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="left"
+            android:textSize="14sp"
+            android:textColor="@color/colorAsh"/>
+
+        <TextView android:id="@+id/ari_tv_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100 kms"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="@color/colorBlack"/>
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="12dp"
+            android:paddingLeft="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Travelling Time"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:gravity="left"
+                android:textSize="14sp"
+                android:textColor="@color/colorAsh"/>
+
+            <TextView android:id="@+id/ari_tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10 hrs"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/colorBlack"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorAshLight"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Fare"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:gravity="left"
+                android:textSize="14sp"
+                android:textColor="@color/colorAsh"
+                android:textAllCaps="true"
+                android:paddingLeft="10dp"/>
+
+            <TextView android:id="@+id/ari_tv_fare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. 600"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textColor="@color/colorBlack"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorAshLight"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"/>
+    </LinearLayout>
+
+    <TextView android:id="@+id/ari_tv_next_duty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NEXT DUTY"
+        android:textColor="@color/colorTextBlue"
+        android:layout_margin="20dp"
+        android:layout_below="@+id/ari_ll_data"
+        android:textSize="14sp"
+        android:layout_alignParentRight="true"/>
+
+
+</RelativeLayout>
