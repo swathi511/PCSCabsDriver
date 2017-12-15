@@ -13,11 +13,15 @@ public class FormattedAllRidesData implements Serializable {
         Date rideDate;
         String driverMobile,guestProfileId,guestName,guestMobile,pickupLat,pickupLong,dropLat,dropLong,otpStatus,paymentMode,otherCharges;
 
-        public FormattedAllRidesData(Date rideDate, String requestId,String fromLocation,String toLocation,String vehicleCategory,String vehicleType,String distanceTravelled,
+        int position;
+
+
+        public FormattedAllRidesData(int position, Date rideDate, String requestId,String fromLocation,String toLocation,String vehicleCategory,String vehicleType,String distanceTravelled,
                                      String rideStatus,String rideStartTime,String rideStopTime,String totalAmount,String driverName,String driverPic,String travelType,String bookingType,String travelPackage,
                                      String driverMobile,String guestProfileId,String guestName,String guestMobile,String pickupLat,String pickupLong,String dropLat,String dropLong,
                                      String otpStatus,String osBatta,String paymentMode,String otherCharges)
         {
+                this.position=position;
                 this.rideDate=rideDate;
                 this.requestId=requestId;
                 this.fromLocation=fromLocation;
@@ -46,6 +50,14 @@ public class FormattedAllRidesData implements Serializable {
                 this.osBatta=osBatta;
                 this.paymentMode=paymentMode;
                 this.otherCharges=otherCharges;
+        }
+
+        public int getPosition() {
+                return position;
+        }
+
+        public void setPosition(int position) {
+                this.position = position;
         }
 
         public String getRequestId() {

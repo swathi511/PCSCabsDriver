@@ -101,6 +101,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
 
                     mDrawerToggle.setDrawerIndicatorEnabled(false);//showing back button
+
                     setTitle("Ride Details");
 
                     toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -233,15 +234,18 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
     @Override
     public void onBackPressed() {
 
-
-      //super.onBackPressed();
-       // session.logoutUser();
         sendLogoutStatus();
     }
 
 
     @Override
     public void onMethodCallback(int position, ArrayList<FormattedAllRidesData> data) {
+
+        System.out.println("ALLRIDESACTIVITY CALLED"+data.size());
+
+        position=data.size()-position-1;
+
+        System.out.println("possssssss "+position);
 
         ArrayList<FormattedAllRidesData> list=data;
         FormattedAllRidesData item;
@@ -274,7 +278,8 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
             }
             else
             {
-                if(item.getTravelType().equals("local")||item.getTravelType().equals("Packages")) {
+                //if(item.getTravelType().equals("local")||item.getTravelType().equals("Packages")) {
+                if(item.getTravelType().equals("local")) {
 
                     ArrayList<LocationUpdates> dataList=dbAdapter.getAllLocUpdates(item.getRequestId());
 
@@ -286,7 +291,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
 
                             Intent i = new Intent(AllRidesActivity.this, RideLocal.class);
                             i.putExtra("cabData", cabData);
@@ -299,7 +304,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
 
                             Intent i = new Intent(AllRidesActivity.this, TrackRideActivity.class);
                             i.putExtra("cabData", cabData);
@@ -329,7 +334,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
 
                             Intent i = new Intent(AllRidesActivity.this, RideOutstation.class);
                             i.putExtra("cabData", cabData);
@@ -342,7 +347,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
 
                             Intent i = new Intent(AllRidesActivity.this, OutStationTrackRideActivity.class);
                             i.putExtra("cabData", cabData);
@@ -359,14 +364,6 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
                         startActivity(i);
                         finish();
                     }
-
-
-
-                   /* Intent i = new Intent(AllRidesActivity.this, SpecificOutStationRideOngoingActivity.class);
-                    i.putExtra("list", data);
-                    i.putExtra("position", position);
-                    startActivity(i);
-                    finish();*/
                 }
             }
         }
@@ -436,7 +433,6 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
             public void onClick(View view) {
 
                 alertDialog.dismiss();
-                //System.out.println("cancel done");
             }
         });
     }

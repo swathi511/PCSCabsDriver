@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class DBAdapter {
 
     static final String DATABASE_NAME = "user.db";
-    static final int DATABASE_VERSION = 39;
+    static final int DATABASE_VERSION = 40;
     public static final int NAME_COLUMN = 1;
 
     public static final String DB_CREATE_LATLNG = "create table if not exists "+"RIDE_LATLNG"+
@@ -34,7 +34,9 @@ public class DBAdapter {
 
     public static final String DB_ONGOING_RIDE="create table if not exists ONGOING_RIDE( REQUEST_ID text,STATUS text);";
 
-    public static final String DB_DIST="create table if not exists DISTANCE(REQUEST_ID text,DIST double);";
+    public static final String DB_NETWORK_ISSUE="create table if not exists NETWORK_ISSUE(REQUEST_ID text,TIME_STAMP text);";
+
+
 
 
     // Variable to hold the database instance
@@ -671,5 +673,56 @@ public class DBAdapter {
         return  midpoint;
     }
 
+    public void insertNetworkIssueData(String requestId,String timeStamp)
+    {
+        db=dbHelper.getWritableDatabase();
+        ContentValues newValues = new ContentValues();
+        newValues.put("REQUEST_ID",requestId);
+        newValues.put("TIME_STAMP",timeStamp);
+        // Assign values for each row.
+
+        // Insert the row into your table
+        db.insert("NETWORK_ISSUE", null, newValues);
+        //  close();
+        //  System.out.println("Value inserted");
+    }
+
+    public String getNetworkIssueData(String requestId)
+    {
+        String stNetworkData="NA";
+
+        db=dbHelper.getReadableDatabase();
+        String sql="SELECT * FROM NETWORK_ISSUE where REQUEST_ID="+" '"+requestId+"'";
+        Cursor c=db.rawQuery(sql,null);
+
+        if(c.getCount()>0)
+        {
+            for(int i=0;i<c.getCount();i++)
+            {
+                c.moveToNext();
+
+                if(i==0)
+                {
+                    stNetworkData=c.getString(1);
+                }
+                else {
+
+                    stNetworkData = stNetworkData + " * " + c.getString(1);
+                }
+            }
+        }
+
+        c.close();
+
+
+        return stNetworkData;
+    }
+
+    public void deleteNetworkIssueData(String requestId)
+    {
+        db=dbHelper.getReadableDatabase();
+        db.execSQL("delete from NETWORK_ISSUE where REQUEST_ID="+" '"+requestId+"'" );
+        db.close();
+    }
 
 }

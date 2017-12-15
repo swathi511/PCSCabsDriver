@@ -60,8 +60,6 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-
-
         mTitle = mDrawerTitle = getTitle();
         mNavigationDrawerItemTitles= getResources().getStringArray(R.array.navigation_drawer_items_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -89,20 +87,11 @@ public class HomeActivity extends AppCompatActivity {
         dbAdapter=new DBAdapter(getApplicationContext());
         dbAdapter=dbAdapter.open();
 
-       /* if(dbAdapter.getRideStaus())
-        {
-           Intent i=new Intent(HomeActivity.this,AllRidesActivity.class);
-            startActivity(i);
-            finish();
-        }*/
-
-        // else {
-
         Fragment fragment = new ShowRequestsFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.content_frame, fragment, "on_duty").commit();
         setTitle("On Duty");
-        //}
+
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -203,10 +192,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        //session.logoutUser();
         sendLogoutStatus();
-
-        // super.onBackPressed();
     }
 
     public void sendLogoutStatus()
@@ -275,7 +261,6 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 alertDialog.dismiss();
-                //System.out.println("cancel done");
             }
         });
     }
@@ -286,36 +271,4 @@ public class HomeActivity extends AppCompatActivity {
             mDrawerLayout.setDrawerLockMode(mode);
         }
     }
-
-
-    /*@Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_HOME)) {
-            System.out.println("*********************** KEYCODE_HOME");
-            Toast.makeText(HomeActivity.this,"HOme clicked !!!",Toast.LENGTH_SHORT).show();
-
-
-            return true;
-        }
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-            System.out.println("KEYCODE_BACK");
-
-            return true;
-        }
-        if ((keyCode == KeyEvent.KEYCODE_MENU)) {
-            System.out.println("KEYCODE_MENU");
-
-            return true;
-        }
-        return false;
-    }*/
-
-//    public void onUserLeaveHint() { // this only executes when Home is selected.
-//        // do stuff
-//        super.onUserLeaveHint();
-//        System.out.println("HOMEEE");
-//        sendLogoutStatus();
-//
-//    }
-
 }

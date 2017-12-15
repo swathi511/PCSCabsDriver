@@ -100,6 +100,10 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
              />
+        <activity android:name=".activity.SearchRideDateActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
 
         <service
             android:name=".service.RideStartOverlayService"
@@ -119,6 +123,7 @@
         <service
             android:name=".service.OutStationRideOngoingOverlayService"
             android:exported="false" />
+
 
 
     </application>

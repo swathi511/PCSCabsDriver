@@ -227,9 +227,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
 
         dropTime=java.text.DateFormat.getTimeInstance().format(new Date());
 
-        //mp=MediaPlayer.create(TrackRideActivity.this,R.raw.beep);
-
-
         final BottomSheetBehavior behavior = BottomSheetBehavior.from(rlBottomSheet);
         behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -264,8 +261,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
 
         if(Build.VERSION.SDK_INT<23)
         {
-            //System.out.println("Sdk_int is"+Build.VERSION.SDK_INT);
-            //System.out.println("the enetred values is "+entered);
             establishConnection();
         }
         else
@@ -302,7 +297,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                         gettingDirections = true;
 
                         Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
-                        // System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                         mapIntent.setPackage("com.google.android.apps.maps");
                         // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
@@ -326,7 +320,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                     gettingDirections = true;
 
                     Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
-                    // System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     mapIntent.setPackage("com.google.android.apps.maps");
                     // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
@@ -336,21 +329,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                         startActivity(mapIntent);
                     }
                 }
-
-                /*
-                gettingDirections=true;
-
-                //  Uri gmmIntentUri = Uri.parse("google.navigation:q=Uppal+Depot,+Hyderabad+Telangana+India");
-                Uri gmmIntentUri = Uri.parse("google.navigation:q="+directionLat+","+directionLong);
-                System.out.println("google.navigation:q="+directionLat+","+directionLong);
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-
-                // mapIntent.setPackage("com.google.android.apps.maps");
-                mapIntent.setClassName("com.google.android.apps.maps","com.google.android.maps.driveabout.app.NavigationActivity");
-
-                if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(mapIntent);
-                }*/
             }
         });
 
@@ -369,8 +347,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
             public void onClick(View view) {
 
                 boolean bookingValue=pref.getString("booking","").equals("out");
-
-                //System.out.println("booking value issssssss "+bookingValue);
 
                 if(bookingValue)
                 {
@@ -396,7 +372,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                     v.addProperty("companyid", companyId);
                     v.addProperty("ReqId", requestId);
 
-                    // System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
                     Call<Pojo> call = REST_CLIENT.sendStatus(v);
                     call.enqueue(new Callback<Pojo>() {
 
@@ -538,8 +513,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
 
                 boolean bookingValue=pref.getString("booking","").equals("out");
 
-                //System.out.println("booking value issssssss "+bookingValue);
-
                 if(bookingValue)
                 {
                     Toast.makeText(TrackRideActivity.this,"Booking already finished!",Toast.LENGTH_LONG).show();
@@ -564,7 +537,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                     v.addProperty("companyid", companyId);
                     v.addProperty("ReqId", requestId);
 
-                    // System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
                     Call<Pojo> call = REST_CLIENT.sendStatus(v);
                     call.enqueue(new Callback<Pojo>() {
 
@@ -848,8 +820,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                     startPosition = cab.getPosition();
                     finalPosition = new LatLng(current_lat, current_long);
 
-                    //System.out.println("start "+startPosition.latitude+":::"+startPosition.longitude);
-                    //System.out.println("final "+finalPosition.latitude+":::"+finalPosition.longitude);
 
                     double toRotation = bearingBetweenLocations(startPosition, finalPosition);
                     rotateMarker(cab, (float) toRotation);
@@ -875,7 +845,7 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                 v.addProperty("companyid",companyId);
                 v.addProperty("ReqId",requestId);
 
-                System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
+                //System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
                 Call<Pojo> call=REST_CLIENT.sendStatus(v);
                 call.enqueue(new Callback<Pojo>() {
 
@@ -886,13 +856,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
 
                         if(response.isSuccessful())
                         {
-
-//                            if(myBottomSheet.isAdded())
-//                            {
-//                                myBottomSheet.dismiss();
-//
-//                            }
-
                             msg=response.body();
                             String newbooking[]=msg.getMessage().split("-");
 
@@ -904,10 +867,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                             {
                                 tvNewBooking.setVisibility(View.VISIBLE);
                             }
-
-
-                            System.out.println("::::::::::::::***:::::::::::::"+msg.getMessage());
-
 
                             if(msg.getMessage().equals("cancelled"))
                             {
@@ -957,7 +916,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                         }
                         else
                         {
-                            // System.out.println("error msg is "+response.errorBody()+":"+response.message()+":"+response.code());
 
                         }
                     }
@@ -965,15 +923,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                     @Override
                     public void onFailure(Call<Pojo> call, Throwable t) {
 
-
-//                        if(myBottomSheet.isAdded())
-//                        {
-//                            //return;
-//                        }
-//                        else
-//                        {
-//                            myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-//                        }
                         Toast.makeText(TrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
                     }
                 });
@@ -989,19 +938,14 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
     protected void onStart() {
 
         super.onStart();
-
-        //System.out.println("Google API client in start is "+mGoogleApiClient);
-        // System.out.println("the enetred values in onStart is "+entered);
-
         if(Build.VERSION.SDK_INT>=23)
         {
             if(!entered)
             {
-                // System.out.println("value of entered in 'if' "+entered);
+
             }
             else
             {
-                //System.out.println("value of entered in 'else' "+entered);
                 if(gettingDirections) {
 
                 }
@@ -1027,7 +971,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     protected void onStop() {
-        // System.out.println("Google API client in stop is "+mGoogleApiClient);
 
         if(mGoogleApiClient!=null) {
 
@@ -1045,8 +988,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     protected void onPause() {
         super.onPause();
-
-        // System.out.println("Google API client in pause is "+mGoogleApiClient);
 
         if(mGoogleApiClient!=null) {
             if (mGoogleApiClient.isConnected()) {
@@ -1066,25 +1007,17 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
     protected void onResume() {
         super.onResume();
 
-        // System.out.println("Google API client in resume is "+mGoogleApiClient);
-        //System.out.println("the enetred values in onResume is "+entered);
-
         if(entered)
         {
-            //System.out.println("connecting the googleclient in resume here..."+mGoogleApiClient.isConnected()+" "+mGoogleApiClient.isConnecting()+" "+entered);
             if(mGoogleApiClient.isConnecting()||mGoogleApiClient.isConnected())
             {
-                // System.out.println("Google Client connectng in 'if' "+mGoogleApiClient.isConnecting());
             }
             else {
-                //System.out.println("Google Client connectng in 'else' "+mGoogleApiClient.isConnecting());
                 mGoogleApiClient.connect();
             }
         }
 
         if(mGoogleApiClient!=null) {
-
-            // System.out.println("connections "+mGoogleApiClient.isConnected()+" "+mGoogleApiClient.isConnecting());
 
             if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
 
@@ -1293,8 +1226,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
 
         if(mLastLocation!=null) {
 
-            // System.out.println(location.getAccuracy()+":"+current_lat+":"+current_long);
-
             if(location!=null&&location.hasAccuracy()) {
 
                 if (location.getAccuracy() <= 10) {
@@ -1307,9 +1238,7 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                         //curntloc = new LatLng(current_lat, current_long);
                         Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(), current_lat, current_long, results);
                         location.getAccuracy();
-                        //System.out.println(">>>>>>" + location.getAccuracy());
                         res = res + (long) results[0];
-
                         //cab.setPosition(curntloc);
                     }
                 }
@@ -1360,7 +1289,7 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
         }
         else
         {
-            if(!(data.getdLat().equals("-"))&&!(data.getdLng().equals("-"))&&!(data.getdLat().equals(""))&&!(data.getdLng().equals(""))) {
+            if((!(data.getdLat().equals("-"))&&!(data.getdLng().equals("-")))||(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
 
                 LatLng dropLatLng = new LatLng(Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()));
                 gDrop = mMap.addMarker(new MarkerOptions().position(dropLatLng)
@@ -1539,9 +1468,4 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
     }
-
-
-
-
-
 }

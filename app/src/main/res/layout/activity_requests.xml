@@ -161,7 +161,7 @@
 
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Previous Duty in ONGOING.\nClick ' Confirm ' to finish!"
+                android:text="Previous Duty in ONGOING.\nClick ' Continue ' to finish!"
                 android:layout_margin="16dp"
                 android:textSize="13sp"
                 android:textColor="@color/colorBlack"
@@ -171,7 +171,7 @@
             <TextView android:id="@+id/ar_bt_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/ok"
+                android:text="Continue"
                 android:background="@drawable/btn_bg"
                 android:textAllCaps="false"
                 android:textSize="14sp"

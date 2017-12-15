@@ -125,7 +125,7 @@
             android:layout_marginBottom="40dp"
             android:background="@drawable/round_btn_red"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true" />
 
     </RelativeLayout>
 
@@ -273,7 +273,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="6dp"
+            android:layout_marginBottom="3dp"
             android:layout_below="@+id/aors_ll2">
 
 
@@ -331,12 +331,54 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/aors_ll4"
+            android:layout_below="@+id/aors_ll3"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="16dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/info"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="6dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 way billing"
+                android:textColor="@color/colorAsh"
+                android:layout_marginRight="6dp"
+                android:textSize="10sp"
+                android:layout_gravity="center"
+                android:gravity="left"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change"
+                android:textColor="@color/colorTextBlue"
+                android:layout_marginRight="6dp"
+                android:textSize="10sp"
+                android:layout_gravity="center"
+                android:gravity="right"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+
+
         <Button android:id="@+id/aors_bt_drop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/drop"
             android:layout_centerInParent="true"
-            android:layout_below="@+id/aors_ll3"
+            android:layout_below="@+id/aors_ll4"
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_bg"
             android:padding="8dp"

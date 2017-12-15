@@ -57,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     int j=0;
-    String version="3.9";
-    //String version="1";//20
+   // String version="4.2";
+    String version="1";//20
     String city="Visakhapatnam";
 
     @Override
@@ -75,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
         uname=user.get(SessionManager.KEY_PROFILE_ID);
         pref = getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
-
-        //CMP00001
 
         dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
         Date date = new Date();
@@ -123,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
 
                     if(response.isSuccessful())
                     {
-                        // selectServiceLocations();
                         editor.putString("status","online");
                         editor.commit();
 
@@ -137,8 +134,6 @@ public class MainActivity extends AppCompatActivity {
 
                         if(response.message().equals("Version mismatched"))
                         {
-
-                            // Toast.makeText(MainActivity.this,response.message(),Toast.LENGTH_SHORT).show();
                             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
 
                             LayoutInflater inflater = getLayoutInflater();
@@ -225,26 +220,22 @@ public class MainActivity extends AppCompatActivity {
                                 data=response.body();
                                 s=data.getMessage();
                                 String profileid=s.split("-")[0];
-                                //System.out.println("**** profile id is  "+profileid);
+
                                 session.createLoginSession(stUname,stPwd,profileid);
                                 progressDialog.dismiss();
                                 editor.putString("city",city);
                                 editor.commit();
 
-
-
                                 Intent i=new Intent(MainActivity.this,HomeActivity.class);
                                 startActivity(i);
                                 finish();
-//                                progressDialog.dismiss();
-                                //selectServiceLocations();
+//
                             }
                             else
                             {
                                 if(response.message().equals("Version mismatched"))
                                 {
 
-                                    //Toast.makeText(MainActivity.this,response.message(),Toast.LENGTH_SHORT).show();
                                     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
 
                                     LayoutInflater inflater = getLayoutInflater();

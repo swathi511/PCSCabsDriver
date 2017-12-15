@@ -64,16 +64,10 @@ public class RideOverlayService extends Service implements View.OnClickListener 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //System.out.println("destroy getting calledddddd..............");
-
-        // wm.removeView(overlayedButton);
-
     }
 
     @Override
     public void onClick(View view) {
-
-        //Toast.makeText(getApplicationContext(),"Clicked",Toast.LENGTH_LONG).show();
 
         wm.removeView(overlayedButton);
 
@@ -81,15 +75,9 @@ public class RideOverlayService extends Service implements View.OnClickListener 
         List<ActivityManager.RunningAppProcessInfo> listOfProcesses = manager.getRunningAppProcesses();
         for (ActivityManager.RunningAppProcessInfo process : listOfProcesses)
         {
-           //System.out.println("process are "+process.getClass().getName());
-           // System.out.println("process name is "+process.processName);
+
         }
 
-       // System.exit(0);
-       // System.out.println("getting the app name ....."+getApplication().getPackageName().getClass().getName());
-        //System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6");
-
-        //System.out.println("process exiteds");
         Intent it = new Intent("intent.my.action");
         it.setComponent(new ComponentName(getApplicationContext().getPackageName(), TrackRideActivity.class.getName()));
         it.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

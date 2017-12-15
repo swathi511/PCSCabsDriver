@@ -93,6 +93,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -171,8 +173,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     HomeActivity a;
     //NotificationManager notificationManager;
     SwitchCompat switchCompat;
-    //String version="1";
-    String version="3.9";
+    String version="1";
+    //String version="4.2";
+    //FormattedAllRidesData f;
 
 
     @Nullable
@@ -209,17 +212,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
         dbAdapter=new DBAdapter(getActivity());
         dbAdapter=dbAdapter.open();
-
-//        inflater = getActivity().getLayoutInflater();
-//        dialogView = inflater.inflate(R.layout.alert_cab_request, null);
-//        dialogBuilder.setView(dialogView);
-//        alertDialog=dialogBuilder.create();
-//        alertDialog.setCancelable(false);
-//        alertDialog.setCanceledOnTouchOutside(false);
-
-//        mp=MediaPlayer.create(getActivity(),R.raw.beep);
-//        mAudioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
-//        userVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
         tvCity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -272,8 +264,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
         if(Build.VERSION.SDK_INT<23)
         {
-            //System.out.println("Sdk_int is"+Build.VERSION.SDK_INT);
-            //System.out.println("the enetred values is "+entered);
             establishConnection();
         }
         else
@@ -296,14 +286,16 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
 
+                /*editor.putString("booking","in");
+                editor.putBoolean("saved",false);
+                editor.commit();*/
 
-                if(d.getTravelType().equals("local")||d.getTravelType().equals("Packages"))
+
+                //if(d.getTravelType().equals("local")||d.getTravelType().equals("Packages"))
+                if(d.getTravelType().equals("local"))
                 {
 
                     ArrayList<LocationUpdates> dList=dbAdapter.getAllLocUpdates(d.getRequestid());
-
-                    System.out.println("size issssssssssss "+dList.size());
-
 
                     if(dList.size()==0)
                     {
@@ -311,10 +303,11 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         {
                             // Toast.makeText(AllRidesActivity.this, "Please wait...", Toast.LENGTH_LONG).show();
 
+
+
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
-                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(),d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode()));
-
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
                             Intent j = new Intent(getActivity(), RideLocal.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
@@ -325,9 +318,11 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                             //Toast.makeText(AllRidesActivity.this, "Please wait...", Toast.LENGTH_LONG).show();
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
-                            cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
+                           /* cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
                                     d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode()));
-
+*/
+                            cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
                             Intent j = new Intent(getActivity(), TrackRideActivity.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
@@ -349,8 +344,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     ArrayList<LocationUpdates> dList=dbAdapter.getAllLocUpdates(d.getRequestid());
 
-                    System.out.println("size issssssssssss "+dList.size());
-
                     if(dList.size()==0)
                     {
                         if(d.getOTPStatus().equals("1"))
@@ -359,8 +352,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
-                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode()));
-
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
                             Intent j = new Intent(getActivity(), RideOutstation.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
@@ -372,8 +364,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
-                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode()));
-
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
                             Intent j = new Intent(getActivity(), OutStationTrackRideActivity.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
@@ -450,13 +441,11 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
         {
             if(!entered)
             {
-                // System.out.println("value of entered in 'if' "+entered);
+
             }
             else
             {
-                //System.out.println("value of entered in 'else' "+entered);
-                // mGoogleApiClient.connect();
-                //super.onStart();
+
             }
         }
         else
@@ -472,9 +461,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     public void onStop() {
 
         super.onStop();
-        // System.out.println("Google API client in stop is "+mGoogleApiClient);
-
-
 
         if(mGoogleApiClient!=null) {
             //mGoogleApiClient.disconnect();
@@ -596,8 +582,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);//10 sec
-        mLocationRequest.setFastestInterval(10000);//5 sec
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(10000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -651,10 +637,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     @Override
     public void onLocationChanged(Location location) {
 
-        // int accuracyDelta = (int) (location.getAccuracy() - mLastLocation.getAccuracy());
-
-        // System.out.println("location changed "+location.getLatitude()+":::"+location.getLongitude()+"@@@"+location.getAccuracy()+"&&&&&&"+accuracyDelta+"***"+location.bearingTo(mLastLocation));
-
         if(mLastLocation==null)
         {
             latitude = location.getLatitude();
@@ -691,8 +673,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
 
         if(mLastLocation!=null) {
-
-            //System.out.println("accuracy isssssss "+location.getAccuracy());
 
             current_lat=location.getLatitude();
             current_long=location.getLongitude();
@@ -749,40 +729,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
             if(first)
             {
-               /* Location.distanceBetween(17.80146816465605,83.35293083983285, 17.801462, 83.353018, results);
-
-                res = res + (long) results[0];
-
-                System.out.println("value1 issss "+res);
-                res=0;
-
-                //17.7788354950016,83.35486378529747  17.778767,83.354877
-                Location.distanceBetween(17.7788354950016,83.35486378529747, 17.778767,83.354877, results);
-
-                res = res + (long) results[0];
-
-                System.out.println("value2 issss "+res);
-                res=0;
-
-
-                //17.763141041117507,83.33668941302214, 17.763086,83.336708
-
-                Location.distanceBetween(17.763141041117507,83.33668941302214,17.763086,83.336708, results);
-
-                res = res + (long) results[0];
-
-                System.out.println("value3 issss "+res);
-                res=0;
-
-                //17.743788052686277,83.32819507645678,17.743797,83.328159
-
-                Location.distanceBetween(17.743788052686277,83.32819507645678,17.743796,83.328141, results);
-
-                res = res + (long) results[0];
-
-                System.out.println("value4 issss "+res);
-                res=0;*/
-
                 sendLocationUpdatesToServer();
                 first=false;
             }
@@ -875,9 +821,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             @Override
             public void run() {
 
-                System.out.println("***********************getting data"+cabData.size());
-
-                //changing the intervalfrom 2 sec to 10 sec :(
                 handler.postDelayed(r,10000);
 
                 // Getting details
@@ -902,8 +845,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     v.addProperty("requestid", data.getRequestId());
                     v.addProperty("status", "6");//3 No Response
                     v.addProperty("companyid", companyId);
-
-                    //System.out.println("req id "+data.getRequestId()+" profile id"+data.getGuestProfileid());
 
                     Call<Pojo> call = REST_CLIENT.sendCabAcceptanceStatus(v);
                     call.enqueue(new Callback<Pojo>() {
@@ -970,14 +911,10 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     if(cabData.size()==0) {
 
-                        //System.out.println("getting data.......");
-
                         Call<List<CabRequestsPojo>> call = REST_CLIENT.getCabRequests(stProfileId, companyId);
                         call.enqueue(new Callback<List<CabRequestsPojo>>() {
                             @Override
                             public void onResponse(Call<List<CabRequestsPojo>> call, Response<List<CabRequestsPojo>> response) {
-
-                                //System.out.println("inside onRespons ....e");
 
                                 if (response.isSuccessful()) {
 
@@ -1010,9 +947,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                                     notificationManager.notify(0,builder.build());
 */
-
-
-                                    //System.out.println(".......................................");
                                     //remove comment if needed
                                     //mp = MediaPlayer.create(getActivity(), R.raw.beep);
 
@@ -1030,19 +964,17 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                                     // for (int i = 0; i < dataList.size(); i++) {
                                     data = dataList.get(0);
-
-                                    //System.out.println(data.getOTPrequired()+"!!!!!");
                                     cabData.add(new GuestData(data.getRequestId(), data.getGuestProfileid(), data.getGuestName(), data.getGuestMobile(),
                                             data.getPickupLat(), data.getPickupLong(), data.getDropLat(), data.getDropLong(), data.getPickupLoc(),
-                                            data.getDropLoc(), data.getTravelType(), data.getTravelPackage(),data.getScheduledDate(), data.getScheduledTime(), data.getOTPrequired(), data.getBookingtype(),data.getPaymentMode()));
+                                            data.getDropLoc(), data.getTravelType(), data.getTravelPackage(),data.getScheduledDate(), data.getScheduledTime(), data.getOTPrequired(), data.getBookingtype(),data.getPaymentMode(),data.getOthercharges()));
 
 
-                                    System.out.println("%%%%%%%%%%%%%%%%%%%%");
+                                    /*System.out.println("%%%%%%%%%%%%%%%%%%%%");
                                     System.out.println("Req Id"+data.getRequestId());
                                     System.out.println("Guest Profile Id "+data.getGuestProfileid());
                                     System.out.println("Guest Name "+data.getGuestName());
                                     System.out.println("Guest Mobile "+data.getGuestMobile());
-                                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+                                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%");*/
 
                                     inflater = getActivity().getLayoutInflater();
                                     dialogView = inflater.inflate(R.layout.alert_cab_request, null);
@@ -1062,6 +994,19 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     TextView tvReportingTime = (TextView) dialogView.findViewById(R.id.acr_tv_reporting_time);
                                     TextView tvReportingDate=(TextView)dialogView.findViewById(R.id.acr_tv_reporting_date);
                                     final Button btStartDuty = (Button) dialogView.findViewById(R.id.acr_bt_start_duty);
+                                    LinearLayout llOtherCharges=(LinearLayout)dialogView.findViewById(R.id.acr_ll_other_charges);
+                                    TextView tvOtherCharges=(TextView)dialogView.findViewById(R.id.acr_tv_other_charges);
+                                    llOtherCharges.setVisibility(View.GONE);
+
+                                    if(data.getOthercharges().equals("0"))
+                                    {
+
+                                    }
+                                    else {
+                                        llOtherCharges.setVisibility(View.VISIBLE);
+                                        tvOtherCharges.setText(getString(R.string.Rs)+" "+data.getOthercharges());
+                                    }
+
 
                                     tvPickup.setText(data.getPickupLoc());
                                     tvDrop.setText(data.getDropLoc());
@@ -1075,7 +1020,18 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                         tvTravelPackage.setText(data.getTravelPackage());
                                     }
                                     tvReportingTime.setText(data.getScheduledTime());
-                                    tvReportingDate.setText(data.getScheduledDate().split(" ")[0]);
+
+                                    //tvReportingDate.setText(data.getScheduledDate().split(" ")[0]);
+
+                                    SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+                                    SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+                                    try {
+                                        tvReportingDate.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0]);
+                                    }
+                                    catch (ParseException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
 
 
                                     if (data.getBookingtype().equals("TeleBook")) {
@@ -1131,8 +1087,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                             v.addProperty("status", "1");
                                             v.addProperty("companyid", companyId);
 
-                                            //System.out.println("req id "+data.getRequestId()+" profile id"+data.getGuestProfileid());
-
                                             Call<Pojo> call = REST_CLIENT.sendCabAcceptanceStatus(v);
                                             call.enqueue(new Callback<Pojo>() {
                                                 @Override
@@ -1146,7 +1100,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                         editor.putBoolean("saved",false);
                                                         editor.commit();
 
-                                                        if (data.getTravelType().equals("local")||data.getTravelType().equals("Packages")) {
+                                                        //if (data.getTravelType().equals("local")||data.getTravelType().equals("Packages")) {
+                                                        if (data.getTravelType().equals("local")) {
 
                                                             if (data.getOTPrequired().equals("Yes")) {
                                                                 h.removeCallbacks(rr);
@@ -1204,9 +1159,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 i.putExtra("cabData", cabData);
                                                                 startActivity(i);
                                                                 getActivity().finish();
-
-
-                                                                //////////////////////////////
 
                                                             } else {
                                                                 h.removeCallbacks(rr);
@@ -1367,10 +1319,19 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                         //declineOtherRequests();
                                                         //alertDialog.dismiss();
                                                         // handler.removeCallbacks(r);
-                                                        Intent i = new Intent(getActivity(), TrackRideActivity.class);
-                                                        i.putExtra("cabData", cabData);
-                                                        startActivity(i);
-                                                        getActivity().finish();
+                                                        if (data.getTravelType().equals("local")) {
+
+                                                            Intent i = new Intent(getActivity(), TrackRideActivity.class);
+                                                            i.putExtra("cabData", cabData);
+                                                            startActivity(i);
+                                                            getActivity().finish();
+                                                        }
+                                                        else {
+                                                            Intent i = new Intent(getActivity(), OutStationTrackRideActivity.class);
+                                                            i.putExtra("cabData", cabData);
+                                                            startActivity(i);
+                                                            getActivity().finish();
+                                                        }
                                                     }
                                                 }
 
@@ -1465,10 +1426,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                 } else {
 
                                     //  Toast.makeText(getActivity(),"Error in getting data!!",Toast.LENGTH_LONG).show();
-                                    //  System.out.println("not getting data...................");
-
-
-
                                 }
                             }
 
@@ -1494,15 +1451,11 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             @Override
             public void run() {
 
-                //   System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ count isssss "+count);
                 count=count+2;
                 //h.postDelayed(rr,20000);
 
                 if(count==4)
                 {
-                    //  System.out.println("calling inner handlerrrrrrrrrrrrrrrrrrrrrrrrrr");'
-                    //System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ count isssss "+count);
-
                     if(!accepted) {
 
                         //dataPresent=false;
@@ -1515,8 +1468,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                 }
                 else
                 {
-                    //  System.out.println("posssssssssttttttt delayyyyyingggg");
-
                     //changing the interval from 18 sec to 10 sec
                     h.postDelayed(rr,10000);
                     //20000
@@ -1802,7 +1753,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         {
                             p=response.body();
 
-                            System.out.println("------------***-------------updated"+p.getMessage()+"--------------***---------------------");
+                            //System.out.println("------------***-------------updated"+p.getMessage()+"--------------***---------------------");
 
                             String[] newbooking = response.body().getMessage().split("-");
 
@@ -1860,7 +1811,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         }
                         else
                         {
-                            //  System.out.println(response.errorBody()+"**"+response.message());
+
                         }
                     }
 
@@ -1908,7 +1859,57 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
         user=session.getUserDetails();
         driverProfileId=user.get(SessionManager.KEY_PROFILE_ID);
 
-        Call<ArrayList<AllRidesPojo>> call=REST_CLIENT.getUserRides(driverProfileId,"driver",companyId);
+        Call<ArrayList<AllRidesPojo>> call=REST_CLIENT.getCurrentBooking(driverProfileId,companyId);
+        call.enqueue(new Callback<ArrayList<AllRidesPojo>>() {
+            @Override
+            public void onResponse(Call<ArrayList<AllRidesPojo>> call, Response<ArrayList<AllRidesPojo>> response) {
+
+                allRidesDataList=response.body();
+
+                if(response.isSuccessful())
+                {
+                    d = allRidesDataList.get(0);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", Locale.ENGLISH);
+                    // SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy",Locale.getDefault());
+                    try {
+                        date1 = dateFormat.parse(d.getRidedate());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    rideDataList.add(new FormattedAllRidesData(0,date1, d.getRequestid(), d.getFromlocation(), d.getTolocation(), d.getVehicleCategory(),
+                            d.getVehicleType(), d.getDistancetravelled(), d.getStatusofride(), d.getRidestarttime(), d.getRidestoptime(),
+                            d.getTotalamount(), d.getDrivername(),d.getDriverpic(),d.getTravelType(),d.getBookingType(),d.getTravelpackage(),d.getDrivermobile(),d.getGuestProfileId(),d.getGuestName(),d.getGuestMobile(),
+                            d.getPickupLatitude(),d.getPickupLongitude(),d.getDropLatitude(),d.getDropLongitude(),d.getOTPStatus(),d.getDriverBattaAmt(),d.getPaymentMode(),d.getOtherCharges()));
+
+
+                    llBottom.setVisibility(View.VISIBLE);
+                    switchCompat.setVisibility(View.GONE);
+
+                    position=0;
+
+                    progressDialog.dismiss();
+
+                    /*getDetails();
+                    Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();*/
+                }
+
+                else {
+                    progressDialog.dismiss();
+                    getDetails();
+                    Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<AllRidesPojo>> call, Throwable t) {
+
+            }
+        });
+
+
+
+        /*Call<ArrayList<AllRidesPojo>> call=REST_CLIENT.getUserRides(driverProfileId,"driver",companyId);
         call.enqueue(new Callback<ArrayList<AllRidesPojo>>() {
             @Override
             public void onResponse(Call<ArrayList<AllRidesPojo>> call, Response<ArrayList<AllRidesPojo>> response) {
@@ -1916,12 +1917,12 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                 allRidesDataList=response.body();
 
-
                 if(response.isSuccessful())
                 {
+
+
                     for(int i=0;i<allRidesDataList.size();i++)
                     {
-                        //System.out.println("***************************** "+i);
                         d = allRidesDataList.get(i);
 
                         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", Locale.ENGLISH);
@@ -1932,13 +1933,43 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                             e.printStackTrace();
                         }
 
-                        rideDataList.add(new FormattedAllRidesData(date1, d.getRequestid(), d.getFromlocation(), d.getTolocation(), d.getVehicleCategory(),
+                        rideDataList.add(new FormattedAllRidesData(i,date1, d.getRequestid(), d.getFromlocation(), d.getTolocation(), d.getVehicleCategory(),
                                 d.getVehicleType(), d.getDistancetravelled(), d.getStatusofride(), d.getRidestarttime(), d.getRidestoptime(),
                                 d.getTotalamount(), d.getDrivername(),d.getDriverpic(),d.getTravelType(),d.getBookingType(),d.getTravelpackage(),d.getDrivermobile(),d.getGuestProfileId(),d.getGuestName(),d.getGuestMobile(),
                                 d.getPickupLatitude(),d.getPickupLongitude(),d.getDropLatitude(),d.getDropLongitude(),d.getOTPStatus(),d.getDriverBattaAmt(),d.getPaymentMode(),d.getOtherCharges()));
 
 
-                        if(d.getStatusofride().equals("ONGOING")) {
+                        *//*if(d.getStatusofride().equals("ONGOING")) {
+
+                            llBottom.setVisibility(View.VISIBLE);
+                            switchCompat.setVisibility(View.GONE);
+
+                            position=i;
+
+                            break;
+                        }*//*
+
+
+                    }
+
+                    if(rideDataList.size()!=0) {
+                        Collections.sort(rideDataList, new Comparator<FormattedAllRidesData>() {
+                            public int compare(FormattedAllRidesData o1, FormattedAllRidesData o2) {
+                                if (o1.getRideDate() == null || o2.getRideDate() == null)
+                                    return 0;
+                                return o1.getRideDate().compareTo(o2.getRideDate());
+                            }
+                        });
+
+                        Collections.reverse(rideDataList);
+                    }
+
+                    for(int i=0;i<rideDataList.size();i++)
+                    {
+
+                        f = rideDataList.get(i);
+
+                        if(f.getRideStatus().equals("ONGOING")) {
 
                             llBottom.setVisibility(View.VISIBLE);
                             switchCompat.setVisibility(View.GONE);
@@ -1949,12 +1980,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         }
                     }
 
-                    //System.out.println("############################ ONDUTY");
+
                     progressDialog.dismiss();
                     getDetails();
-                    String date=new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a").format(new Date());
-                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                    System.out.println(date);
                     Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();
                 }
 
@@ -1978,7 +2006,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
 
             }
-        });
+        });*/
 
     }
 

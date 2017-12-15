@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -32,6 +34,8 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -153,6 +157,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
     TextView tvPaymentMode;
     SharedPreferences.Editor editor;
     int totalKms;
+    String billing="-";
 
 
 
@@ -165,19 +170,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         dbAdapter=new DBAdapter(getApplicationContext());
         dbAdapter=dbAdapter.open();
-
-
-
-        /*
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++");
-        System.out.println(latitude);
-        System.out.println(longitude);
-        System.out.println(rideStartingTime);
-        System.out.println(rideStoppingTime);
-        System.out.println(resDist);
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++");
-        */
-
 
         btStop=(ImageButton)findViewById(R.id.asoro_bt_stop);
         btDrop=(Button)findViewById(R.id.asoro_bt_drop);
@@ -216,8 +208,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
         tvDateTime.setText(format.format(data.getRideDate()));
 
-        String upperString = data.getPaymentMode().substring(0,1).toUpperCase() + data.getPaymentMode().substring(1);
-        tvPaymentMode.setText(upperString+" Payment");
+        if(data.getPaymentMode()!=null) {
+            String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
+            tvPaymentMode.setText(upperString + " Payment");
+        }
+        else {
+            tvPaymentMode.setText(" "+" Payment");
+        }
 
 
         tvGpickup.setText(data.getFromLocation());
@@ -238,10 +235,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
             resDist = Long.parseLong(locationData.getDistance());
             pauseDiff=Long.parseLong(locationData.getIdleTime());
 
-
-            //lastLocDist = new LatLng(latitude, longitude);
-            // tvGname.setText(locationData.getGuestName());
-            // tvGmobile.setText(locationData.getGuestMobile());
         }
 
         if(dataList.size()!=0)
@@ -267,8 +260,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         if(Build.VERSION.SDK_INT<23)
         {
-            //System.out.println("Sdk_int is"+Build.VERSION.SDK_INT);
-            //System.out.println("the enetred values is "+entered);
             establishConnection();
         }
         else
@@ -384,7 +375,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                 hC.removeCallbacks(rC);
 
                 //pauseTime = java.text.DateFormat.getTimeInstance().format(new Date());
-                pauseTime=getCurrentTime();
+                pauseTime=getCurrentTimeForOS();
 
                 if(dbAdapter.findRequestId(requestId)) {
 
@@ -394,7 +385,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                     for(int i=0;i<list.size();i++)
                     {
                         l=list.get(0);
-                        //System.out.println(l.getRequestId()+"::"+l.getStartingTime()+"::"+l.getStoppingTime()+"::"+l.getDistance()+"::"+l.getLatitude()+"::"+l.getLongitude());
                     }
                     dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, current_lat, current_long,pauseDiff);
 
@@ -404,7 +394,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                     for(int i=0;i<list.size();i++)
                     {
                         l1=list1.get(0);
-                        //System.out.println(l1.getRequestId()+"::"+l1.getStartingTime()+"::"+l1.getStoppingTime()+"::"+l1.getDistance()+"::"+l1.getLatitude()+"::"+l1.getLongitude());
                     }
                 }
                 else
@@ -432,7 +421,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                         alertDialog.dismiss();
 
                         //moveTime = java.text.DateFormat.getTimeInstance().format(new Date());
-                        moveTime=getCurrentTime();
+                        moveTime=getCurrentTimeForOS();
 
                         h.post(r);
                         hC.post(rC);
@@ -451,9 +440,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                     }
                 });
 
-                /*
-                Here a provision is provided so that
-                 */
             }
         });
 
@@ -494,7 +480,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                     gettingDirections = true;
 
                     Uri gmmIntentUri = Uri.parse("google.navigation:q=" + locationData.getdLat() + "," + locationData.getdLng());
-                    // System.out.println("google.navigation:q="+data.getdLat()+","+data.getdLng());
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     mapIntent.setPackage("com.google.android.apps.maps");
                     // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
@@ -545,8 +530,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
                         boolean bookingValue=pref.getString("booking","").equals("out");
 
-                        //System.out.println("booking value issssssss "+bookingValue);
-
                         if(bookingValue)
                         {
                             alertDialog.dismiss();
@@ -576,16 +559,109 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                 alertDialog.setCancelable(false);
                                 alertDialog.show();
 
-                                Button btOk=(Button)dialogView.findViewById(R.id.ack_bt_ok);
+                                final Button btOk=(Button)dialogView.findViewById(R.id.ack_bt_ok);
                                 TextView tvSkms=(TextView)dialogView.findViewById(R.id.ack_tv_s_kms);
                                 tvSkms.setText("Starting Kms : "+startingKms);
                                 final EditText etValue=(EditText)dialogView.findViewById(R.id.ack_et_otp);
+                                RadioGroup rgList=(RadioGroup)dialogView.findViewById(R.id.ack_rg_list);
+                                rgList.setVisibility(View.GONE);
+                                final RadioButton oneWay = (RadioButton) dialogView.findViewById(R.id.ack_rb_one);
+                                oneWay.setChecked(true);
+                                final RadioButton twoWay = (RadioButton) dialogView.findViewById(R.id.ack_rb_two);
+                                Button btGetKms=(Button)dialogView.findViewById(R.id.ack_bt_get_kms);
+                                btOk.setVisibility(View.GONE);
+                                final TextView tvTotalKms=(TextView)dialogView.findViewById(R.id.ack_tv_total_kms);
+                                tvTotalKms.setVisibility(View.GONE);
+
+                                if(data.getTravelType().equals("outstation"))
+                                {
+                                    rgList.setVisibility(View.VISIBLE);
+                                    billing="1 way trip";
+
+                                }
+
+                                etValue.setOnTouchListener(new View.OnTouchListener() {
+                                    @Override
+                                    public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                                        btOk.setVisibility(View.GONE);
+                                        tvTotalKms.setVisibility(View.GONE);
+                                        return false;
+                                    }
+                                });
+
+                                rgList.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                                    @Override
+                                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
+
+                                        switch (i) {
+                                            case R.id.ack_rb_one:
+                                                billing="1 way trip";
+
+                                                //Toast.makeText(getActivity(),"Mini clicked",Toast.LENGTH_LONG).show();
+                                                break;
+                                            case R.id.ack_rb_two:
+                                                billing="2 way trip";
+
+                                                //Toast.makeText(getActivity(),"Micra clicked",Toast.LENGTH_LONG).show();
+                                                break;
+                                        }
+                                        // alertDialog.dismiss();
+                                    }
+                                });
+
+                                btGetKms.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+
+                                        String value=etValue.getText().toString().trim();
+
+                                        if(value.equals(""))
+                                        {
+                                            Toast.makeText(RideOngoingOutstation.this,"Please enter Closing Kms",Toast.LENGTH_LONG).show();
+                                        }
+                                        else {
+
+                                            if(value.matches("[0-9]+")) {
+
+                                                if (Integer.parseInt(value) > Integer.parseInt(startingKms)) {
+                                                    editor.putString("closingKms", value);
+                                                    editor.commit();
+                                                    btOk.setVisibility(View.VISIBLE);
+                                                    totalKms = Integer.parseInt(pref.getString("closingKms", "0")) - Integer.parseInt(pref.getString("startingKms", "0"));
+
+                                                    tvTotalKms.setVisibility(View.VISIBLE);
+                                                    tvTotalKms.setText("Total Kms : " + totalKms);
+
+                                                } else {
+
+                                                    etValue.setText("");
+                                                    Toast.makeText(RideOngoingOutstation.this, "Closing Kms should be higher than starting Kms", Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                            else {
+
+                                                etValue.setText("");
+                                                btOk.setVisibility(View.GONE);
+                                                tvTotalKms.setVisibility(View.GONE);
+                                                Toast.makeText(RideOngoingOutstation.this,"Please enter valid number",Toast.LENGTH_SHORT).show();
+
+                                            }
+
+                                        }
+                                    }
+                                });
+
+
 
                                 btOk.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
 
-                                        String value=etValue.getText().toString().trim();
+                                        alertDialog.dismiss();
+                                        sendFinishDetailsToServer();
+
+                                        /*String value=etValue.getText().toString().trim();
 
                                         if(value.equals(""))
                                         {
@@ -598,7 +674,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                                 editor.putString("closingKms",value);
                                                 editor.commit();
                                                 alertDialog.dismiss();
-                                                sendFinishDetailsToServer();
+                                                //sendFinishDetailsToServer();
                                             }
                                             else {
 
@@ -606,7 +682,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                                 Toast.makeText(RideOngoingOutstation.this,"Closing Kms should be higher than starting Kms",Toast.LENGTH_LONG).show();
                                             }
 
-                                        }
+                                        }*/
                                     }
                                 });
                             }
@@ -681,174 +757,135 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
             @Override
             public void run() {
 
-                // System.out.println("sending location updates..........");
-
                 h.postDelayed(r,20000);
 
-                try {
-                    addresses = geocoder.getFromLocation(current_lat, current_long, 1);
+                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
-                    if (addresses.size() != 0) {
-                        int l = addresses.get(0).getMaxAddressLineIndex();
-                        String add = "", add1 = "", add2 = "";
+                    try {
+                        addresses = geocoder.getFromLocation(current_lat, current_long, 1);
 
-                        for (int k = 0; k < l; k++) {
-                            add = add + addresses.get(0).getAddressLine(k);
-                            add = add + " ";
+                        if (addresses.size() != 0) {
+                            int l = addresses.get(0).getMaxAddressLineIndex();
+                            String add = "", add1 = "", add2 = "";
 
-                            if (k == 1) {
-                                add1 = addresses.get(0).getAddressLine(k);
+                            for (int k = 0; k < l; k++) {
+                                add = add + addresses.get(0).getAddressLine(k);
+                                add = add + " ";
+
+                                if (k == 1) {
+                                    add1 = addresses.get(0).getAddressLine(k);
+                                }
+                                if (k == 2) {
+                                    add2 = addresses.get(0).getAddressLine(k);
+                                }
                             }
-                            if (k == 2) {
-                                add2 = addresses.get(0).getAddressLine(k);
-                            }
+                            String address = addresses.get(0).getAddressLine(0);
+                            String add_1 = addresses.get(0).getAddressLine(1);//current place name eg:Nagendra nagar,Hyderabad
+                            String add_2 = addresses.get(0).getAddressLine(2);
+                            //city = addresses.get(0).getLocality();
+                            String state = addresses.get(0).getAdminArea();
+                            complete_address = address + " " + add1 + " " + add2;
+                            tvCurrentLoc.setText(complete_address);
+                        } else {
+                            tvCurrentLoc.setText("-");
+                            complete_address = "-";
                         }
-                        String address = addresses.get(0).getAddressLine(0);
-                        String add_1 = addresses.get(0).getAddressLine(1);//current place name eg:Nagendra nagar,Hyderabad
-                        String add_2 = addresses.get(0).getAddressLine(2);
-                        //city = addresses.get(0).getLocality();
-                        String state = addresses.get(0).getAdminArea();
-                        complete_address = address + " " + add1 + " " + add2;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        complete_address = "Unable to get the location details";
                         tvCurrentLoc.setText(complete_address);
-                    } else {
-                        tvCurrentLoc.setText("-");
-                        complete_address = "-";
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    complete_address = "Unable to get the location details";
-                    tvCurrentLoc.setText(complete_address);
-                }
-
-                if(lastLocDist!=null&&current_lat!=0.0&&current_long!=0.0) {
-
-                    // System.out.println(lastLocDist.latitude+":"+lastLocDist.longitude);
-                    // System.out.println(current_lat+":"+current_long);
-
-                    // Location.distanceBetween(lastLocDist.latitude, lastLocDist.longitude, current_lat, current_long, dist);
-                    // System.out.println(lastLocDist.latitude+":"+lastLocDist.longitude+":"+current_lat+":"+current_long);
-                    //  System.out.println("!!!!!!!!!!! distance is "+resDist);
-                    //  resDist = resDist + (long) dist[0];
-                    //  dbAdapter.insertEntry(mLastLocation.getLatitude(),mLastLocation.getLongitude(),complete_address,resDist,timeUpdated);
-
-
-                    curntloc=new LatLng(current_lat,current_long);
-
-                    if (cab != null) {
-
-                        // System.out.println("in if map ready.........");
-                    } else {
-
-                        // System.out.println("in else map ready...");
-                        cab = mMap.addMarker(new MarkerOptions().position(curntloc)
-                                .title("Current Location")
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
                     }
 
-                    startPosition = cab.getPosition();
-                    finalPosition = new LatLng(current_lat, current_long);
+                    if(lastLocDist!=null&&current_lat!=0.0&&current_long!=0.0) {
 
-                    double toRotation=bearingBetweenLocations(startPosition,finalPosition);
-                    rotateMarker(cab,(float)toRotation);
+                        curntloc=new LatLng(current_lat,current_long);
 
-                    accelerateDecelerate();
+                        if (cab != null) {
+
+                        } else {
+                            cab = mMap.addMarker(new MarkerOptions().position(curntloc)
+                                    .title("Current Location")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
+                        }
+
+                        startPosition = cab.getPosition();
+                        finalPosition = new LatLng(current_lat, current_long);
+
+                        double toRotation=bearingBetweenLocations(startPosition,finalPosition);
+                        rotateMarker(cab,(float)toRotation);
+
+                        accelerateDecelerate();
 
 //                    CameraPosition oldPos = mMap.getCameraPosition();
 //
 //                    CameraPosition pos = CameraPosition.builder(oldPos).bearing((float)toRotation).build();
 //                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(pos));
 
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(curntloc, 16));
-                    mMap.getUiSettings().setMapToolbarEnabled(false);
-                }
-
-                /*
-
-                if(dbAdapter.findRequestId(requestId)) {
-
-                    //  System.out.println("curnt_lat & curnt_lng "+current_lat+"::"+current_long);
-
-                    ArrayList<LocationUpdates> list=dbAdapter.getAllLocUpdates();
-                    LocationUpdates l;
-
-                    for(int i=0;i<list.size();i++)
-                    {
-                        l=list.get(0);
-                        System.out.println(l.getRequestId()+"::"+l.getStartingTime()+"::"+l.getStoppingTime()+"::"+l.getDistance()+"::"+l.getLatitude()+"::"+l.getLongitude());
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(curntloc, 16));
+                        mMap.getUiSettings().setMapToolbarEnabled(false);
                     }
-                    dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, current_lat, current_long);
-                    //  System.out.println("-------------------------------------------------------------------------------");
-                    ArrayList<LocationUpdates> list1=dbAdapter.getAllLocUpdates();
-                    LocationUpdates l1;
 
-                    for(int i=0;i<list.size();i++)
-                    {
-                        l1=list1.get(0);
-                        //  System.out.println(l1.getRequestId()+"::"+l1.getStartingTime()+"::"+l1.getStoppingTime()+"::"+l1.getDistance()+"::"+l1.getLatitude()+"::"+l1.getLongitude());
-                    }
-                }
-                else
-                {
-                    // dbAdapter.insertLocEntry(requestId,rideStartingTime,rideCurrentTime,resDist,current_lat,current_long);
-                    //  System.out.println("________________________________________________________________________________");
-                }
-                */
+                    JsonObject v=new JsonObject();
+                    v.addProperty("profileid",stProfileId);
+                    v.addProperty("location",city);
+                    c_lat=String.valueOf(current_lat);
+                    c_long=String.valueOf(current_long);
+                    v.addProperty("latittude",c_lat);
+                    v.addProperty("longitude",c_long);
+                    v.addProperty("companyid",companyId);
+                    v.addProperty("ReqId",requestId);
 
-                JsonObject v=new JsonObject();
-                v.addProperty("profileid",stProfileId);
-                v.addProperty("location",city);
-                c_lat=String.valueOf(current_lat);
-                c_long=String.valueOf(current_long);
-                v.addProperty("latittude",c_lat);
-                v.addProperty("longitude",c_long);
-                v.addProperty("companyid",companyId);
-                v.addProperty("ReqId",requestId);
+                    // System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
 
-                System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
+                    Call<Pojo> call=REST_CLIENT.sendStatus(v);
+                    call.enqueue(new Callback<Pojo>() {
 
-                Call<Pojo> call=REST_CLIENT.sendStatus(v);
-                call.enqueue(new Callback<Pojo>() {
+                        @Override
+                        public void onResponse(Call<Pojo> call, Response<Pojo> response) {
 
-
-
-                    @Override
-                    public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                        if(response.isSuccessful())
-                        {
-                            // System.out.println("-----------------------------** updated **-----------------------------------");
-
-                            String[] newbooking=response.body().getMessage().split("-");
-                            // System.out.println("New booking is ssssss"+newbooking[1]);
-
-                            if(newbooking.length==1)
+                            if(response.isSuccessful())
                             {
+                                String[] newbooking=response.body().getMessage().split("-");
+
+                                if(newbooking.length==1)
+                                {
+
+                                }
+                                else
+                                {
+                                    tvNewBooking.setVisibility(View.VISIBLE);
+                                }
 
                             }
                             else
                             {
-                                tvNewBooking.setVisibility(View.VISIBLE);
+
                             }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Pojo> call, Throwable t) {
+
+                            Toast.makeText(RideOngoingOutstation.this,"Error in network connection",Toast.LENGTH_LONG).show();
+
+                            dbAdapter.insertNetworkIssueData(requestId, "N/W " + getCurrentTimeForOS());
+
 
                         }
-                        else
-                        {
-                            //  System.out.println(response.errorBody()+"**"+response.message());
-                        }
-                    }
+                    });
 
-                    @Override
-                    public void onFailure(Call<Pojo> call, Throwable t) {
+                    lastLocDist = new LatLng(current_lat, current_long);
 
-                        Toast.makeText(RideOngoingOutstation.this,"Error in network connection",Toast.LENGTH_LONG).show();
+                }
+                else {
 
+                    Toast.makeText(RideOngoingOutstation.this,"GPS is not enabled..Please Check!",Toast.LENGTH_LONG).show();
 
-                    }
-                });
+                    dbAdapter.insertNetworkIssueData(requestId, "GPS " + getCurrentTimeForOS());
 
-                //   if(current_lat!=0.0&&current_long!=0.0) {
-                lastLocDist = new LatLng(current_lat, current_long);
-                // }
+                }
+
             }
         };
         h.post(r);
@@ -869,13 +906,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                 timeUpdated=dateFormat.format(date);
 
                 if (lastLocDist != null && current_lat != 0.0 && current_long != 0.0 ) {
-
-                    //System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude);
-                    //System.out.println(current_lat + ":" + current_long);
-
-                    // Location.distanceBetween(lastLocDist.latitude, lastLocDist.longitude, current_lat, current_long, dist);
-                    // System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude + ":" + current_lat + ":" + current_long);
-                    // resDist = resDist + (long) dist[0];
 
                     dbAdapter.insertEntry(requestId,current_lat, current_long, complete_address, resDist, timeUpdated);
 
@@ -1139,155 +1169,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         }
     }
 
-    /*@Override
-    public void onLocationChanged(Location location) {
-
-        // System.out.println("*********** loc changed ***************"+location.getLatitude()+"::"+location.getLongitude());
-
-        *//*
-
-        if(mLastLocation==null)
-        {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-            lastLoc = new LatLng(latitude, longitude);
-            try {
-                addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                String address = addresses.get(0).getAddressLine(0);
-                String add1=addresses.get(0).getAddressLine(1);
-                String add2=addresses.get(0).getAddressLine(2);
-                city = addresses.get(0).getLocality();
-                String state = addresses.get(0).getAdminArea();
-                complete_address=address+" "+add1+" "+add2;
-              tvCurrentLoc.setText(complete_address);
-            }
-            catch(IOException e)
-            {e.printStackTrace();
-                complete_address="No response from server";
-                tvCurrentLoc.setText(complete_address);
-            }
-            mMap.addMarker(new MarkerOptions().position(lastLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLoc, 15));
-            mMap.getUiSettings().setMapToolbarEnabled(false);
-        }*//*
-
-
-        if(mLastLocation!=null) {
-
-            if(location!=null&&location.hasAccuracy()) {
-
-                if (location.getAccuracy() <= 5) {
-
-                    if(location.getLatitude()!=0.0 && location.getLongitude()!=0.0)
-                    {
-
-                        current_lat = location.getLatitude();
-                        current_long = location.getLongitude();
-
-                        //  curntloc = new LatLng(current_lat, current_long);
-                        //   Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(), current_lat, current_long, results);
-                        //  location.getAccuracy();
-
-
-                        if (location.getSpeed() < 3.0) {
-                            // System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                            waitingTime = waitingTime + 1;
-                            // System.out.println(waitingTime);
-
-                        }
-                        // res = res + (long) results[0];
-
-                *//*
-
-                try {
-                    addresses = geocoder.getFromLocation(current_lat, current_long, 1);
-
-                    if(addresses.size()!=0) {
-                        int l = addresses.get(0).getMaxAddressLineIndex();
-                        String add = "", add1 = "", add2 = "";
-
-                        for (int k = 0; k < l; k++) {
-                            add = add + addresses.get(0).getAddressLine(k);
-                            add = add + " ";
-
-                            if (k == 1) {
-                                add1 = addresses.get(0).getAddressLine(k);
-                            }
-                            if (k == 2) {
-                                add2 = addresses.get(0).getAddressLine(k);
-                            }
-                        }
-                        String address = addresses.get(0).getAddressLine(0);
-                        String add_1 = addresses.get(0).getAddressLine(1);//current place name eg:Nagendra nagar,Hyderabad
-                        String add_2 = addresses.get(0).getAddressLine(2);
-                        city = addresses.get(0).getLocality();
-                        String state = addresses.get(0).getAdminArea();
-                        complete_address = address + " " + add1 + " " + add2;
-                        tvCurrentLoc.setText(complete_address);
-                    }
-                    else
-                    {
-                        tvCurrentLoc.setText("-");
-                    }
-                }
-                catch(IOException e) {
-                    e.printStackTrace();
-                    complete_address="No response from server";
-                    tvCurrentLoc.setText(complete_address);
-                }
-                *//*
-                        // cab.setPosition(curntloc);
-                        // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(curntloc, 16));
-                        // mMap.getUiSettings().setMapToolbarEnabled(false);
-                    }
-                }
-            }
-        }
-
-        *//*
-
-        JsonObject v=new JsonObject();
-        v.addProperty("profileid",stProfileId);
-        v.addProperty("location",city);
-        c_lat=String.valueOf(current_lat);
-        c_long=String.valueOf(current_long);
-        System.out.println("chaging lat and long.....");
-        v.addProperty("latittude",c_lat);
-        v.addProperty("longitude",c_long);
-
-        System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
-
-        Call<Pojo> call=REST_CLIENT.sendStatus(v);
-        call.enqueue(new Callback<Pojo>() {
-            @Override
-            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                if(response.isSuccessful())
-                {
-                    System.out.println("---------------------------updated-----------------------------------");
-                }
-                else
-                {
-                    System.out.println(response.errorBody()+"**"+response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Pojo> call, Throwable t) {
-
-                Toast.makeText(RideOngoingOutstation.this,"Error in network connection",Toast.LENGTH_LONG).show();
-
-
-            }
-        });*//*
-
-        mLastLocation=location;
-
-        // dbAdapter.insertEntry(mLastLocation.getLatitude(),mLastLocation.getLongitude(),complete_address,res,timeUpdated);
-    }
-*/
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -1312,9 +1193,12 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         } else {
             if(!(String.valueOf(locationData.getdLat()).equals(""))&&!(String.valueOf(locationData.getdLng()).equals(""))) {
-                LatLng dropLatLng = new LatLng(locationData.getdLat(), locationData.getdLng());
-                gDrop = mMap.addMarker(new MarkerOptions().position(dropLatLng)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_pink)));
+                if(!(String.valueOf(locationData.getdLat()).equals("-"))&&!(String.valueOf(locationData.getdLng()).equals("-"))) {
+
+                    LatLng dropLatLng = new LatLng(locationData.getdLat(), locationData.getdLng());
+                    gDrop = mMap.addMarker(new MarkerOptions().position(dropLatLng)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_pink)));
+                }
             }
         }
 
@@ -1329,10 +1213,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
             if (cab != null) {
 
-                // System.out.println("in if map ready.........");
             } else {
-
-                // System.out.println("in else map ready...");
                 cab = mMap.addMarker(new MarkerOptions().position(lastLoc)
                         .title("Current Location")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
@@ -1378,7 +1259,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         //super.onBackPressed();
     }
 
-    public static String getCurrentTime() {
+    public static String getCurrentTimeForOS() {
         //date output format
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
         Calendar cal = Calendar.getInstance();
@@ -1398,9 +1279,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
                 current_lat = gps.getLatitude();
                 current_long = gps.getLongitude();
-
-                //System.out.println("data iss "+current_lat+":"+current_long);
-
 
                 if (current_lat != 0.0 && current_long != 0.0) {
 
@@ -1477,16 +1355,42 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         //rideStoppingTime=java.text.DateFormat.getTimeInstance().format(new Date());
         rideStartingTime = pref.getString("rideStartingTime", rideStartingTime);
-        rideStoppingTime = getCurrentTime();
+        //rideStoppingTime = getCurrentTimeForOS();
+        if(data.getTravelType().equals("outstation")) {
+            rideStoppingTime = getCurrentTimeForOS();
+        }
+        else {
+            rideStoppingTime= getCurrentTime();
+        }
 
-        SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        try {
-            Date date1 = timeFormat.parse(rideStartingTime);
-            Date date2 = timeFormat.parse(rideStoppingTime);
-            diff = (date2.getTime() - date1.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if(data.getTravelType().equals("outstation")) {
+
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+            timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            try {
+                //System.out.println(pref.getString("ride_starting_time", rideStartingTime) + "::" + rideStartingTime);
+
+                Date date1 = timeFormat.parse(rideStartingTime);
+                Date date2 = timeFormat.parse(rideStoppingTime);
+                diff = (date2.getTime() - date1.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+
+            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+            timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            try {
+                //System.out.println(pref.getString("ride_starting_time", rideStartingTime) + "::" + rideStartingTime);
+
+                Date date1 = timeFormat.parse(rideStartingTime);
+                Date date2 = timeFormat.parse(rideStoppingTime);
+                diff = (date2.getTime() - date1.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
         }
         // movingTimeFormat= timeFormat.format(new Date(diff));
 
@@ -1500,8 +1404,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         sFormatted = formatter.format(Secs);
         movingTimeFormat = hFormatted + "." + mFormatted;
         String totTime = hFormatted + ":" + mFormatted + ":" + sFormatted;
-
-        /////////////////////////////////////////
 
         SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -1531,36 +1433,18 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         rideData = dbAdapter.getRideDetails(requestId);
 
         double distanceDB = dbAdapter.getDistance(requestId);
-        distanceDB = distanceDB / 1000;
-
-        //System.out.println("Distance from db is " + distanceDB);
-        //System.out.println("Calc Distance is " + resDist / 1000);
 
         final double dist = resDist / 1000;
 
         pickupLat = pref.getString("pickup_lat", null);
         pickupLong = pref.getString("pickup_long", null);
 
-                            /*if(pickupLat.equals("-")&&pickupLong.equals("-"))
-                            {
-                                Toast.makeText(RideOngoingOutstation.this,"Booking already finished!",Toast.LENGTH_LONG).show();
-                                dbAdapter.deleteLocUpdates(requestId);
-                                dbAdapter.deleteRideDetails(requestId);
-                                finish();
-                            }*/
-
-//                            dropLat = String.valueOf(current_lat);
-//                            dropLong = String.valueOf(current_long);
         String stWaypoints = dbAdapter.getWaypointsForOutstation(requestId);
-        //System.out.println("waypoints " + stWaypoints);
 
         String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
                 "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
 
-        //System.out.println(urlString);
         rideData=rideData+"*"+urlString;
-
-        //System.out.println(rideData);
 
         Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
         call1.enqueue(new Callback<DistancePojo>() {
@@ -1574,22 +1458,14 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                 if (response.isSuccessful()) {
                     distData = response.body();
 
-                    //System.out.println(response.message() + "::" + response.code() + "::" + response.errorBody());
-
-                    //System.out.println("status is " + distData.getStatus());
                     List<Route> rDataList = distData.getRoutes();
-                    // System.out.println("Route size "+rDataList.size());
 
                     if (rDataList != null) {
-
-                        // System.out.println("rDataList size " + rDataList.size());
 
                         for (int i = 0; i < rDataList.size(); i++) {
                             rData = rDataList.get(i);
 
                             List<Leg> lDataList = rData.getLegs();
-
-                            // System.out.println("lDataList size is " + lDataList.size());
 
                             for (int j = 0; j < lDataList.size(); j++) {
                                 lData = lDataList.get(j);
@@ -1598,22 +1474,23 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
 
                                 distance = distance + d.getValue();
-
-                                // System.out.println("dist and value is " + d.getValue() + ":::" + distance);
                             }
 
                         }
 
                         distance = distance / 1000;
                         finalDistance = distance;
-                        // System.out.println("distance is " + finalDistance + ":::" + distance);
                         totalKms=Integer.parseInt(pref.getString("closingKms","0"))-Integer.parseInt(pref.getString("startingKms","0"));
 
-                        System.out.println("sKms"+Integer.parseInt(pref.getString("startingKms","0")));
-                        System.out.println("cKms"+Integer.parseInt(pref.getString("closingKms","0")));
-                        System.out.println("totalKms"+totalKms);
+//                        System.out.println("sKms"+Integer.parseInt(pref.getString("startingKms","0")));
+//                        System.out.println("cKms"+Integer.parseInt(pref.getString("closingKms","0")));
+//                        System.out.println("totalKms"+totalKms);
 
-                        ////
+                        String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
+                        System.out.println("missing data is "+missingCoordinates);
+                        System.out.println("billing is "+billing);
+
+
                         JsonObject v = new JsonObject();
                         v.addProperty("profileid", stProfileId);
                         v.addProperty("requestid", data.getRequestId());
@@ -1624,21 +1501,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                         v.addProperty("ridestarttime", rideStartingTime);
                         v.addProperty("ridestoptime", rideStoppingTime);
                         v.addProperty("companyid", companyId);
-                        v.addProperty("billing","-");
+                        v.addProperty("billing",billing);
                         v.addProperty("startingKms",Integer.parseInt(pref.getString("startingKms","0")));
                         v.addProperty("closingKms",Integer.parseInt(pref.getString("closingKms","0")));
                         v.addProperty("totalKms",totalKms);
-                                            /*
-                                            System.out.println("*****************!!!*********************");
-                                            System.out.println(stProfileId);
-                                            System.out.println(data.getRequestId());
-                                            System.out.println(dist + ":::" + resDist);
-                                            System.out.println(movingTimeFormat);
-                                            System.out.println(rideData);
-                                            System.out.println(rideStartingTime);
-                                            System.out.println(rideStoppingTime);
-                                            System.out.println("******************!!!**********************");
-                                            */
+                        v.addProperty("missingcoordinates",missingCoordinates);
+
+                        System.out.println("missing data is "+dbAdapter.getNetworkIssueData(requestId));
 
                         Call<Pojo> call2 = REST_CLIENT.sendRideDetails(v);
                         call2.enqueue(new Callback<Pojo>() {
@@ -1650,6 +1519,8 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                 if (response.isSuccessful()) {
                                     dbAdapter.deleteLocUpdates(requestId);
                                     dbAdapter.deleteRideDetails(requestId);
+                                    dbAdapter.deleteNetworkIssueData(requestId);
+
                                     progressDialog.dismiss();
                                     msg = response.body();
 
@@ -1660,12 +1531,10 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                     h.removeCallbacks(r);
                                     hC.removeCallbacks(rC);
 
-                                    //System.out.println("fare is " + msg.getMessage());
-
                                     ArrayList<GuestData> gd = new ArrayList<GuestData>();
                                     gd.add(new GuestData(requestId, stProfileId, "-", "-", String.valueOf(locationData.getpLat()), String.valueOf(locationData.getpLng()),
                                             String.valueOf(locationData.getdLat()), String.valueOf(locationData.getdLng()), data.getFromLocation(), data.getToLocation(),
-                                            "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode()));
+                                            "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges()));
 
                                     Intent i = new Intent(RideOngoingOutstation.this, RideFinishActivity.class);
                                     i.putExtra("distance", finalDistance);
@@ -1702,7 +1571,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                 } else {
 
                     progressDialog.dismiss();
-                    //System.out.println(response.message() + "::" + response.code() + "::" + response.isSuccessful());
                 }
             }
 
@@ -1715,88 +1583,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
             }
         });
+    }
 
-
-        //???????????????????????????????????????????????????
-
-                        /*
-
-                        JsonObject v=new JsonObject();
-                        v.addProperty("profileid",stProfileId);
-                        v.addProperty("requestid",data.getRequestId());
-                        v.addProperty("distancetravelled",dist);
-                        v.addProperty("movingtime",movingTimeFormat);
-                        v.addProperty("idletime",1);
-                        v.addProperty("ridedata",rideData);
-                        v.addProperty("ridestarttime",rideStartingTime);
-                        v.addProperty("ridestoptime",rideStoppingTime);
-                        v.addProperty("companyid",companyId);
-                        System.out.println("*****************!!!*********************");
-                        System.out.println(stProfileId);
-                        System.out.println(data.getRequestId());
-                        System.out.println(dist+":::"+resDist);
-                        System.out.println(movingTimeFormat);
-                        System.out.println(rideData);
-                        System.out.println(rideStartingTime);
-                        System.out.println(rideStoppingTime);
-                        System.out.println("******************!!!**********************");
-
-                        Call<Pojo> call=REST_CLIENT.sendRideDetails(v);
-                        call.enqueue(new Callback<Pojo>() {
-                            @Override
-                            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                                Pojo msg;
-
-                                if(response.isSuccessful())
-                                {
-                                    dbAdapter.deleteLocUpdates();
-                                    dbAdapter.deleteRideDetails();
-                                    progressDialog.dismiss();
-                                    msg=response.body();
-
-                                    if(myBottomSheet.isAdded())
-                                    {
-                                        myBottomSheet.dismiss();
-                                    }
-
-                                    System.out.println("#######################################");
-                                    System.out.println("fare is "+msg.getMessage());
-
-                                    ArrayList<GuestData> gd=new ArrayList<GuestData>();
-                                    gd.add(new GuestData(requestId,stProfileId,"-","-",String.valueOf(locationData.getpLat()),String.valueOf(locationData.getpLng()),
-                                            String.valueOf(locationData.getdLat()),String.valueOf(locationData.getdLng()),data.getFromLocation(),data.getToLocation(),
-                                            "travel_type","travel_package","scheduled_date","scheduled_time","otp_required","booking_type"));
-
-                                    Intent i=new Intent(RideOngoingOutstation.this,RideFinishActivity.class);
-                                    i.putExtra("distance",dist);
-                                    i.putExtra("time",movingTimeFormat);
-                                    i.putExtra("fare",msg.getMessage());
-                                    i.putExtra("cabData",gd);
-                                    i.putExtra("rideStart",rideStartingTime);
-                                    i.putExtra("rideStop",rideStoppingTime);
-                                    startActivity(i);
-                                    finish();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Pojo> call, Throwable t) {
-
-                                progressDialog.dismiss();
-
-                                if(myBottomSheet.isAdded())
-                                {
-                                    //return;
-                                }
-                                else
-                                {
-                                    myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                }
-                            }
-                        });*/
-
-
+    public static String getCurrentTime() {
+        //date output format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");
+        Calendar cal = Calendar.getInstance();
+        return dateFormat.format(cal.getTime());
     }
 
 }

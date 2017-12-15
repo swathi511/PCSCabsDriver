@@ -160,8 +160,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if(Build.VERSION.SDK_INT<23)
         {
-            //System.out.println("Sdk_int is"+Build.VERSION.SDK_INT);
-            //System.out.println("the enetred values is "+entered);
             establishConnection();
         }
         else
@@ -185,7 +183,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         cabData=new ArrayList<>();
 
-        //mAdapter = new RecyclerAdapter(MapsActivity.this, cabData,rvLayout);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         rvLayout.setLayoutManager(mLayoutManager);
         rvLayout.setItemAnimator(new DefaultItemAnimator());
@@ -234,7 +231,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 data=dataList.get(i);
                                 cabData.add(new GuestData(data.getRequestId(),data.getGuestProfileid(),data.getGuestName(),data.getGuestMobile(),
                                         data.getPickupLat(),data.getPickupLong(),data.getDropLat(),data.getDropLong(),data.getPickupLoc(),
-                                        data.getDropLoc(),"traveltype","travelPackage","xxx","00","-","-",data.getPaymentMode()));
+                                        data.getDropLoc(),"traveltype","travelPackage","xxx","00","-","-",data.getPaymentMode(),""));
                             }
                             mAdapter.notifyDataSetChanged();
                         }
@@ -273,19 +270,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             if(!entered)
             {
-                // System.out.println("value of entered in 'if' "+entered);
+
             }
             else
             {
-                //System.out.println("value of entered in 'else' "+entered);
                 mGoogleApiClient.connect();
-                //super.onStart();
             }
         }
         else
         {
             mGoogleApiClient.connect();
-            // super.onStart();
         }
     }
 
@@ -318,17 +312,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             if(mGoogleApiClient.isConnecting()||mGoogleApiClient.isConnected())
             {
-                // System.out.println("Google Client connectng in 'if' "+mGoogleApiClient.isConnecting());
+
             }
             else {
-                //System.out.println("Google Client connectng in 'else' "+mGoogleApiClient.isConnecting());
+
                 mGoogleApiClient.connect();
             }
         }
 
         if(mGoogleApiClient!=null) {
 
-            // System.out.println("connections "+mGoogleApiClient.isConnected()+" "+mGoogleApiClient.isConnecting());
             if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
                 startLocationUpdates();
             }
@@ -393,7 +386,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected synchronized void buildGoogleApiClient() {
 
         if (mGoogleApiClient == null) {
-            //System.out.println("in buildGoogleApiClient after 'if' ");
+
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -441,8 +434,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void createLocationRequest() {
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(45000);//45 sec
-        mLocationRequest.setFastestInterval(30000);//5 sec
+        mLocationRequest.setInterval(45000);
+        mLocationRequest.setFastestInterval(30000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -577,8 +570,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         v.addProperty("latittude",c_lat);
         v.addProperty("longitude",c_long);
 
-        //System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
-
         Call<Pojo> call=REST_CLIENT.sendStatus(v);
         call.enqueue(new Callback<Pojo>() {
             @Override
@@ -608,128 +599,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-/*
-    @Override
-    public void onMethodCallback(int position) {
-
-        handler.removeCallbacks(r);
-        stopLocationUpdates();
-
-        for(int i=0;i<cabData.size();i++)
-        {
-           // j=i;
-            gData=cabData.get(i);
-
-            JsonObject v=new JsonObject();
-            v.addProperty("profileid",stProfileId);
-            v.addProperty("requestid",gData.getgRequestId());
-
-            System.out.println("profile id and request id are"+stProfileId+":"+gData.getgRequestId());
-
-            if(i==position)
-            {
-                System.out.println("status accept updated.....!!!!!");
-                v.addProperty("status","1");
-                acceptedCabData=new ArrayList<>();
-                acceptedCabData.add(new GuestData(gData.getgRequestId(),gData.getgProfileId(),gData.getgName(),gData.getgMobile(),
-                        gData.getpLat(),gData.getpLng(),gData.getdLat(),gData.getdLng(),gData.getgPickup(),gData.getgDrop()));
-                System.out.println("req id "+gData.getgRequestId()+" profile id"+gData.getgProfileId());
-
-                Call<Pojo> call=REST_CLIENT.sendCabAcceptanceStatus(v);
-                call.enqueue(new Callback<Pojo>() {
-                    @Override
-                    public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                        if(response.isSuccessful())
-                        {
-                            System.out.println("value of j and cabData.size "+j+" "+cabData.size());
-
-                            j++;
-
-                            if(j==(cabData.size()-1))
-                            {
-                                Intent i = new Intent(MapsActivity.this, TrackRideActivity.class);
-                                i.putExtra("cabData", acceptedCabData);
-                                startActivity(i);
-                                finish();
-                            }
-
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Pojo> call, Throwable t) {
-
-                        Toast.makeText(MapsActivity.this,"Check Internet Connection",Toast.LENGTH_LONG).show();
-                    }
-                });
-
-            }
-            else
-            {
-                System.out.println("status decline updated..................");
-                v.addProperty("status","2");
-                Call<Pojo> call=REST_CLIENT.sendCabAcceptanceStatus(v);
-                call.enqueue(new Callback<Pojo>() {
-                    @Override
-                    public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                        if(response.isSuccessful())
-                        {
-                            System.out.println("value of j and cabData.size "+j+" "+cabData.size());
-                            j++;
-
-                            if(j==(cabData.size()-1))
-                            {
-                                Intent i = new Intent(MapsActivity.this, TrackRideActivity.class);
-                                i.putExtra("cabData", acceptedCabData);
-                                startActivity(i);
-                                finish();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Pojo> call, Throwable t) {
-
-                        Toast.makeText(MapsActivity.this,"Check Internet Connection",Toast.LENGTH_LONG).show();
-                        accepted=false;
-
-                    }
-                });
-            }
-
-
-            /*
-
-            Call<Pojo> call=REST_CLIENT.sendCabAcceptanceStatus(v);
-            call.enqueue(new Callback<Pojo>() {
-                @Override
-                public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                    if(response.isSuccessful())
-                    {
-                        accepted=true;
-                        System.out.println("value of j and cabData.size "+j+" "+cabData.size());
-                        if(j==(cabData.size()-1)) {
-                            System.out.println("CAlling trackride activityyyyyyyyyyyyyyyyy");
-                            Intent i = new Intent(MapsActivity.this, TrackRideActivity.class);
-                            i.putExtra("cabData", acceptedCabData);
-                            startActivity(i);
-                            finish();
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Pojo> call, Throwable t) {
-
-                    Toast.makeText(MapsActivity.this,"Check Internet Connection",Toast.LENGTH_LONG).show();
-                    accepted=false;
-
-                }
-            });*/
-
-       // }
-  //  }
 }

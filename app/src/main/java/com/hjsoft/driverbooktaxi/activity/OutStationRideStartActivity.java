@@ -246,8 +246,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
         if(Build.VERSION.SDK_INT<23)
         {
-            //System.out.println("Sdk_int is"+Build.VERSION.SDK_INT);
-            //System.out.println("the enetred values is "+entered);
             establishConnection();
         }
         else
@@ -397,19 +395,11 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                 if (lastLocDist != null && current_lat != 0.0 && current_long != 0.0 && lastLocDist.latitude!=0.0 && lastLocDist.longitude!=0.0) {
 
-                    // System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude);
-                    // System.out.println(current_lat + ":" + current_long);
-
-                    // Location.distanceBetween(lastLocDist.latitude, lastLocDist.longitude, current_lat, current_long, dist);
-                    // System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude + ":" + current_lat + ":" + current_long);
-                    // resDist = resDist + (long) dist[0];
-
                     dbAdapter.insertEntry(requestId,current_lat,current_long, complete_address, resDist, timeUpdated);
 
                 } else {
 
                     //dbAdapter.insertEntry(0.0, 0.0, complete_address, resDist, timeUpdated);
-
                 }
 
                 if(dbAdapter.findRequestId(requestId)) {
@@ -420,24 +410,21 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                     for(int i=0;i<list.size();i++)
                     {
                         l=list.get(0);
-                        // System.out.println(l.getRequestId()+"::"+l.getStartingTime()+"::"+l.getStoppingTime()+"::"+l.getDistance()+"::"+l.getLatitude()+"::"+l.getLongitude());
                     }
                     dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, current_lat, current_long,pauseDiff);
-                    // System.out.println("-------------------------------------------------------------------------------");
+
                     ArrayList<LocationUpdates> list1=dbAdapter.getAllLocUpdates(requestId);
                     LocationUpdates l1;
 
                     for(int i=0;i<list.size();i++)
                     {
                         l1=list1.get(0);
-                        //System.out.println(l1.getRequestId()+"::"+l1.getStartingTime()+"::"+l1.getStoppingTime()+"::"+l1.getDistance()+"::"+l1.getLatitude()+"::"+l1.getLongitude());
                     }
                 }
                 else
                 {
                     dbAdapter.insertLocEntry(requestId,rideStartingTime,rideCurrentTime,resDist,current_lat,current_long,
                             Double.parseDouble(data.getpLat()),Double.parseDouble(data.getpLng()),Double.parseDouble(data.getdLat()),Double.parseDouble(data.getdLng()),guestName,guestMobile,pauseDiff);
-                    //  System.out.println("________________________________________________________________________________");
                 }
 
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationRideStartActivity.this);
@@ -488,8 +475,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
             @Override
             public void onClick(View view) {
 
-                //System.out.println("get directions calleddddddddd....");
-
                 if(Build.VERSION.SDK_INT>=23) {
 
                     if (isSystemAlertPermissionGranted(OutStationRideStartActivity.this)) {
@@ -502,7 +487,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                         gettingDirections = true;
 
                         Uri gmmIntentUri = Uri.parse("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
-                        //System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                         mapIntent.setPackage("com.google.android.apps.maps");
                         //mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -527,7 +511,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                     gettingDirections = true;
 
                     Uri gmmIntentUri = Uri.parse("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
-                    // System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     mapIntent.setPackage("com.google.android.apps.maps");
                     //mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -593,7 +576,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                         boolean bookingValue=pref.getString("booking","").equals("out");
 
-                        //System.out.println("booking value issssssss "+bookingValue);
 
                         if(bookingValue)
                         {
@@ -608,67 +590,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                             alertDialog.dismiss();
                             sendFinishDetailsToServer();
-
-                            /*if(data.getTravelPackage().contains("round"))
-                            {
-
-                                sendFinishDetailsToServer();
-                            }
-                            else {
-
-                                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationRideStartActivity.this);
-
-                                LayoutInflater inflater = getLayoutInflater();
-                                final View dialogView = inflater.inflate(R.layout.alert_billing, null);
-                                dialogBuilder.setView(dialogView);
-
-                                final AlertDialog alertDialog = dialogBuilder.create();
-                                alertDialog.setCancelable(false);
-                                alertDialog.setCanceledOnTouchOutside(false);
-                                alertDialog.show();
-
-                                final RadioButton oneWay = (RadioButton) dialogView.findViewById(R.id.ab_rb_one);
-                                final RadioButton twoWay = (RadioButton) dialogView.findViewById(R.id.ab_rb_two);
-                                Button ok = (Button) dialogView.findViewById(R.id.ab_bt_ok);
-
-                                RadioGroup rgList = (RadioGroup) dialogView.findViewById(R.id.ab_rg_list);
-                                rgList.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                                    @Override
-                                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
-
-                                        switch (i) {
-                                            case R.id.ab_rb_one:
-                                                billing = "1 way billing";
-
-                                                //Toast.makeText(getActivity(),"Mini clicked",Toast.LENGTH_LONG).show();
-                                                break;
-                                            case R.id.ab_rb_two:
-                                                billing = "2 way billing";
-
-                                                //Toast.makeText(getActivity(),"Micra clicked",Toast.LENGTH_LONG).show();
-                                                break;
-                                        }
-                                        // alertDialog.dismiss();
-                                    }
-                                });
-
-                                ok.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-
-                                        //System.out.println("billing isssssss "+billing);
-
-                                        if (billing.equals("-")) {
-                                            Toast.makeText(OutStationRideStartActivity.this, "Please select Billing type", Toast.LENGTH_SHORT).show();
-                                        } else {
-
-                                            alertDialog.dismiss();
-                                            sendFinishDetailsToServer();
-                                        }
-                                    }
-                                });
-                            }*/
-
                         }
 
                     }
@@ -738,8 +659,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
         r=new Runnable() {
             @Override
             public void run() {
-
-                //  System.out.println("sending location updates.......");
 
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -848,8 +767,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                     v.addProperty("companyid", companyId);
                     v.addProperty("ReqId",requestId);
 
-                    //System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
-
                     Call<Pojo> call = REST_CLIENT.sendStatus(v);
                     call.enqueue(new Callback<Pojo>() {
                         @Override
@@ -857,10 +774,8 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                             if (response.isSuccessful()) {
 
-                                //  System.out.println("-----------------------------** updated **-----------------------------------");
                                 String[] newbooking = response.body().getMessage().split("-");
 
-                                //System.out.println("#########" + newbooking.length);
                                 if (newbooking.length == 1) {
 
                                 } else {
@@ -868,7 +783,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                                 }
 
                             } else {
-                                //System.out.println(response.errorBody() + "**" + response.message());
+
                             }
                         }
 
@@ -992,13 +907,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                 if (lastLocDist != null && current_lat != 0.0 && current_long != 0.0 && lastLocDist.latitude!=0.0 && lastLocDist.longitude!=0.0) {
 
-                    // System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude);
-                    // System.out.println(current_lat + ":" + current_long);
-
-                    // Location.distanceBetween(lastLocDist.latitude, lastLocDist.longitude, current_lat, current_long, dist);
-                    // System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude + ":" + current_lat + ":" + current_long);
-                    // resDist = resDist + (long) dist[0];
-
                     dbAdapter.insertEntry(requestId,current_lat,current_long, complete_address, resDist, timeUpdated);
 
                 } else {
@@ -1013,16 +921,10 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                     ArrayList<LocationUpdates> list = dbAdapter.getAllLocUpdates(requestId);
                     LocationUpdates l;
 
-                   /* for (int i = 0; i < list.size(); i++) {
-                        l = list.get(0);
-                        System.out.println(l.getRequestId() + "::" + l.getStartingTime() + "::" + l.getStoppingTime() + "::" + l.getDistance() + "::" + l.getLatitude() + "::" + l.getLongitude());
-                    }*/
                     dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, current_lat, current_long,pauseDiff);
-                    // System.out.println("-------------------------------------------------------------------------------");
                 } else {
                     dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
                             Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile,pauseDiff);
-                    //  System.out.println("________________________________________________________________________________");
                 }
             }
         };
@@ -1147,7 +1049,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                 }
                 else
                 {
-                    //mGoogleApiClient.connect();
+
                 }
 
             }
@@ -1159,7 +1061,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
             }
             else
             {
-                //mGoogleApiClient.connect();
+
             }
 
         }
@@ -1176,7 +1078,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
             }
             else {
-                //mGoogleApiClient.disconnect();
+
             }
         }
         super.onStop();
@@ -1186,8 +1088,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
     protected void onPause() {
         super.onPause();
 
-        // System.out.println("Google API client in pause is "+mGoogleApiClient);
-
         if(mGoogleApiClient!=null) {
             if (mGoogleApiClient.isConnected()) {
 
@@ -1196,7 +1096,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                 }
                 else {
-                    //stopLocationUpdates();
+
                 }
 
             }
@@ -1207,25 +1107,18 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
     protected void onResume() {
         super.onResume();
 
-        // System.out.println("Google API client in resume is "+mGoogleApiClient);
-        //System.out.println("the enetred values in onResume is "+entered);
-
         if(entered)
         {
-            //System.out.println("connecting the googleclient in resume here..."+mGoogleApiClient.isConnected()+" "+mGoogleApiClient.isConnecting()+" "+entered);
             if(mGoogleApiClient.isConnecting()||mGoogleApiClient.isConnected())
             {
-                // System.out.println("Google Client connectng in 'if' "+mGoogleApiClient.isConnecting());
+
             }
             else {
-                //System.out.println("Google Client connectng in 'else' "+mGoogleApiClient.isConnecting());
                 mGoogleApiClient.connect();
             }
         }
 
         if(mGoogleApiClient!=null) {
-
-            // System.out.println("connections "+mGoogleApiClient.isConnected()+" "+mGoogleApiClient.isConnecting());
 
             if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
 
@@ -1259,7 +1152,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
     protected synchronized void buildGoogleApiClient() {
 
         if (mGoogleApiClient == null) {
-            //System.out.println("in buildGoogleApiClient after 'if' ");
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -1339,7 +1231,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
     protected void startLocationUpdates() {
 
-        //System.out.println("Location Updates Started..");
         try {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,OutStationRideStartActivity.this);
             mRequestingLocationUpdates=true;
@@ -1384,8 +1275,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
     @Override
     public void onLocationChanged(Location location) {
 
-        //System.out.println("*********** loc changed ***************"+location.getLatitude()+"::"+location.getLongitude());
-
         /*
 
         if(mLastLocation==null)
@@ -1427,10 +1316,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                         current_lat = location.getLatitude();
                         current_long = location.getLongitude();
 
-                        //curntloc = new LatLng(current_lat, current_long);
-                        // Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(), current_lat, current_long, results);
-                        // location.getAccuracy();
-
                         if(first)
                         {
                             Date date = new Date();
@@ -1449,10 +1334,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                         }
 
                         if (location.getSpeed() < 3.0) {
-                            // System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                             waitingTime = waitingTime + 1;
-                            //  System.out.println(waitingTime);
-
                         }
                         //  res = res + (long) results[0];
 
@@ -1500,10 +1382,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
         });*/
 
         mLastLocation=location;
-//        Date date = new Date();
-//        timeUpdated=dateFormat.format(date);
-
-        //dbAdapter.insertEntry(mLastLocation.getLatitude(),mLastLocation.getLongitude(),complete_address,res,timeUpdated);
     }
 
     @Override
@@ -1549,11 +1427,8 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
         if(cab!=null){
 
-            // System.out.println("in if map ready.........");
         }
         else {
-
-            //  System.out.println("in else map ready...");
             cab = mMap.addMarker(new MarkerOptions().position(lastLoc)
                     .title("Current Location")
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
@@ -1652,22 +1527,14 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                 if (response.isSuccessful()) {
                     distData = response.body();
 
-                    //System.out.println(response.message() + "::" + response.code() + "::" + response.errorBody());
-
-                    // System.out.println("status is " + distData.getStatus());
                     List<Route> rDataList = distData.getRoutes();
-                    // System.out.println("Route size "+rDataList.size());
 
                     if (rDataList != null) {
-
-                        //System.out.println("rDataList size " + rDataList.size());
 
                         for (int i = 0; i < rDataList.size(); i++) {
                             rData = rDataList.get(i);
 
                             List<Leg> lDataList = rData.getLegs();
-
-                            //System.out.println("lDataList size is " + lDataList.size());
 
                             for (int j = 0; j < lDataList.size(); j++) {
                                 lData = lDataList.get(j);
@@ -1724,22 +1591,14 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                 if (response.isSuccessful()) {
                     distData = response.body();
 
-                    //System.out.println(response.message() + "::" + response.code() + "::" + response.errorBody());
-
-                    // System.out.println("status is " + distData.getStatus());
                     List<Route> rDataList = distData.getRoutes();
-                    // System.out.println("Route size "+rDataList.size());
 
                     if (rDataList != null) {
-
-                        //System.out.println("rDataList size " + rDataList.size());
 
                         for (int i = 0; i < rDataList.size(); i++) {
                             rData = rDataList.get(i);
 
                             List<Leg> lDataList = rData.getLegs();
-
-                            //System.out.println("lDataList size is " + lDataList.size());
 
                             for (int j = 0; j < lDataList.size(); j++) {
                                 lData = lDataList.get(j);
@@ -1793,13 +1652,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
         v.addProperty("ridestoptime", rideStoppingTime);
         v.addProperty("companyid", pref.getString("company_id", companyId));
         v.addProperty("billing","-");
-        //System.out.println("*****************!!!*********************");
-        //System.out.println(stProfileId);
-        //System.out.println(data.getgRequestId());
-        //System.out.println(finalDistance + ":::" + resDist);
-        // System.out.println(movingTimeFormat);
-        //System.out.println(rideData);
-        //System.out.println("******************!!!**********************");
 
         Call<Pojo> call2 = REST_CLIENT.sendRideDetails(v);
         call2.enqueue(new Callback<Pojo>() {
@@ -1910,8 +1762,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
             sFormatted = formatter.format(Secs);
             //movingTimeFormat = hFormatted + "." + mFormatted;
             String totTime = hFormatted + ":" + mFormatted + ":" + sFormatted;
-
-            /////////////////////////////////////////
             String mov_time = "";
 
             SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
@@ -1940,23 +1790,9 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                 e.printStackTrace();
             }
 
-            //System.out.println("****movingtimeformat is ********"+movingTimeFormat+"::"+mov_time);
-
-                      /*String[] timeArray =movingTimeFormat.split(":");
-
-                        String hh=timeArray[0];
-                        String mm=timeArray[1];
-                        final String finalTimeTravelled=hh+"."+mm;
-
-                        System.out.println("***finalTimeTravelled is ********"+finalTimeTravelled);*/
-
-
             rideData = dbAdapter.getRideDetails(requestId);
             double distanceDB = dbAdapter.getDistance(requestId);
             distanceDB = distanceDB / 1000;
-
-            //System.out.println("Distance from db is " + distanceDB);
-            //System.out.println("Calc Distance is " + resDist / 1000);
             final double dist = resDist / 1000;
 
             pickupLat = pref.getString("pickup_lat", null);
@@ -1966,8 +1802,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
             String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
                     "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
-
-            //System.out.println(urlString);
 
             rideData=rideData+"*"+urlString;
 
@@ -1985,22 +1819,14 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
                     if (response.isSuccessful()) {
                         distData = response.body();
 
-                        //System.out.println(response.message() + "::" + response.code() + "::" + response.errorBody());
-
-                        // System.out.println("status is " + distData.getStatus());
                         List<Route> rDataList = distData.getRoutes();
-                        // System.out.println("Route size "+rDataList.size());
 
                         if (rDataList != null) {
-
-                            //System.out.println("rDataList size " + rDataList.size());
 
                             for (int i = 0; i < rDataList.size(); i++) {
                                 rData = rDataList.get(i);
 
                                 List<Leg> lDataList = rData.getLegs();
-
-                                //System.out.println("lDataList size is " + lDataList.size());
 
                                 for (int j = 0; j < lDataList.size(); j++) {
                                     lData = lDataList.get(j);
@@ -2010,7 +1836,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                                     distance = distance + d.getValue();
 
-                                    //System.out.println("dist and value is " + d.getValue() + ":::" + distance);
                                 }
 
                             }
@@ -2028,10 +1853,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                             //finalDistance=finalDistance / 1000;
 
-                            System.out.println("distanceeee is " + finalDistance + ":::" + distance);
-                            System.out.println("ride data issss "+rideData);
-
-                            ////
                             JsonObject v = new JsonObject();
                             v.addProperty("profileid", stProfileId);
                             v.addProperty("requestid", pref.getString("request_id", requestId));
@@ -2111,8 +1932,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                         progressDialog.dismiss();
                         Toast.makeText(OutStationRideStartActivity.this, response.message() + "&" + response.code(), Toast.LENGTH_LONG).show();
-
-                        //System.out.println(response.message() + "::" + response.code() + "::" + response.isSuccessful());
                     }
                 }
 
@@ -2125,79 +1944,6 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
                 }
             });
-
-
-            //???????????????????????????????????????????????????????//
-
-                       /* JsonObject v=new JsonObject();
-                        v.addProperty("profileid",stProfileId);
-                        v.addProperty("requestid",data.getgRequestId());
-                        v.addProperty("distancetravelled",dist);
-                        v.addProperty("movingtime",movingTimeFormat);
-                        v.addProperty("idletime",1);
-                        v.addProperty("ridedata",rideData);
-                        v.addProperty("ridestarttime",rideStartingTime);
-                        v.addProperty("ridestoptime",rideStoppingTime);
-                        v.addProperty("companyid",companyId);
-                        System.out.println("*****************!!!*********************");
-                        System.out.println(stProfileId);
-                        System.out.println(data.getgRequestId());
-                        System.out.println(dist+":::"+resDist);
-                        System.out.println(movingTimeFormat);
-                        System.out.println(rideData);
-                        System.out.println(rideStartingTime);
-                        System.out.println(rideStoppingTime);
-                        System.out.println("******************!!!**********************");
-
-                        Call<Pojo> call=REST_CLIENT.sendRideDetails(v);
-                        call.enqueue(new Callback<Pojo>() {
-                            @Override
-                            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                                Pojo msg;
-
-                                if(response.isSuccessful())
-                                {
-                                    dbAdapter.deleteLocUpdates();
-                                    dbAdapter.deleteRideDetails();
-                                    progressDialog.dismiss();
-                                    msg=response.body();
-
-                                    if(myBottomSheet.isAdded())
-                                    {
-                                        myBottomSheet.dismiss();
-                                    }
-
-                                    System.out.println("#######################################");
-                                    System.out.println("fare is "+msg.getMessage());
-
-                                    Intent i=new Intent(OutStationRideStartActivity.this,RideFinishActivity.class);
-                                    i.putExtra("distance",dist);
-                                    i.putExtra("time",movingTimeFormat);
-                                    i.putExtra("fare",msg.getMessage());
-                                    i.putExtra("cabData",cabData);
-                                    i.putExtra("rideStart",rideStartingTime);
-                                    i.putExtra("rideStop",rideStoppingTime);
-                                    startActivity(i);
-                                    finish();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Pojo> call, Throwable t) {
-
-                                progressDialog.dismiss();
-
-                                if(myBottomSheet.isAdded())
-                                {
-                                    //return;
-                                }
-                                else
-                                {
-                                    myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                }
-                            }
-                        });*/
         } else {
 
             Toast.makeText(OutStationRideStartActivity.this, "No Internet Connection..Try again!", Toast.LENGTH_SHORT).show();

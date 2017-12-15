@@ -12,10 +12,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class RestClient {
 
-    private static String BASE_URL="http://104.192.4.94/api/";
+    private static String BASE_URL="http://192.168.1.13:1532/api/";
     private static API REST_CLIENT;
-    //http://192.168.1.13:1533/api/(v) http://192.168.1.10:1532/api/ (sh)
-    //http://api.travelsmate.in/api/ (old server)
+    //http://192.168.1.28:1533/api/(v) http://192.168.1.10:1532/api/ (sh)
     //http://104.192.4.94/api/ (new server)
     static {
         setupRestClient();

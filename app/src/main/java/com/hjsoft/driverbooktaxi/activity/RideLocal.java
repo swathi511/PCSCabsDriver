@@ -199,35 +199,18 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
         city=pref.getString("city",null);
 
-        /*System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        System.out.println(data.getgRequestId());
-        System.out.println(data.getBookingType());
-        System.out.println(data.getgName());
-        System.out.println(data.getgMobile());
-        System.out.println(data.getgPickup());
-        System.out.println(data.getgDrop());
-        System.out.println(data.getTravelType());
-        System.out.println(data.getBookingType());
-        System.out.println(data.getdLat());
-        System.out.println(data.getdLng());
-        System.out.println(data.getpLat());
-        System.out.println(data.getpLng());
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");*/
-
-        /*pickupLat=data.getpLat();
-        pickupLong=data.getpLng();
-
-        editor.putString("pickup_lat",pickupLat);
-        editor.putString("pickup_long",pickupLong);
-        editor.commit();
-        */
-
         tvGname.setText(data.getgName());
         tvGmobile.setText(data.getgMobile());
         tvGpickup.setText(data.getgPickup());
         tvGdrop.setText(data.getgDrop());
-        String upperString = data.getPaymentMode().substring(0,1).toUpperCase() + data.getPaymentMode().substring(1);
-        tvPaymentMode.setText(upperString+" Payment");
+
+        if(data.getPaymentMode()!=null) {
+            String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
+            tvPaymentMode.setText(upperString + " Payment");
+        }
+        else {
+            tvPaymentMode.setText(" "+" Payment");
+        }
 
         SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
         SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
@@ -268,8 +251,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
         if(Build.VERSION.SDK_INT<23)
         {
-            //System.out.println("Sdk_int is"+Build.VERSION.SDK_INT);
-            //System.out.println("the enetred values is "+entered);
             establishConnection();
         }
         else
@@ -343,8 +324,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
 
-                //System.out.println("get directions calleddddddddd....");
-
                 if(!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-")))&&!(data.getdLat().equals(""))&&!(data.getdLng().equals(""))) {
 
 
@@ -360,7 +339,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                             gettingDirections = true;
 
                             Uri gmmIntentUri = Uri.parse("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
-                            //System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                             Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                             mapIntent.setPackage("com.google.android.apps.maps");
                             //mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -376,7 +354,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                         }
                     } else {
 
-                        // Toast.makeText(RideStartActivity.this, "permission granted", Toast.LENGTH_LONG).show();
                         stopService(new Intent(getApplicationContext(), RideStartOverlayService.class));
                         startService(new Intent(getApplicationContext(), RideStartOverlayService.class));
                         // startService(new Intent(getApplicationContext(), HUD.class));
@@ -384,7 +361,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                         gettingDirections = true;
 
                         Uri gmmIntentUri = Uri.parse("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
-                        // System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                         mapIntent.setPackage("com.google.android.apps.maps");
                         //mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -919,10 +895,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
     public void establishConnection(){
 
-        //buildLocationSettingsRequest();
         entered=true;
-        //sendLocationUpdatesToServer();
-        //storeCoordinatesIntoDB();
         getGPSLocationUpdates();
     }
 
@@ -934,9 +907,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void run() {
 
-                //  System.out.println("sending location updates.......");
-
-                    h.postDelayed(r,20000);
+                h.postDelayed(r,20000);
 
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -988,11 +959,9 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                         if(cab!=null){
 
-                            // System.out.println("in if map ready.........");
                         }
                         else {
 
-                            //  System.out.println("in else map ready...");
                             cab = mMap.addMarker(new MarkerOptions().position(lastLocDist)
                                     .title("Current Location")
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
@@ -1022,32 +991,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                     }
 
-                    /*
-
-                    if (dbAdapter.findRequestId(requestId)) {
-
-                        ArrayList<LocationUpdates> list = dbAdapter.getAllLocUpdates();
-                        LocationUpdates l;
-
-                        for (int i = 0; i < list.size(); i++) {
-                            l = list.get(0);
-                            System.out.println(l.getRequestId() + "::" + l.getStartingTime() + "::" + l.getStoppingTime() + "::" + l.getDistance() + "::" + l.getLatitude() + "::" + l.getLongitude());
-                        }
-                        dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, current_lat, current_long);
-                        // System.out.println("-------------------------------------------------------------------------------");
-                        ArrayList<LocationUpdates> list1 = dbAdapter.getAllLocUpdates();
-                        LocationUpdates l1;
-
-                        for (int i = 0; i < list.size(); i++) {
-                            l1 = list1.get(0);
-                            System.out.println(l1.getRequestId() + "::" + l1.getStartingTime() + "::" + l1.getStoppingTime() + "::" + l1.getDistance() + "::" + l1.getLatitude() + "::" + l1.getLongitude());
-                        }
-                    } else {
-                        dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
-                                Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile);
-                        //  System.out.println("________________________________________________________________________________");
-                    }*/
-
                     JsonObject v = new JsonObject();
                     v.addProperty("profileid", stProfileId);
                     v.addProperty("location", city);
@@ -1057,79 +1000,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                     v.addProperty("longitude", c_long);
                     v.addProperty("companyid", companyId);
                     v.addProperty("ReqId",requestId);
-
-                    System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
-
-                    Call<Pojo> call = REST_CLIENT.sendStatus(v);
-                    call.enqueue(new Callback<Pojo>() {
-
-
-                        @Override
-                        public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                            if (response.isSuccessful()) {
-                                System.out.println("-----------------------------** updated **-----------------------------------"+response.body().getMessage());
-
-                                //System.out.println("new booking is "+response.body().getMessage());
-                                String[] newbooking = response.body().getMessage().split("-");
-
-                                // System.out.println("#############################" + newbooking.length);
-                                // System.out.println("New booking is ssssss"+newbooking[1]);
-
-                                if (newbooking.length == 1) {
-
-                                } else {
-                                    tvNewBooking.setVisibility(View.VISIBLE);
-                                }
-                            } else {
-                                //System.out.println(response.errorBody() + "**" + response.message());
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Pojo> call, Throwable t) {
-
-                            Toast.makeText(RideLocal.this, "Error in network connection!", Toast.LENGTH_LONG).show();
-
-
-                        }
-                    });
-
-                    lastLocDist = new LatLng(current_lat, current_long);
-
-
-
-                   /*
-                    if (dbAdapter.findRequestId(requestId)) {
-
-                        ArrayList<LocationUpdates> list = dbAdapter.getAllLocUpdates();
-                        LocationUpdates l;
-
-                        for (int i = 0; i < list.size(); i++) {
-                            l = list.get(0);
-                            System.out.println(l.getRequestId() + "::" + l.getStartingTime() + "::" + l.getStoppingTime() + "::" + l.getDistance() + "::" + l.getLatitude() + "::" + l.getLongitude());
-                        }
-                        dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, 0.0, 0.0);
-                        // System.out.println("-------------------------------------------------------------------------------");
-                        ArrayList<LocationUpdates> list1 = dbAdapter.getAllLocUpdates();
-                        LocationUpdates l1;
-
-                        for (int i = 0; i < list.size(); i++) {
-                            l1 = list1.get(0);
-                            System.out.println(l1.getRequestId() + "::" + l1.getStartingTime() + "::" + l1.getStoppingTime() + "::" + l1.getDistance() + "::" + l1.getLatitude() + "::" + l1.getLongitude());
-                        }
-                    } else {
-                        dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, 0.0, 0.0,
-                                Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile);
-                        //  System.out.println("________________________________________________________________________________");
-                    }
-
-                    JsonObject v = new JsonObject();
-                    v.addProperty("profileid", stProfileId);
-                    v.addProperty("location", city);
-                    v.addProperty("latittude", "-");
-                    v.addProperty("longitude", "-");
-                    v.addProperty("companyid", companyId);
 
                     //System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
 
@@ -1141,12 +1011,8 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                         public void onResponse(Call<Pojo> call, Response<Pojo> response) {
 
                             if (response.isSuccessful()) {
-                                //  System.out.println("-----------------------------** updated **-----------------------------------");
-
+                                //System.out.println("-----------------------------** updated **-----------------------------------"+response.body().getMessage());
                                 String[] newbooking = response.body().getMessage().split("-");
-
-                                System.out.println("#############################" + newbooking.length);
-                                // System.out.println("New booking is ssssss"+newbooking[1]);
 
                                 if (newbooking.length == 1) {
 
@@ -1154,24 +1020,29 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                                     tvNewBooking.setVisibility(View.VISIBLE);
                                 }
                             } else {
-                                System.out.println(response.errorBody() + "**" + response.message());
                             }
                         }
 
                         @Override
                         public void onFailure(Call<Pojo> call, Throwable t) {
 
-                            Toast.makeText(RideStartActivity.this, "Error in network connection", Toast.LENGTH_LONG).show();
+                            Toast.makeText(RideLocal.this, "Error in network connection!", Toast.LENGTH_LONG).show();
+
+                            dbAdapter.insertNetworkIssueData(requestId,"N/W "+getCurrentTime());
+
 
                         }
                     });
-                    */
 
-            }
-            else {
+                    lastLocDist = new LatLng(current_lat, current_long);
+                }
+                else {
 
-                Toast.makeText(RideLocal.this, "GPS is not enabled..Please Check!", Toast.LENGTH_SHORT).show();
-            }
+                    Toast.makeText(RideLocal.this, "GPS is not enabled..Please Check!", Toast.LENGTH_SHORT).show();
+
+                        dbAdapter.insertNetworkIssueData(requestId,"GPS "+getCurrentTime());
+
+                }
 
 
             }
@@ -1196,19 +1067,9 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                 if (lastLocDist != null && current_lat != 0.0 && current_long != 0.0 && lastLocDist.latitude!=0.0 && lastLocDist.longitude!=0.0) {
 
-                    //System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude);
-                    //System.out.println(current_lat + ":" + current_long);
-
-                    // Location.distanceBetween(lastLocDist.latitude, lastLocDist.longitude, current_lat, current_long, dist);
-                    // System.out.println(lastLocDist.latitude + ":" + lastLocDist.longitude + ":" + current_lat + ":" + current_long);
-                    // resDist = resDist + (long) dist[0];
-
                     dbAdapter.insertEntry(requestId,current_lat, current_long, complete_address, resDist, timeUpdated);
 
                 } else {
-
-                    //dbAdapter.insertEntry(0.0, 0.0, complete_address, resDist, timeUpdated);
-
                 }
 
 
@@ -1217,18 +1078,12 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                     ArrayList<LocationUpdates> list = dbAdapter.getAllLocUpdates(requestId);
                     LocationUpdates l;
 
-                   /* for (int i = 0; i < list.size(); i++) {
-                        l = list.get(0);
-                        System.out.println(l.getRequestId() + "::" + l.getStartingTime() + "::" + l.getStoppingTime() + "::" + l.getDistance() + "::" + l.getLatitude() + "::" + l.getLongitude());
-                    }*/
                     dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, current_lat, current_long,idleTime);
-                    // System.out.println("-------------------------------------------------------------------------------");
                 } else {
 
-                    if(!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-")))&&!(data.getdLat().equals(""))&&!(data.getdLng().equals(""))) {
+                    if((!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-"))))&&(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
                         dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
                                 Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile, idleTime);
-                        //  System.out.println("________________________________________________________________________________");
                     }
                     else {
 
@@ -1379,15 +1234,15 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onStop() {
 
-       // if(mGoogleApiClient!=null) {
+        // if(mGoogleApiClient!=null) {
 
-            if(gettingDirections)
-            {
+        if(gettingDirections)
+        {
 
-            }
-            else {
-                //mGoogleApiClient.disconnect();
-            }
+        }
+        else {
+            //mGoogleApiClient.disconnect();
+        }
         //}
         super.onStop();
     }
@@ -1462,12 +1317,8 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onDestroy() {
 
-        //System.out.println("on Destroy getting called.................");
-
         super.onDestroy();
         stopService(new Intent(getApplicationContext(), RideStartOverlayService.class));
-
-        //Toast.makeText(RideStartActivity.this,"onDestroy",Toast.LENGTH_LONG).show();
 
         if(h!=null)
         {
@@ -1487,40 +1338,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
         gps.stopUsingGPS();
     }
 
-    /*protected void buildLocationSettingsRequest() {
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
-        builder.setAlwaysShow(true);
-        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult result) {
-                final Status status = result.getStatus();
-                switch (status.getStatusCode()) {
-
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        //Location Settings Satisfied
-                        break;
-
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied, but this can be fixed
-                        // by showing the user a dialog.
-                        try {
-                            status.startResolutionForResult(RideLocal.this, REQUEST_LOCATION);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way
-                        // to resolve it
-                        break;
-                }
-            }
-        });
-    }
-*/
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         switch (requestCode) {
@@ -1546,134 +1363,8 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    /*@Override
-    public void onLocationChanged(Location location) {
-
-        *//*
-
-        if(mLastLocation==null)
-        {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-            lastLoc = new LatLng(latitude, longitude);
-            try {
-                addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                String address = addresses.get(0).getAddressLine(0);
-                String add1=addresses.get(0).getAddressLine(1);
-                String add2=addresses.get(0).getAddressLine(2);
-                city = addresses.get(0).getLocality();
-                String state = addresses.get(0).getAdminArea();
-                complete_address=address+" "+add1+" "+add2;
-              tvCurrentLoc.setText(complete_address);
-            }
-            catch(IOException e)
-            {e.printStackTrace();
-                complete_address="No response from server";
-                tvCurrentLoc.setText(complete_address);
-            }
-            mMap.addMarker(new MarkerOptions().position(lastLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLoc, 15));
-            mMap.getUiSettings().setMapToolbarEnabled(false);
-        }*//*
-
-
-        if(mLastLocation!=null) {
-
-            if(location!=null&&location.hasAccuracy()) {
-
-                if (location.getAccuracy() <= 5) {
-
-                    System.out.println("*********** loc changed ***************"+location.getLatitude()+"::"+location.getLongitude());
-
-                    if (location.getLatitude() != 0.0 && location.getLongitude() != 0.0) {
-
-                        current_lat = location.getLatitude();
-                        current_long = location.getLongitude();
-
-                        // curntloc = new LatLng(current_lat, current_long);
-                        //  Location.distanceBetween(mLastLocation.getLatitude(), mLastLocation.getLongitude(), current_lat, current_long, results);
-                        // location.getAccuracy();
-
-
-                        if(first)
-                        {
-                            Date date = new Date();
-                            timeUpdated=dateFormat.format(date);
-
-                            pickupLat=String.valueOf(current_lat);
-                            pickupLong=String.valueOf(current_long);
-
-                            editor.putString("pickup_lat",pickupLat);
-                            editor.putString("pickup_long",pickupLong);
-                            editor.commit();
-
-                            dbAdapter.insertEntry(requestId,current_lat, current_long, complete_address, resDist, timeUpdated);
-                            first=false;
-                        }
-                        // res = res + (long) results[0];
-
-                        //cab.setPosition(curntloc);
-                        if (location.getSpeed() < 3.0) {
-                            // System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                            waitingTime = waitingTime + 1;
-                            //  System.out.println(waitingTime);
-
-                        }
-                    }
-                }
-            }
-
-        }
-
-        *//*
-
-        JsonObject v=new JsonObject();
-        v.addProperty("profileid",stProfileId);
-        v.addProperty("location",city);
-        c_lat=String.valueOf(current_lat);
-        c_long=String.valueOf(current_long);
-        System.out.println("chaging lat and long.....");
-        v.addProperty("latittude",c_lat);
-        v.addProperty("longitude",c_long);
-
-        System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
-
-        Call<Pojo> call=REST_CLIENT.sendStatus(v);
-        call.enqueue(new Callback<Pojo>() {
-            @Override
-            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
-
-                if(response.isSuccessful())
-                {
-                    System.out.println("---------------------------updated-----------------------------------");
-                }
-                else
-                {
-                    System.out.println(response.errorBody()+"**"+response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Pojo> call, Throwable t) {
-
-                Toast.makeText(RideStartActivity.this,"Error in network connection",Toast.LENGTH_LONG).show();
-
-
-            }
-        });*//*
-
-        mLastLocation=location;
-
-        //dbAdapter.insertEntry(mLastLocation.getLatitude(),mLastLocation.getLongitude(),complete_address,res,timeUpdated);
-    }*/
-
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
-        //System.out.println("onMapReady getting called.....");
 
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -1683,8 +1374,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
         latitude1=b.getDouble("current_lat",0.0);
         longitude1=b.getDouble("current_long",0.0);
-
-        //System.out.println("currrent lat & long issss "+latitude1+" : "+longitude1);
 
         if (gPickup != null) {
 
@@ -1711,17 +1400,10 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
             // Add a marker in Sydney and move the camera
             LatLng sydney = new LatLng(-34, 151);
-
-
-
-            //System.out.println("onMapReady " + current_lat + ":" + current_long);
-
             if (cab != null) {
 
-                // System.out.println("in if map ready.........");
-            } else {
-
-                //  System.out.println("in else map ready...");
+            }
+            else {
                 cab = mMap.addMarker(new MarkerOptions().position(lastLoc)
                         .title("Current Location")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.cab_icon)));
@@ -1769,16 +1451,11 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
         }
-
-        //System.out.println("last loc coordinates are "+current_lat+"@@@"+current_long);
-
-
-
     }
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
+
     }
 
 
@@ -1810,9 +1487,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             rideStoppingTime = getCurrentTime();
             rideStartingTime=pref.getString("rideStartingTime",null);
 
-            //System.out.println("ride starting time is "+rideStartingTime);
-
-
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             try {
@@ -1833,19 +1507,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             String mFormatted = formatter.format(Mins);
             String sFormatted = formatter.format(Secs);
             movingTimeFormat = hFormatted + "." + mFormatted;
-            //movingTimeFormat="06"+"."+F"00";
-
-            //Toast.makeText(RideStartActivity.this,"time is "+movingTimeFormat,Toast.LENGTH_SHORT).show();
-
-            //System.out.println("****movingtimeformat is ********"+movingTimeFormat);
-
-                      /*String[] timeArray =movingTimeFormat.split(":");
-
-                        String hh=timeArray[0];
-                        String mm=timeArray[1];
-                        final String finalTimeTravelled=hh+"."+mm;
-
-                        System.out.println("***finalTimeTravelled is ********"+finalTimeTravelled);*/
 
             final ProgressDialog progressDialog = new ProgressDialog(RideLocal.this);
             progressDialog.setIndeterminate(true);
@@ -1858,44 +1519,18 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                 rideData = "*";
             }
 
-            //System.out.println("ridedata isssssssssssssss "+rideData);
-            //double distanceDB = dbAdapter.getDistance(requestId);
-            // distanceDB = distanceDB / 1000;
-
-            //System.out.println("Distance from db is " + distanceDB);
-            //System.out.println("Calc Distance is " + resDist / 1000);
-
-
             final double dist = resDist / 1000;
-            //////
 
             pickupLat = pref.getString("pickup_lat", null);
             pickupLong = pref.getString("pickup_long", null);
 
-
-                            /*if(pickupLat.equals("-")&&pickupLong.equals("-"))
-                            {
-                                Toast.makeText(RideStartActivity.this,"Booking already finished!",Toast.LENGTH_LONG).show();
-                                dbAdapter.deleteLocUpdates(requestId);
-                                dbAdapter.deleteRideDetails(requestId);
-                                finish();
-                            }*/
-
-            //System.out.println("Pickup data  " + pickupLat + "::" + pickupLong);
-
-//                            dropLat = String.valueOf(current_lat);
-//                            dropLong = String.valueOf(current_long);
             String stWaypoints = dbAdapter.getWaypointsForOutstation(requestId);
-            //System.out.println("waypoints is" + stWaypoints);
 
             String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
                     "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
 
 
             rideData=rideData+"*"+urlString;
-
-            //System.out.println(rideData);
-
 
             Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
             call1.enqueue(new Callback<DistancePojo>() {
@@ -1909,22 +1544,14 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                     if (response.isSuccessful()) {
                         distData = response.body();
 
-                        // System.out.println(response.message() + "::" + response.code() + "::" + response.errorBody());
-
-                        // System.out.println("status is " + distData.getStatus());
                         List<Route> rDataList = distData.getRoutes();
-                        // System.out.println("Route size "+rDataList.size());
 
                         if (rDataList != null) {
-
-                            //System.out.println("rDataList size " + rDataList.size());
 
                             for (int i = 0; i < rDataList.size(); i++) {
                                 rData = rDataList.get(i);
 
                                 List<Leg> lDataList = rData.getLegs();
-
-                                //System.out.println("lDataList size is " + lDataList.size());
 
                                 for (int j = 0; j < lDataList.size(); j++) {
                                     lData = lDataList.get(j);
@@ -1933,20 +1560,16 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
 
                                     distance = distance + d.getValue();
-
-                                    //System.out.println("dist and value is " + d.getValue() + ":::" + distance);
                                 }
 
                             }
 
                             distance = distance / 1000;
                             finalDistance = distance;
-                            //System.out.println("distance is " + finalDistance + ":::" + distance);
 
-                            ////
+                            String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
+                            System.out.println("missing data is "+missingCoordinates);
 
-                            //finalDistance=35;
-                            //movingTimeFormat=String.valueOf(3.30);
 
                             JsonObject v = new JsonObject();
                             v.addProperty("profileid", stProfileId);
@@ -1962,19 +1585,9 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                             v.addProperty("startingKms",0);
                             v.addProperty("closingKms",0);
                             v.addProperty("totalKms",0);
+                            v.addProperty("missingcoordinates",missingCoordinates);
 
-                            System.out.println(stProfileId+":"+data.getgRequestId()+":"+finalDistance+":"+movingTimeFormat+":"+rideData+":"+rideStartingTime+":"+rideStoppingTime+":"+companyId+":"+billing);
-
-                            //System.out.println("billing isssss "+billing);
-                                            /*
-                                            System.out.println("*****************!!!!!*********************");
-                                            System.out.println(stProfileId);
-                                            System.out.println(data.getgRequestId());
-                                            System.out.println(finalDistance);
-                                            System.out.println(movingTimeFormat);
-                                            System.out.println(rideData);
-                                            System.out.println("******************!!!!!**********************");
-                                            */
+                            //System.out.println(stProfileId+":"+data.getgRequestId()+":"+finalDistance+":"+movingTimeFormat+":"+rideData+":"+rideStartingTime+":"+rideStoppingTime+":"+companyId+":"+billing);
 
                             Call<Pojo> call2 = REST_CLIENT.sendRideDetails(v);
                             call2.enqueue(new Callback<Pojo>() {
@@ -1984,35 +1597,11 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                                     Pojo msg;
 
                                     if (response.isSuccessful()) {
-                                        ///////////////////////////new changes/////////////////////////////////////
 
-
-//                                                    Call<List<RideStopPojo>> call1=REST_CLIENT.getRideStopData(data.getgRequestId(),companyId,"driver");
-//                                                    call1.enqueue(new Callback<List<RideStopPojo>>() {
-//                                                        @Override
-//                                                        public void onResponse(Call<List<RideStopPojo>> call, Response<List<RideStopPojo>> response) {
-//
-//
-//                                                            if(response.isSuccessful())
-//                                                            {
-//                                                              Toast.makeText(RideStartActivity.this,"done",Toast.LENGTH_SHORT).show();
-//
-//                                                            }
-//
-//                                                        }
-//
-//                                                        @Override
-//                                                        public void onFailure(Call<List<RideStopPojo>> call, Throwable t) {
-//
-//                                                            //Toast.makeText(RideStartActivity.this,"Connectivity issues..Please Retry!",Toast.LENGTH_LONG).show();
-//
-//                                                        }
-//                                                    });
-
-
-                                        ///////////////////////////////new changes//////////////////////////////////
                                         dbAdapter.deleteLocUpdates(requestId);
                                         dbAdapter.deleteRideDetails(requestId);
+                                        dbAdapter.deleteNetworkIssueData(requestId);
+
                                         progressDialog.dismiss();
                                         msg = response.body();
 
@@ -2033,12 +1622,9 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                                         i.putExtra("rideStop", rideStoppingTime);
                                         startActivity(i);
                                         finish();
-
-                                        //////////////////////////////////////////////////////////////////
                                     } else {
                                         progressDialog.dismiss();
                                         Toast.makeText(RideLocal.this,response.message()+","+response.isSuccessful(),Toast.LENGTH_LONG).show();
-                                        //System.out.println(response.message() + ":" + response.code());
                                     }
                                 }
 
@@ -2050,19 +1636,8 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                                     Toast.makeText(RideLocal.this, "Connectivity Error..Please Try Again!", Toast.LENGTH_LONG).show();
 
 
-                                                  /*  if (myBottomSheet.isAdded()) {
-                                                        //return;
-                                                    } else {
-                                                        myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                                    }
-                                                    */
-
-
                                 }
                             });
-                            ////
-
-
                         } else {
 
                             progressDialog.dismiss();
@@ -2071,7 +1646,6 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                         }
                     } else {
                         progressDialog.dismiss();
-                        //System.out.println(response.message() + "::" + response.code() + "::" + response.isSuccessful());
                         Toast.makeText(RideLocal.this, response.message() + "&" + response.code(), Toast.LENGTH_LONG).show();
                     }
                 }
@@ -2105,33 +1679,31 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                 current_lat = gps.getLatitude();
                 current_long = gps.getLongitude();
 
-                //System.out.println("data is "+current_lat+":"+current_long);
-
                 if (current_lat != 0.0 && current_long != 0.0) {
 
-                        if (first) {
+                    if (first) {
 
-                            if(!pref.getBoolean("saved",false)) {
+                        if(!pref.getBoolean("saved",false)) {
 
-                                pickupLat = String.valueOf(current_lat);
-                                pickupLong = String.valueOf(current_long);
+                            pickupLat = String.valueOf(current_lat);
+                            pickupLong = String.valueOf(current_long);
 
-                                rideStartingTime = getCurrentTime();
+                            rideStartingTime = getCurrentTime();
 
-                                editor.putString("pickup_lat", pickupLat);
-                                editor.putString("pickup_long", pickupLong);
-                                editor.putString("rideStartingTime", rideStartingTime);
-                                editor.putBoolean("saved", true);
-                                editor.commit();
+                            editor.putString("pickup_lat", pickupLat);
+                            editor.putString("pickup_long", pickupLong);
+                            editor.putString("rideStartingTime", rideStartingTime);
+                            editor.putBoolean("saved", true);
+                            editor.commit();
 
-                            }
-
-                            sendLocationUpdatesToServer();
-                            storeCoordinatesIntoDB();
-
-                            first = false;
                         }
+
+                        sendLocationUpdatesToServer();
+                        storeCoordinatesIntoDB();
+
+                        first = false;
                     }
+                }
             }
         };
 

@@ -38,16 +38,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     Geocoder geocoder;
     RecyclerView rview;
     ArrayList<FormattedAllRidesData> mResultList;
+    ArrayList<FormattedAllRidesData> mOriginalList;
     FormattedAllRidesData data;
     private AdapterCallback mAdapterCallback;
     int pos;
 
 
-    public RecyclerAdapter(Context context,ArrayList<FormattedAllRidesData> mResultList,RecyclerView rview)
+    public RecyclerAdapter(Context context,ArrayList<FormattedAllRidesData> mResultList,RecyclerView rview,ArrayList<FormattedAllRidesData> mOriginalList)
     {
 
         this.context=context;
         this.mResultList=mResultList;
+        this.mOriginalList=mOriginalList;
         this.rview=rview;
         inflater=(LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         geocoder=new Geocoder(context, Locale.getDefault());
@@ -65,7 +67,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
         data=mResultList.get(position);
 
@@ -122,7 +124,30 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             holder.tvStatus.setText(data.getRideStatus());
             holder.tvStatus.setTextColor(Color.parseColor("#0067de"));
         }
-        holder.rLayout.setTag(position);
+
+
+        holder.rLayout.setTag(data.getPosition());
+
+        /*holder.rLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                System.out.println("pos is "+data.getPosition());
+
+                try {
+                    pos= (int) view.getTag();
+
+                    System.out.println("pos is "+pos);
+                    mAdapterCallback.onMethodCallback(pos,mResultList);
+
+                }
+                catch (ClassCastException e)
+                {
+                    e.printStackTrace();
+                }
+
+            }
+        });*/
 
     }
 
@@ -152,9 +177,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                 @Override
                 public void onClick(View view) {
 
+                    //System.out.println("pos is "+data.getPosition());
+
                     try {
                         pos= (int) view.getTag();
-                        mAdapterCallback.onMethodCallback(pos,mResultList);
+
+                        System.out.println("pos is "+pos);
+                        mAdapterCallback.onMethodCallback(pos,mOriginalList);
 
                     }
                     catch (ClassCastException e)

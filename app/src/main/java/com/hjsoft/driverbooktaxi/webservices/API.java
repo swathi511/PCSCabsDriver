@@ -64,5 +64,9 @@ public interface API {
     @GET("ServiceLocations/GetServicelocations")
     Call<List<ServiceLocationPojo>> getServiceLocations(@Query("companyid") String companyId);
 
+    @GET("CurrentBookingDetails/GetCurrentBookingDetails")
+    Call<ArrayList<AllRidesPojo>> getCurrentBooking(@Query("driverprofileid") String profileId,
+                                               @Query("companyid") String companyId);
+
 
 }

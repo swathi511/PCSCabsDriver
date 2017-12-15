@@ -197,12 +197,16 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
         tvPaymentMode.setText(upperString + " Payment");
 
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
         try {
-            tvDateTime.setText(format.format(format.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
-        } catch (ParseException e) {
+            tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
+        }
+        catch (ParseException e)
+        {
             e.printStackTrace();
         }
+
         requestId = data.getgRequestId();
 
         mRequestingLocationUpdates = false;
@@ -276,7 +280,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                         gettingDirections = true;
 
                         Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
-                        // System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                         mapIntent.setPackage("com.google.android.apps.maps");
                         // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
@@ -297,7 +300,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                     gettingDirections = true;
 
                     Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
-                    // System.out.println("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     mapIntent.setPackage("com.google.android.apps.maps");
                     // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
@@ -338,8 +340,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
             public void onClick(View view) {
 
                 boolean bookingValue = pref.getString("booking", "").equals("out");
-
-                //System.out.println("booking value issssssss "+bookingValue);
 
                 if (bookingValue) {
                     Toast.makeText(OutStationTrackRideActivity.this, "Booking already finished!", Toast.LENGTH_LONG).show();
@@ -458,7 +458,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                     });
                                 }
                             } else {
-                                //  System.out.println("error msg is "+response.errorBody()+":"+response.message()+":"+response.code());
 
                             }
                         }
@@ -500,8 +499,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                 boolean bookingValue = pref.getString("booking", "").equals("out");
 
-                //System.out.println("booking value issssssss "+bookingValue);
-
                 if (bookingValue) {
                     Toast.makeText(OutStationTrackRideActivity.this, "Booking already finished!", Toast.LENGTH_LONG).show();
                     Intent i = new Intent(OutStationTrackRideActivity.this, HomeActivity.class);
@@ -525,7 +522,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                     v.addProperty("companyid", companyId);
                     v.addProperty("ReqId", requestId);
 
-                    // System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
                     Call<Pojo> call = REST_CLIENT.sendStatus(v);
                     call.enqueue(new Callback<Pojo>() {
 
@@ -664,7 +660,7 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                                 }
                             } else {
-                                System.out.println("error msg is " + response.errorBody() + ":" + response.message() + ":" + response.code());
+                                // System.out.println("error msg is " + response.errorBody() + ":" + response.message() + ":" + response.code());
 
                             }
                         }
@@ -816,7 +812,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 v.addProperty("companyid",companyId);
                 v.addProperty("ReqId",requestId);
 
-                // System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
                 Call<Pojo> call=REST_CLIENT.sendStatus(v);
                 call.enqueue(new Callback<Pojo>() {
 
@@ -882,23 +877,12 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                         }
                         else
                         {
-                            // System.out.println("error msg is "+response.errorBody()+":"+response.message()+":"+response.code());
 
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Pojo> call, Throwable t) {
-
-
-//                        if(myBottomSheet.isAdded())
-//                        {
-//                            //return;
-//                        }
-//                        else
-//                        {
-//                            myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-//                        }
 
                         Toast.makeText(OutStationTrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
                     }
@@ -917,18 +901,14 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
         super.onStart();
 
-        //System.out.println("Google API client in start is "+mGoogleApiClient);
-        // System.out.println("the enetred values in onStart is "+entered);
-
         if(Build.VERSION.SDK_INT>=23)
         {
             if(!entered)
             {
-                // System.out.println("value of entered in 'if' "+entered);
+
             }
             else
             {
-                //System.out.println("value of entered in 'else' "+entered);
                 if(gettingDirections) {
 
                 }
@@ -954,7 +934,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
     @Override
     protected void onStop() {
-        // System.out.println("Google API client in stop is "+mGoogleApiClient);
 
         if(mGoogleApiClient!=null) {
 
@@ -972,8 +951,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
     @Override
     protected void onPause() {
         super.onPause();
-
-        // System.out.println("Google API client in pause is "+mGoogleApiClient);
 
         if(mGoogleApiClient!=null) {
             if (mGoogleApiClient.isConnected()) {
@@ -993,25 +970,17 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
     protected void onResume() {
         super.onResume();
 
-        // System.out.println("Google API client in resume is "+mGoogleApiClient);
-        //System.out.println("the enetred values in onResume is "+entered);
-
         if(entered)
         {
-            //System.out.println("connecting the googleclient in resume here..."+mGoogleApiClient.isConnected()+" "+mGoogleApiClient.isConnecting()+" "+entered);
             if(mGoogleApiClient.isConnecting()||mGoogleApiClient.isConnected())
             {
-                // System.out.println("Google Client connectng in 'if' "+mGoogleApiClient.isConnecting());
             }
             else {
-                //System.out.println("Google Client connectng in 'else' "+mGoogleApiClient.isConnecting());
                 mGoogleApiClient.connect();
             }
         }
 
         if(mGoogleApiClient!=null) {
-
-            // System.out.println("connections "+mGoogleApiClient.isConnected()+" "+mGoogleApiClient.isConnecting());
 
             if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
 
@@ -1040,7 +1009,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
     protected synchronized void buildGoogleApiClient() {
 
         if (mGoogleApiClient == null) {
-            //System.out.println("in buildGoogleApiClient after 'if' ");
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -1120,7 +1088,6 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
     protected void startLocationUpdates() {
 
-        //System.out.println("Location Updates Started..");
         try {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,OutStationTrackRideActivity.this);
             mRequestingLocationUpdates=true;
@@ -1272,7 +1239,7 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         }
         else
         {
-            if(!(data.getdLat().equals(""))&&!(data.getdLng().equals(""))) {
+            if((!(data.getdLat().equals("-"))&&!(data.getdLng().equals("-")))&&(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
                 LatLng dropLatLng = new LatLng(Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()));
                 gDrop = mMap.addMarker(new MarkerOptions().position(dropLatLng)
                         .title(data.getgDrop())
@@ -1474,19 +1441,27 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 }
                 else {
 
-                    editor.putString("startingKms",value);
-                    editor.commit();
-                    alertDialog.dismiss();
+                    if (value.matches("[0-9]+")) {
 
-                    h.removeCallbacks(r);
-                    stopLocationUpdates();
-                    //mGoogleApiClient.disconnect();
-                    Intent i = new Intent(OutStationTrackRideActivity.this, RideOutstation.class);
-                    i.putExtra("cabData", cabData);
-                    i.putExtra("current_lat", current_lat);
-                    i.putExtra("current_long", current_long);
-                    startActivity(i);
-                    finish();
+                        editor.putString("startingKms", value);
+                        editor.commit();
+                        alertDialog.dismiss();
+
+                        h.removeCallbacks(r);
+                        stopLocationUpdates();
+                        //mGoogleApiClient.disconnect();
+                        Intent i = new Intent(OutStationTrackRideActivity.this, RideOutstation.class);
+                        i.putExtra("cabData", cabData);
+                        i.putExtra("current_lat", current_lat);
+                        i.putExtra("current_long", current_long);
+                        startActivity(i);
+                        finish();
+                    }
+                    else {
+
+                        etValue.setText("");
+                        Toast.makeText(OutStationTrackRideActivity.this,"Please enter valid number",Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });

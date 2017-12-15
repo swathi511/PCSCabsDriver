@@ -60,16 +60,10 @@ public class OutStationRideOngoingOverlayService extends Service implements View
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //System.out.println("destroy getting calledddddd..............");
-
-        // wm.removeView(overlayedButton);
-
     }
 
     @Override
     public void onClick(View view) {
-
-        //Toast.makeText(getApplicationContext(),"Clicked",Toast.LENGTH_LONG).show();
 
         wm.removeView(overlayedButton);
 

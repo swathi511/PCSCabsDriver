@@ -184,7 +184,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginLeft="10dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginRight="10dp">
 
             <TextView android:layout_width="wrap_content"
@@ -202,6 +202,31 @@
                 android:textSize="12sp"
                 android:layout_marginLeft="8dp"/>
         </LinearLayout>
+
+        <LinearLayout android:id="@+id/acr_ll_other_charges"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="10dp">
+
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Other Charges"
+                android:textColor="@color/colorTextBlue"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"/>
+            <TextView android:id="@+id/acr_tv_other_charges"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xxx"
+                android:textColor="@color/colorAsh"
+                android:textSize="12sp"
+                android:layout_marginLeft="8dp"/>
+        </LinearLayout>
+
 
 
     </LinearLayout>

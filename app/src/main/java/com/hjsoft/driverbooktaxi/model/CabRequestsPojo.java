@@ -59,6 +59,9 @@ public class CabRequestsPojo {
     @SerializedName("payment_mode")
     @Expose
     private String paymentMode;
+    @SerializedName("additionalcharges")
+    @Expose
+    private String othercharges;
 
 
     /**
@@ -295,5 +298,13 @@ public class CabRequestsPojo {
 
     public void setPaymentMode(String paymentMode) {
         this.paymentMode = paymentMode;
+    }
+
+    public String getOthercharges() {
+        return othercharges;
+    }
+
+    public void setOthercharges(String othercharges) {
+        this.othercharges = othercharges;
     }
 }

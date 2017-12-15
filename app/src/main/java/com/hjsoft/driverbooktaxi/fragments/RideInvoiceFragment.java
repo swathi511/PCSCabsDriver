@@ -114,8 +114,6 @@ public class RideInvoiceFragment extends Fragment {
         Bundle b=getActivity().getIntent().getExtras();
         stFare=b.getString("fare");
         stDistance=b.getFloat("distance");
-        //System.out.println("distance is "+stDistance);
-        //stDistance=stDistance/1000;
         stTime=b.getString("time");
         stRideStart=b.getString("rideStart");
         stRideStop=b.getString("rideStop");
@@ -130,10 +128,6 @@ public class RideInvoiceFragment extends Fragment {
         editor.putString("booking","out");
         editor.putBoolean("saved",false);
         editor.commit();
-
-        //System.out.println("ride invoice.... ");
-
-        //System.out.println("data.reqID "+data.getgRequestId());
 
         Call<List<RideStopPojo>> call=REST_CLIENT.getRideStopData(data.getgRequestId(),companyId,"driver");
         call.enqueue(new Callback<List<RideStopPojo>>() {
@@ -162,8 +156,6 @@ public class RideInvoiceFragment extends Fragment {
                     tvTotalBill.setText("Rs. "+data.getTotalfare());
                     tvTaxes.setText("Rs. 0");*/
 
-                    //System.out.println("Total fare is "+data1.getTotalfare());
-
                     if(data1.getTravelType().equals("outstation"))
                     {
                         llOSBatta.setVisibility(View.VISIBLE);
@@ -177,7 +169,7 @@ public class RideInvoiceFragment extends Fragment {
 
                     }
                     else {
-                       llOtherCharges.setVisibility(View.VISIBLE);
+                        llOtherCharges.setVisibility(View.VISIBLE);
                         tvOtherCharges.setText(getString(R.string.Rs)+" "+data1.getOtherCharges());
                         otherCharges=Double.parseDouble(data1.getOtherCharges());
                     }
@@ -286,8 +278,6 @@ public class RideInvoiceFragment extends Fragment {
 
                     }
 
-                    //System.out.println(data1.getPaymentMode()+":"+data1.getPaymentCash()+":"+data1.getPaymentWallet()+":"+data1.getWalletBalance());
-
                     if(data1.getPaymentMode().equals("cash"))
                     {
                         llWallet.setVisibility(View.GONE);
@@ -317,7 +307,7 @@ public class RideInvoiceFragment extends Fragment {
 
                 }
                 else {
-                    //System.out.println(response.message()+"::"+response.code()+"::"+response.errorBody()+":");
+
                 }
 
 

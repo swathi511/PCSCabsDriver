@@ -155,7 +155,7 @@ public class RideFinishActivity extends AppCompatActivity{
             openFragment(fragment,position);
 
         } else {
-           //Log.e("MainActivity", "Error in creating fragment");
+            //Log.e("MainActivity", "Error in creating fragment");
         }
     }
 
@@ -216,8 +216,6 @@ public class RideFinishActivity extends AppCompatActivity{
     @Override
     public void onBackPressed() {
 
-        //super.onBackPressed();
-       // session.logoutUser();
         sendLogoutStatus();
     }
 
@@ -283,7 +281,6 @@ public class RideFinishActivity extends AppCompatActivity{
             public void onClick(View view) {
 
                 alertDialog.dismiss();
-                //System.out.println("cancel done");
             }
         });
     }

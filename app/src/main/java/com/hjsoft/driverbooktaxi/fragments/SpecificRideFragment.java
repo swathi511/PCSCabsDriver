@@ -142,7 +142,6 @@ public class SpecificRideFragment extends Fragment {
             tvDistance.setText(data.getDistanceTravelled());
         }
 
-        //System.out.println("checking......................."+data.getRideStartTime().length());
         //if(data.getRideStartTime().length()>=4) {
             if ((data.getRideStartTime().substring(data.getRideStartTime().length() - 4, data.getRideStartTime().length()).equals("a.m.")
                     || data.getRideStartTime().substring(data.getRideStartTime().length() - 4, data.getRideStartTime().length()).equals("p.m."))) {

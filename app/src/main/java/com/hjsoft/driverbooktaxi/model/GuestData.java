@@ -7,11 +7,11 @@ import java.io.Serializable;
  */
 public class GuestData implements Serializable{
 
-    String gName,gMobile,gPickup,gDrop,pLat,pLng,dLat,dLng,gRequestId,gProfileId,travelType,travelPackage,scheduledDate,scheduledTime,otpRequired,bookingType,paymentMode;
+    String gName,gMobile,gPickup,gDrop,pLat,pLng,dLat,dLng,gRequestId,gProfileId,travelType,travelPackage,scheduledDate,scheduledTime,otpRequired,bookingType,paymentMode,otherCharges;
 
     public GuestData(String gRequestId,String gProfileId,String gName,String gMobile,String pLat,
                      String pLng,String dLat,String dLng,String gPickup,String gDrop,String travelType,String travelPackage,String scheduledDate,String scheduledTime,
-                     String otpRequired,String bookingType,String paymentMode)
+                     String otpRequired,String bookingType,String paymentMode,String otherCharges)
     {
        this.gRequestId=gRequestId;
         this.gProfileId=gProfileId;
@@ -30,6 +30,7 @@ public class GuestData implements Serializable{
         this.otpRequired=otpRequired;
         this.bookingType=bookingType;
         this.paymentMode=paymentMode;
+        this.otherCharges=otherCharges;
     }
 
 
@@ -167,5 +168,13 @@ public class GuestData implements Serializable{
 
     public void setPaymentMode(String paymentMode) {
         this.paymentMode = paymentMode;
+    }
+
+    public String getOtherCharges() {
+        return otherCharges;
+    }
+
+    public void setOtherCharges(String otherCharges) {
+        this.otherCharges = otherCharges;
     }
 }
