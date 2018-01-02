@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class DBAdapter {
 
     static final String DATABASE_NAME = "user.db";
-    static final int DATABASE_VERSION = 40;
+    static final int DATABASE_VERSION = 50;
     public static final int NAME_COLUMN = 1;
 
     public static final String DB_CREATE_LATLNG = "create table if not exists "+"RIDE_LATLNG"+

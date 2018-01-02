@@ -22,6 +22,7 @@ import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
 import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.model.ServiceLocationPojo;
+import com.hjsoft.driverbooktaxi.service.OnClearFromRecentService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
 
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     int j=0;
-   // String version="4.2";
+    //String version="4.5";
     String version="1";//20
     String city="Visakhapatnam";
 
@@ -123,6 +124,12 @@ public class MainActivity extends AppCompatActivity {
                     {
                         editor.putString("status","online");
                         editor.commit();
+
+                        /*Intent serviceIntent = new Intent(MainActivity.this, OnClearFromRecentService.class);
+                        serviceIntent.setPackage(MainActivity.this.getPackageName());
+                        startService(serviceIntent);*/
+
+                       startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
 
                         Intent i = new Intent(MainActivity.this, HomeActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -225,6 +232,12 @@ public class MainActivity extends AppCompatActivity {
                                 progressDialog.dismiss();
                                 editor.putString("city",city);
                                 editor.commit();
+
+                                Intent serviceIntent = new Intent(MainActivity.this, OnClearFromRecentService.class);
+                                serviceIntent.setPackage(MainActivity.this.getPackageName());
+                                startService(serviceIntent);
+
+                                //(new Intent(getBaseContext(), OnClearFromRecentService.class));
 
                                 Intent i=new Intent(MainActivity.this,HomeActivity.class);
                                 startActivity(i);

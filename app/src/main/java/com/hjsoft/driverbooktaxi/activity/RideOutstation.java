@@ -213,11 +213,11 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
             tvPaymentMode.setText(upperString + " Payment");
         }
         else {
-            tvPaymentMode.setText(" "+" Payment");
+            tvPaymentMode.setText("Cash Payment");
         }
 
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
+        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
         try {
             tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
         }
@@ -470,9 +470,35 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
             @Override
             public void onClick(View view) {
 
-                if(Build.VERSION.SDK_INT>=23) {
+                if(!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-")))&&!(data.getdLat().equals(""))&&!(data.getdLng().equals(""))) {
 
-                    if (isSystemAlertPermissionGranted(RideOutstation.this)) {
+
+                    if (Build.VERSION.SDK_INT >= 23) {
+
+                        if (isSystemAlertPermissionGranted(RideOutstation.this)) {
+
+                            // Toast.makeText(RideOutstation.this, "permission granted", Toast.LENGTH_LONG).show();
+                            stopService(new Intent(getApplicationContext(), OutStationRideStartOverlayService.class));
+                            startService(new Intent(getApplicationContext(), OutStationRideStartOverlayService.class));
+                            // startService(new Intent(getApplicationContext(), HUD.class));
+
+                            gettingDirections = true;
+
+                            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            //mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+
+
+                            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                                startActivity(mapIntent);
+                            }
+
+                        } else {
+                            requestSystemAlertPermission(RideOutstation.this, 1);
+                        }
+                    } else {
 
                         // Toast.makeText(RideOutstation.this, "permission granted", Toast.LENGTH_LONG).show();
                         stopService(new Intent(getApplicationContext(), OutStationRideStartOverlayService.class));
@@ -492,30 +518,11 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                             startActivity(mapIntent);
                         }
 
-                    } else {
-                        requestSystemAlertPermission(RideOutstation.this, 1);
                     }
                 }
                 else {
 
-                    // Toast.makeText(RideOutstation.this, "permission granted", Toast.LENGTH_LONG).show();
-                    stopService(new Intent(getApplicationContext(), OutStationRideStartOverlayService.class));
-                    startService(new Intent(getApplicationContext(), OutStationRideStartOverlayService.class));
-                    // startService(new Intent(getApplicationContext(), HUD.class));
-
-                    gettingDirections = true;
-
-                    Uri gmmIntentUri = Uri.parse("google.navigation:q=" + data.getdLat() + "," + data.getdLng());
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                    mapIntent.setPackage("com.google.android.apps.maps");
-                    //mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
-
-
-                    if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(mapIntent);
-                    }
-
+                    Toast.makeText(RideOutstation.this,"Location not known!",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -718,7 +725,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                             }
                             else {
 
-                                Toast.makeText(RideOutstation.this, "Fetching data.. Please wait!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RideOutstation.this, "Getting the current Location.. Please wait!", Toast.LENGTH_SHORT).show();
                             }
 
                         }
@@ -955,8 +962,15 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
 
                     if(data.getpLat().equals("")||data.getpLng().equals(""))
                     {
-                        dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
-                                0, 0, Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile,pauseDiff);
+                        if((!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-"))))&&(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
+                            dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
+                                    0, 0, Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile, pauseDiff);
+                        }
+                        else {
+                            dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
+                                    0, 0, 0, 0, guestName, guestMobile, pauseDiff);
+
+                        }
                     }
                     else {
 
@@ -1486,8 +1500,14 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
 
         String stWaypoints = dbAdapter.getWaypointsForOutstation(requestId);
 
+//        String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
+//                "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
+
         String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
+                "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
+
+        Log.i("URL",urlString);
+
 
         rideData=rideData+"*"+urlString;
 

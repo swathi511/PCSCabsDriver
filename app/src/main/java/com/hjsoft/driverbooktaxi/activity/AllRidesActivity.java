@@ -285,7 +285,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                     if(dataList.size()==0)
                     {
-                        if(item.getOtpStatus().equals("1"))
+                        if(item.getOtpStatus().equals("1")||item.getOtpStatus().equals("True"))
                         {
                             Toast.makeText(AllRidesActivity.this, "Please wait...", Toast.LENGTH_LONG).show();
 
@@ -328,7 +328,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                     if(dataList.size()==0)
                     {
-                        if(item.getOtpStatus().equals("1"))
+                        if(item.getOtpStatus().equals("1")||item.getOtpStatus().equals("True"))
                         {
                             Toast.makeText(AllRidesActivity.this, "Please wait...", Toast.LENGTH_LONG).show();
 

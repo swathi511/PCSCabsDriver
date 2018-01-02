@@ -97,7 +97,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
     protected boolean mRequestingLocationUpdates;
     final static int REQUEST_LOCATION = 199;
     protected Location mLastLocation;
-    double latitude1,longitude1,current_lat=0.0,current_long=0.0;
+    double latitude1,longitude1,current_lat=0.0,current_long=0.0,final_lat,final_lng;
     Geocoder geocoder;
     List<Address> addresses;
     LatLng lastLoc,curntloc;
@@ -200,7 +200,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
         requestId=data.getRequestId();
 
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
 
         tvDateTime.setText(format.format(data.getRideDate()));
 
@@ -211,7 +211,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
             tvPaymentMode.setText(upperString + " Payment");
         }
         else {
-            tvPaymentMode.setText(" "+" Payment");
+            tvPaymentMode.setText("Cash Payment");
         }
 
         locationData=dataList.get(0);
@@ -1473,20 +1473,33 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
     public void sendFinishDetailsToServer()
     {
-        if (current_lat != 0.0 && current_long != 0.0) {
+        if (final_lat != 0.0 && final_lng != 0.0) {
 
             final Date date = new Date();
             timeUpdated = dateFormat.format(date);
 
             dbAdapter.insertEntry(requestId, current_lat, current_long, complete_address, resDist, timeUpdated);
 
-            dropLat = String.valueOf(current_lat);
-            dropLong = String.valueOf(current_long);
+            if(current_lat!=0.0&&current_long!=0.0) {
+
+                dropLat = String.valueOf(current_lat);
+                dropLong = String.valueOf(current_long);
+            }
+            else {
+
+                dropLat=String.valueOf(final_lat);
+                dropLong=String.valueOf(final_lng);
+            }
 
             dbAdapter.deleteRideStatus(requestId);
 
-            h.removeCallbacks(r);
-            hC.removeCallbacks(rC);
+            if(h!=null) {
+                h.removeCallbacks(r);
+            }
+
+            if(hC!=null) {
+                hC.removeCallbacks(rC);
+            }
 
             //alertDialog.dismiss();
             // rideStoppingTime=java.text.DateFormat.getTimeInstance().format(new Date());
@@ -1529,8 +1542,12 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
             String stWaypoints = dbAdapter.getWaypointsForOutstation(requestId);
 
+//            String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
+//                    "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
+
+
             String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
-                    "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
+                    "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
 
 
             rideData=rideData+"*"+urlString;
@@ -1669,7 +1686,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
         } else {
 
-            Toast.makeText(RideOngoingLocal.this, "Fetching data.. Please wait!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RideOngoingLocal.this, "Getting the current Location... Please wait!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1687,12 +1704,26 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
                 if (current_lat != 0.0 && current_long != 0.0) {
 
+                    final_lat=current_lat;
+                    final_lng=current_long;
+
                     if (first) {
 
                         sendLocationUpdatesToServer();
                         storeCoordinatesIntoDB();
 
                         first = false;
+                    }
+                }
+                else {
+
+                    if(String.valueOf(locationData.getdLat())!=null&&String.valueOf(locationData.getdLng())!=null) {
+
+                        /*current_lat = locationData.getdLat();
+                        current_long = locationData.getdLng();*/
+
+                        final_lat = locationData.getdLat();
+                        final_lng =  locationData.getdLng();
                     }
                 }
 

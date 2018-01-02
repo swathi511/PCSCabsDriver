@@ -209,11 +209,11 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             tvPaymentMode.setText(upperString + " Payment");
         }
         else {
-            tvPaymentMode.setText(" "+" Payment");
+            tvPaymentMode.setText("Cash Payment");
         }
 
-        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
+        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
         try {
             tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
         }
@@ -879,7 +879,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
         if(requestCode==REQUEST_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                Toast.makeText(RideLocal.this,"called",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(RideLocal.this,"called",Toast.LENGTH_SHORT).show();
 
                 establishConnection();
 
@@ -1081,6 +1081,37 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                     dbAdapter.updateLocEntry(requestId, rideCurrentTime, resDist, current_lat, current_long,idleTime);
                 } else {
 
+                    if(data.getpLat().equals("")||data.getpLng().equals(""))
+                    {
+                        if((!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-"))))&&(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
+                            dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
+                                    0, 0, Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile,idleTime);
+                        }
+                        else {
+                            dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
+                                    0, 0, 0, 0, guestName, guestMobile, idleTime);
+
+                        }
+                    }
+                    else {
+
+                       /* dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
+                                Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile,pauseDiff);
+*/
+
+                        if((!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-"))))&&(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
+                            dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
+                                    Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile, idleTime);
+                        }
+                        else {
+
+                            dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
+                                    Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), 0.0  , 0.0 , guestName, guestMobile, idleTime);
+
+                        }
+
+                    }
+/*
                     if((!(data.getdLat().equals("-"))&&(!(data.getdLng().equals("-"))))&&(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
                         dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
                                 Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()), guestName, guestMobile, idleTime);
@@ -1090,7 +1121,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                         dbAdapter.insertLocEntry(requestId, rideStartingTime, rideCurrentTime, resDist, current_lat, current_long,
                                 Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()), 0.0  , 0.0 , guestName, guestMobile, idleTime);
 
-                    }
+                    }*/
                 }
             }
         };
@@ -1378,9 +1409,11 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
         if (gPickup != null) {
 
         } else {
-            LatLng pickLatLng = new LatLng(Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()));
-            gPickup = mMap.addMarker(new MarkerOptions().position(pickLatLng)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            if(!(data.getpLat().equals(""))&&!(data.getpLng()).equals("")) {
+                LatLng pickLatLng = new LatLng(Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()));
+                gPickup = mMap.addMarker(new MarkerOptions().position(pickLatLng)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            }
         }
 
         if (gDrop != null) {
@@ -1526,9 +1559,14 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
             String stWaypoints = dbAdapter.getWaypointsForOutstation(requestId);
 
-            String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
-                    "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
+//            String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
+//                    "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
 
+
+            String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
+
+            Log.i("URL",urlString);
 
             rideData=rideData+"*"+urlString;
 
@@ -1662,7 +1700,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
         } else {
 
-            Toast.makeText(RideLocal.this, "Fetching data... Please wait!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RideLocal.this, "Getting the current Location... Please wait!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1678,6 +1716,8 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                 current_lat = gps.getLatitude();
                 current_long = gps.getLongitude();
+
+                System.out.println("*********** "+current_lat+":"+current_long);
 
                 if (current_lat != 0.0 && current_long != 0.0) {
 
@@ -1704,6 +1744,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                         first = false;
                     }
                 }
+
             }
         };
 

@@ -194,11 +194,17 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         tvPickup.setText(data.getgPickup());
         tvDrop.setText(data.getgDrop());
 
-        String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
-        tvPaymentMode.setText(upperString + " Payment");
+        if(data.getPaymentMode()!=null) {
+            String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
+            tvPaymentMode.setText(upperString + " Payment");
+        }
+        else {
+            tvPaymentMode.setText("Cash Payment");
 
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+        }
+
+        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
+        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
         try {
             tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
         }
@@ -265,14 +271,36 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
             @Override
             public void onClick(View view) {
 
-                directionLat = Double.parseDouble(data.getpLat());
-                directionLong = Double.parseDouble(data.getpLng());
+                if(!(data.getpLat().equals(""))&&!(data.getpLng().equals(""))) {
+
+                    directionLat = Double.parseDouble(data.getpLat());
+                    directionLong = Double.parseDouble(data.getpLng());
 
 
-                if (Build.VERSION.SDK_INT >= 23) {
-                    if (isSystemAlertPermissionGranted(OutStationTrackRideActivity.this)) {
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        if (isSystemAlertPermissionGranted(OutStationTrackRideActivity.this)) {
 
-                        //Toast.makeText(OutStationTrackRideActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+                            //Toast.makeText(OutStationTrackRideActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+                            stopService(new Intent(getApplicationContext(), OutStationRideOverlayService.class));
+                            startService(new Intent(getApplicationContext(), OutStationRideOverlayService.class));
+                            // startService(new Intent(getApplicationContext(), HUD.class));
+
+                            gettingDirections = true;
+
+                            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+
+                            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                                startActivity(mapIntent);
+                            }
+
+                        } else {
+                            requestSystemAlertPermission(OutStationTrackRideActivity.this, 1);
+                        }
+                    } else {
+                        //Toast.makeText(OutStationTrackRideActivity.this, "permission granted..", Toast.LENGTH_LONG).show();
                         stopService(new Intent(getApplicationContext(), OutStationRideOverlayService.class));
                         startService(new Intent(getApplicationContext(), OutStationRideOverlayService.class));
                         // startService(new Intent(getApplicationContext(), HUD.class));
@@ -287,27 +315,7 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                         if (mapIntent.resolveActivity(getPackageManager()) != null) {
                             startActivity(mapIntent);
                         }
-
-                    } else {
-                        requestSystemAlertPermission(OutStationTrackRideActivity.this, 1);
                     }
-                } else {
-                    //Toast.makeText(OutStationTrackRideActivity.this, "permission granted..", Toast.LENGTH_LONG).show();
-                    stopService(new Intent(getApplicationContext(), OutStationRideOverlayService.class));
-                    startService(new Intent(getApplicationContext(), OutStationRideOverlayService.class));
-                    // startService(new Intent(getApplicationContext(), HUD.class));
-
-                    gettingDirections = true;
-
-                    Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                    mapIntent.setPackage("com.google.android.apps.maps");
-                    // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
-
-                    if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(mapIntent);
-                    }
-                }
                 /*
                 gettingDirections=true;
 
@@ -322,6 +330,11 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 if (mapIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(mapIntent);
                 }*/
+                }
+                else {
+
+                    Toast.makeText(OutStationTrackRideActivity.this,"Location not known!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -438,9 +451,57 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                             }
 
                                             if (response.isSuccessful()) {
-                                                btArrived.setVisibility(View.GONE);
-                                                btPickup.setVisibility(View.VISIBLE);
-                                                progressDialog.dismiss();
+
+                                                if(response.message().equals("cancelled"))
+                                                {
+                                                    mp.start();
+                                                    mp.setLooping(true);
+
+                                                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationTrackRideActivity.this);
+
+                                                    LayoutInflater inflater = getLayoutInflater();
+                                                    final View dialogView = inflater.inflate(R.layout.alert_ride_cancelled, null);
+                                                    dialogBuilder.setView(dialogView);
+
+                                                    final AlertDialog alertDialog = dialogBuilder.create();
+                                                    alertDialog.show();
+                                                    alertDialog.setCancelable(false);
+                                                    alertDialog.setCanceledOnTouchOutside(false);
+
+                                                    Button btOk=(Button)dialogView.findViewById(R.id.arc_bt_ok);
+                                                    // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
+                                                    h.removeCallbacks(r);
+                                                    stopLocationUpdates();
+                                                    //mGoogleApiClient.disconnect();
+
+                                                    editor.putString("booking","out");
+                                                    editor.commit();
+
+                                                    btOk.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+
+                                                            if (mp.isPlaying()) {
+                                                                mp.stop();
+                                                                mp.release();
+                                                                //mp = MediaPlayer.create(TrackRideActivity.this, R.raw.beep);
+                                                                mp=null;
+                                                            }
+
+                                                            Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
+                                                            startActivity(i);
+
+                                                            alertDialog.dismiss();
+                                                            finish();
+                                                        }
+                                                    });
+                                                }
+                                                else {
+
+                                                    btArrived.setVisibility(View.GONE);
+                                                    btPickup.setVisibility(View.VISIBLE);
+                                                    progressDialog.dismiss();
+                                                }
                                             }
                                         }
 
@@ -828,8 +889,65 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 //                                myBottomSheet.dismiss();
 //
 //                            }
-
                             msg=response.body();
+
+                            String newbooking[]=msg.getMessage().split("-");
+
+                            System.out.println("msg.getMessage() "+msg.getMessage());
+
+                            if(newbooking.length==1)
+                            {
+
+                            }
+                            else
+                            {
+
+                                if(newbooking[0].equals("cancelled "))
+                                {
+                                    mp.start();
+                                    mp.setLooping(true);
+
+                                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationTrackRideActivity.this);
+
+                                    LayoutInflater inflater = getLayoutInflater();
+                                    final View dialogView = inflater.inflate(R.layout.alert_ride_cancelled, null);
+                                    dialogBuilder.setView(dialogView);
+
+                                    final AlertDialog alertDialog = dialogBuilder.create();
+                                    alertDialog.show();
+                                    alertDialog.setCancelable(false);
+                                    alertDialog.setCanceledOnTouchOutside(false);
+
+                                    Button btOk=(Button)dialogView.findViewById(R.id.arc_bt_ok);
+                                    // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
+                                    h.removeCallbacks(r);
+                                    stopLocationUpdates();
+                                    //mGoogleApiClient.disconnect();
+
+                                    editor.putString("booking","out");
+                                    editor.commit();
+
+                                    btOk.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+
+                                            if (mp.isPlaying()) {
+                                                mp.stop();
+                                                mp.release();
+                                                //mp = MediaPlayer.create(TrackRideActivity.this, R.raw.beep);
+                                                mp=null;
+                                            }
+
+                                            Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
+                                            startActivity(i);
+
+                                            alertDialog.dismiss();
+                                            finish();
+                                        }
+                                    });
+                                }
+                            }
+
 
                             if(msg.getMessage().equals("cancelled"))
                             {

@@ -173,8 +173,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     HomeActivity a;
     //NotificationManager notificationManager;
     SwitchCompat switchCompat;
-    String version="1";
-    //String version="4.2";
+    //String version="1";
+    String version="4.5";
     //FormattedAllRidesData f;
 
 
@@ -299,7 +299,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     if(dList.size()==0)
                     {
-                        if(d.getOTPStatus().equals("1"))
+                        if(d.getOTPStatus().equals("1")||d.getOTPStatus().equals("True"))
                         {
                             // Toast.makeText(AllRidesActivity.this, "Please wait...", Toast.LENGTH_LONG).show();
 
@@ -346,7 +346,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     if(dList.size()==0)
                     {
-                        if(d.getOTPStatus().equals("1"))
+                        if(d.getOTPStatus().equals("1")||d.getOTPStatus().equals("True"))
                         {
                             // Toast.makeText(AllRidesActivity.this, "Please wait...", Toast.LENGTH_LONG).show();
 
@@ -916,6 +916,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                             @Override
                             public void onResponse(Call<List<CabRequestsPojo>> call, Response<List<CabRequestsPojo>> response) {
 
+                                System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
                                 if (response.isSuccessful()) {
 
                                     //dataPresent=true;
@@ -937,6 +939,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     Intent myIntent = new Intent(a,HomeActivity.class);
                                     //myIntent.setComponent(rootActivity);
                                     myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    //myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                     getContext().startActivity(myIntent);
                                     /*PendingIntent pendingIntent = PendingIntent.getActivity(
                                             getActivity(),
@@ -998,13 +1001,14 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     TextView tvOtherCharges=(TextView)dialogView.findViewById(R.id.acr_tv_other_charges);
                                     llOtherCharges.setVisibility(View.GONE);
 
-                                    if(data.getOthercharges().equals("0"))
-                                    {
+                                    if(data.getOthercharges()!=null) {
 
-                                    }
-                                    else {
-                                        llOtherCharges.setVisibility(View.VISIBLE);
-                                        tvOtherCharges.setText(getString(R.string.Rs)+" "+data.getOthercharges());
+                                        if (data.getOthercharges().equals("0")) {
+
+                                        } else {
+                                            llOtherCharges.setVisibility(View.VISIBLE);
+                                            tvOtherCharges.setText(getString(R.string.Rs) + " " + data.getOthercharges());
+                                        }
                                     }
 
 
@@ -1023,8 +1027,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                                     //tvReportingDate.setText(data.getScheduledDate().split(" ")[0]);
 
-                                    SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-                                    SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+                                    SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
+                                    SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
                                     try {
                                         tvReportingDate.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0]);
                                     }
@@ -1432,6 +1436,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                             @Override
                             public void onFailure(Call<List<CabRequestsPojo>> call, Throwable t) {
 
+
+
                             }
                         });
 
@@ -1753,7 +1759,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         {
                             p=response.body();
 
-                            //System.out.println("------------***-------------updated"+p.getMessage()+"--------------***---------------------");
+                         System.out.println(p.getMessage()+"--------------***---------------------");
 
                             String[] newbooking = response.body().getMessage().split("-");
 
@@ -1774,7 +1780,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                         //mp = MediaPlayer.create(getActivity(), R.raw.beep);
                                         mp=null;
                                     }
-                                    handler.post(r);
+                                    if(handler!=null) {
+                                        handler.post(r);
+                                    }
                                     cabData.clear();
                                     count = 0;
                                 }
@@ -1818,7 +1826,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     @Override
                     public void onFailure(Call<Pojo> call, Throwable t) {
 
-                        Toast.makeText(a,"Check Internet connection",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(a,"No Internet connection ! Please check!",Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -1890,8 +1898,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     progressDialog.dismiss();
 
-                    /*getDetails();
-                    Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();*/
+                    getDetails();
+                    Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();
                 }
 
                 else {
@@ -1903,6 +1911,12 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
             @Override
             public void onFailure(Call<ArrayList<AllRidesPojo>> call, Throwable t) {
+
+                //getActivity().finish();
+                progressDialog.dismiss();
+
+                //System.out.println("called getDetails in Fai;ure *************");
+                getDetails();
 
             }
         });

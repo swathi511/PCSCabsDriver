@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -100,7 +101,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
     protected boolean mRequestingLocationUpdates;
     final static int REQUEST_LOCATION = 199;
     protected Location mLastLocation;
-    double latitude1,longitude1,current_lat=0.0,current_long=0.0;
+    double latitude1,longitude1,current_lat=0.0,current_long=0.0,final_lat,final_lng;
     Geocoder geocoder;
     List<Address> addresses;
     LatLng lastLoc,curntloc;
@@ -205,7 +206,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         int pos=b.getInt("position");
         data=cabData.get(pos);
 
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
         tvDateTime.setText(format.format(data.getRideDate()));
 
         if(data.getPaymentMode()!=null) {
@@ -213,7 +214,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
             tvPaymentMode.setText(upperString + " Payment");
         }
         else {
-            tvPaymentMode.setText(" "+" Payment");
+            tvPaymentMode.setText("Cash Payment");
         }
 
 
@@ -447,12 +448,35 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
             @Override
             public void onClick(View view) {
 
-                if (Build.VERSION.SDK_INT >= 23) {
-                    {
-                    }
-                    if (isSystemAlertPermissionGranted(RideOngoingOutstation.this)) {
+                if(locationData.getdLat()!=0.0&&locationData.getdLng()!=0.0) {
 
-                        // Toast.makeText(RideStartActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        {
+                        }
+                        if (isSystemAlertPermissionGranted(RideOngoingOutstation.this)) {
+
+                            // Toast.makeText(RideStartActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+                            stopService(new Intent(getApplicationContext(), OutStationRideOngoingOverlayService.class));
+                            startService(new Intent(getApplicationContext(), OutStationRideOngoingOverlayService.class));
+                            // startService(new Intent(getApplicationContext(), HUD.class));
+
+                            gettingDirections = true;
+
+                            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + locationData.getdLat() + "," + locationData.getdLng());
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+
+                            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                                startActivity(mapIntent);
+                            }
+
+                        } else {
+                            requestSystemAlertPermission(RideOngoingOutstation.this, 1);
+                        }
+                    } else {
+
                         stopService(new Intent(getApplicationContext(), OutStationRideOngoingOverlayService.class));
                         startService(new Intent(getApplicationContext(), OutStationRideOngoingOverlayService.class));
                         // startService(new Intent(getApplicationContext(), HUD.class));
@@ -467,25 +491,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                         if (mapIntent.resolveActivity(getPackageManager()) != null) {
                             startActivity(mapIntent);
                         }
-
-                    } else {
-                        requestSystemAlertPermission(RideOngoingOutstation.this, 1);
-                    }
-                } else {
-
-                    stopService(new Intent(getApplicationContext(), OutStationRideOngoingOverlayService.class));
-                    startService(new Intent(getApplicationContext(), OutStationRideOngoingOverlayService.class));
-                    // startService(new Intent(getApplicationContext(), HUD.class));
-
-                    gettingDirections = true;
-
-                    Uri gmmIntentUri = Uri.parse("google.navigation:q=" + locationData.getdLat() + "," + locationData.getdLng());
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                    mapIntent.setPackage("com.google.android.apps.maps");
-                    // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
-
-                    if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(mapIntent);
                     }
                 }
             }
@@ -544,7 +549,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
                             alertDialog.dismiss();
 
-                            if (current_lat != 0.0 && current_long != 0.0) {
+                            if (final_lat != 0.0 && final_lng != 0.0) {
 
                                 final String startingKms=pref.getString("startingKms","0");
 
@@ -688,7 +693,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                             }
                             else {
 
-                                Toast.makeText(RideOngoingOutstation.this, "Fetching data.. Please wait!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RideOngoingOutstation.this, "Getting the current Location.. Please wait!", Toast.LENGTH_SHORT).show();
                             }
 
                         }
@@ -1282,6 +1287,9 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
                 if (current_lat != 0.0 && current_long != 0.0) {
 
+                    final_lat=current_lat;
+                    final_lng=current_long;
+
                     if (start) {
 
                         sendLocationUpdatesToServer();
@@ -1289,6 +1297,14 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
                         start = false;
                     }
+                }
+                else {
+
+                   /* current_lat=latitude1;
+                    current_long=longitude1;*/
+
+                    final_lat=latitude1;
+                    final_lng=latitude1;
                 }
             }
         };
@@ -1328,8 +1344,17 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         dbAdapter.insertEntry(requestId, current_lat, current_long, complete_address, resDist, timeUpdated);
 
-        dropLat = String.valueOf(current_lat);
-        dropLong = String.valueOf(current_long);
+        if(current_lat!=0.0&&current_long!=0.0) {
+
+            dropLat = String.valueOf(current_lat);
+            dropLong = String.valueOf(current_long);
+        }
+        else {
+
+        dropLat=String.valueOf(latitude1);
+        dropLong=String.valueOf(longitude1);
+    }
+
 
         final ProgressDialog progressDialog = new ProgressDialog(RideOngoingOutstation.this);
         progressDialog.setIndeterminate(true);
@@ -1349,8 +1374,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         dbAdapter.deleteRideStatus(requestId);
 
-        h.removeCallbacks(r);
-        hC.removeCallbacks(rC);
+        if(h!=null) {
+            h.removeCallbacks(r);
+        }
+
+        if(hC!=null) {
+            hC.removeCallbacks(rC);
+        }
         //alertDialog.dismiss();
 
         //rideStoppingTime=java.text.DateFormat.getTimeInstance().format(new Date());
@@ -1441,8 +1471,14 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         String stWaypoints = dbAdapter.getWaypointsForOutstation(requestId);
 
+//        String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
+//                "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
+
         String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyC2yrJneuttgbzN-l2zD_EDaKLfFfq5c5g";
+                "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
+
+        Log.i("URL",urlString);
+
 
         rideData=rideData+"*"+urlString;
 
@@ -1527,9 +1563,6 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                     if (myBottomSheet.isAdded()) {
                                         myBottomSheet.dismiss();
                                     }
-
-                                    h.removeCallbacks(r);
-                                    hC.removeCallbacks(rC);
 
                                     ArrayList<GuestData> gd = new ArrayList<GuestData>();
                                     gd.add(new GuestData(requestId, stProfileId, "-", "-", String.valueOf(locationData.getpLat()), String.valueOf(locationData.getpLng()),

@@ -198,10 +198,18 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
         tvGmobile.setText(data.getgMobile());
         tvPickup.setText(data.getgPickup());
         tvDrop.setText(data.getgDrop());
-        String upperString = data.getPaymentMode().substring(0,1).toUpperCase() + data.getPaymentMode().substring(1);
-        tvPaymentMode.setText(upperString+" Payment");
-        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+
+        if(data.getPaymentMode()!=null) {
+            String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
+            tvPaymentMode.setText(upperString + " Payment");
+        }else {
+            tvPaymentMode.setText("Cash Payment");
+
+        }
+
+
+        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
+        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
         try {
             tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
         }
@@ -283,13 +291,36 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
             @Override
             public void onClick(View view) {
 
-                directionLat=Double.parseDouble(data.getpLat());
-                directionLong=Double.parseDouble(data.getpLng());
+                if(!(data.getpLat().equals(""))&&!(data.getpLng().equals(""))) {
 
-                if(Build.VERSION.SDK_INT>=23) {
-                    if (isSystemAlertPermissionGranted(TrackRideActivity.this)) {
+                    directionLat = Double.parseDouble(data.getpLat());
+                    directionLong = Double.parseDouble(data.getpLng());
 
-                        //Toast.makeText(TrackRideActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        if (isSystemAlertPermissionGranted(TrackRideActivity.this)) {
+
+                            //Toast.makeText(TrackRideActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+                            stopService(new Intent(getApplicationContext(), RideOverlayService.class));
+                            startService(new Intent(getApplicationContext(), RideOverlayService.class));
+                            // startService(new Intent(getApplicationContext(), HUD.class));
+
+                            gettingDirections = true;
+
+                            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+
+
+                            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                                startActivity(mapIntent);
+                            }
+
+                        } else {
+                            requestSystemAlertPermission(TrackRideActivity.this, 1);
+                        }
+                    } else {
+                        //Toast.makeText(TrackRideActivity.this, "permission granted..", Toast.LENGTH_LONG).show();
                         stopService(new Intent(getApplicationContext(), RideOverlayService.class));
                         startService(new Intent(getApplicationContext(), RideOverlayService.class));
                         // startService(new Intent(getApplicationContext(), HUD.class));
@@ -305,28 +336,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                         if (mapIntent.resolveActivity(getPackageManager()) != null) {
                             startActivity(mapIntent);
                         }
-
-                    } else {
-                        requestSystemAlertPermission(TrackRideActivity.this, 1);
-                    }
-                }
-                else
-                {
-                    //Toast.makeText(TrackRideActivity.this, "permission granted..", Toast.LENGTH_LONG).show();
-                    stopService(new Intent(getApplicationContext(), RideOverlayService.class));
-                    startService(new Intent(getApplicationContext(), RideOverlayService.class));
-                    // startService(new Intent(getApplicationContext(), HUD.class));
-
-                    gettingDirections = true;
-
-                    Uri gmmIntentUri = Uri.parse("google.navigation:q=" + directionLat + "," + directionLong);
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                    mapIntent.setPackage("com.google.android.apps.maps");
-                    // mapIntent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
-
-
-                    if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(mapIntent);
                     }
                 }
             }
@@ -449,9 +458,57 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                                             }
 
                                             if (response.isSuccessful()) {
-                                                btArrived.setVisibility(View.GONE);
-                                                btPickup.setVisibility(View.VISIBLE);
-                                                progressDialog.dismiss();
+
+                                                if(response.message().equals("cancelled"))
+                                                {
+                                                    mp.start();
+                                                    mp.setLooping(true);
+
+                                                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TrackRideActivity.this);
+
+                                                    LayoutInflater inflater = getLayoutInflater();
+                                                    final View dialogView = inflater.inflate(R.layout.alert_ride_cancelled, null);
+                                                    dialogBuilder.setView(dialogView);
+
+                                                    final AlertDialog alertDialog = dialogBuilder.create();
+                                                    alertDialog.show();
+                                                    alertDialog.setCancelable(false);
+                                                    alertDialog.setCanceledOnTouchOutside(false);
+
+                                                    Button btOk=(Button)dialogView.findViewById(R.id.arc_bt_ok);
+                                                    // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
+                                                    h.removeCallbacks(r);
+                                                    stopLocationUpdates();
+                                                    //mGoogleApiClient.disconnect();
+
+                                                    editor.putString("booking","out");
+                                                    editor.commit();
+
+                                                    btOk.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+
+                                                            if (mp.isPlaying()) {
+                                                                mp.stop();
+                                                                mp.release();
+                                                                //mp = MediaPlayer.create(TrackRideActivity.this, R.raw.beep);
+                                                                mp=null;
+                                                            }
+
+                                                            Intent i=new Intent(TrackRideActivity.this,HomeActivity.class);
+                                                            startActivity(i);
+
+                                                            alertDialog.dismiss();
+                                                            finish();
+                                                        }
+                                                    });
+                                                }
+                                                else {
+
+                                                    btArrived.setVisibility(View.GONE);
+                                                    btPickup.setVisibility(View.VISIBLE);
+                                                    progressDialog.dismiss();
+                                                }
                                             }
                                         }
 
@@ -613,8 +670,6 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                                     final EditText etOtp = (EditText) dialogView.findViewById(R.id.ao_et_otp);
                                     Button btOk = (Button) dialogView.findViewById(R.id.ao_bt_ok);
                                     Button btCancel = (Button) dialogView.findViewById(R.id.ao_bt_cancel);
-
-
 
                                     btOk.setOnClickListener(new View.OnClickListener() {
                                         @Override
@@ -845,7 +900,7 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                 v.addProperty("companyid",companyId);
                 v.addProperty("ReqId",requestId);
 
-                //System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
+               System.out.println("*****"+stProfileId+"**"+city+"****"+c_lat+"**"+c_long+"******");
                 Call<Pojo> call=REST_CLIENT.sendStatus(v);
                 call.enqueue(new Callback<Pojo>() {
 
@@ -859,6 +914,8 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                             msg=response.body();
                             String newbooking[]=msg.getMessage().split("-");
 
+                            //System.out.println("msg.getMessage() "+msg.getMessage());
+
                             if(newbooking.length==1)
                             {
 
@@ -866,6 +923,51 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
                             else
                             {
                                 tvNewBooking.setVisibility(View.VISIBLE);
+
+                                if(newbooking[0].equals("cancelled "))
+                                {
+                                    mp.start();
+                                    mp.setLooping(true);
+
+                                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TrackRideActivity.this);
+
+                                    LayoutInflater inflater = getLayoutInflater();
+                                    final View dialogView = inflater.inflate(R.layout.alert_ride_cancelled, null);
+                                    dialogBuilder.setView(dialogView);
+
+                                    final AlertDialog alertDialog = dialogBuilder.create();
+                                    alertDialog.show();
+                                    alertDialog.setCancelable(false);
+                                    alertDialog.setCanceledOnTouchOutside(false);
+
+                                    Button btOk=(Button)dialogView.findViewById(R.id.arc_bt_ok);
+                                    // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
+                                    h.removeCallbacks(r);
+                                    stopLocationUpdates();
+                                    //mGoogleApiClient.disconnect();
+
+                                    editor.putString("booking","out");
+                                    editor.commit();
+
+                                    btOk.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+
+                                            if (mp.isPlaying()) {
+                                                mp.stop();
+                                                mp.release();
+                                                //mp = MediaPlayer.create(TrackRideActivity.this, R.raw.beep);
+                                                mp=null;
+                                            }
+
+                                            Intent i=new Intent(TrackRideActivity.this,HomeActivity.class);
+                                            startActivity(i);
+
+                                            alertDialog.dismiss();
+                                            finish();
+                                        }
+                                    });
+                                }
                             }
 
                             if(msg.getMessage().equals("cancelled"))
@@ -1277,10 +1379,12 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
         }
         else
         {
-            LatLng pickLatLng=new LatLng(Double.parseDouble(data.getpLat()),Double.parseDouble(data.getpLng()));
-            gPickup= mMap.addMarker(new MarkerOptions().position(pickLatLng)
-                    .title(data.getgPickup())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            if(!(data.getpLat().equals(""))&&!(data.getpLng()).equals("")) {
+                LatLng pickLatLng = new LatLng(Double.parseDouble(data.getpLat()), Double.parseDouble(data.getpLng()));
+                gPickup = mMap.addMarker(new MarkerOptions().position(pickLatLng)
+                        .title(data.getgPickup())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            }
         }
 
         if(gDrop!=null)
@@ -1289,7 +1393,7 @@ public class TrackRideActivity extends FragmentActivity implements OnMapReadyCal
         }
         else
         {
-            if((!(data.getdLat().equals("-"))&&!(data.getdLng().equals("-")))||(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
+            if((!(data.getdLat().equals("-"))&&!(data.getdLng().equals("-")))&&(!(data.getdLat().equals(""))&&!(data.getdLng().equals("")))) {
 
                 LatLng dropLatLng = new LatLng(Double.parseDouble(data.getdLat()), Double.parseDouble(data.getdLng()));
                 gDrop = mMap.addMarker(new MarkerOptions().position(dropLatLng)
