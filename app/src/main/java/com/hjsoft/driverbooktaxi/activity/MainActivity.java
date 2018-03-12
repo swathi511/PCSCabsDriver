@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,13 +19,17 @@ import android.widget.Toast;
 import com.google.gson.JsonObject;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
+import com.hjsoft.driverbooktaxi.adapter.DBAdapter;
+import com.hjsoft.driverbooktaxi.model.CancelData;
 import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.model.ServiceLocationPojo;
-import com.hjsoft.driverbooktaxi.service.OnClearFromRecentService;
+//import com.hjsoft.driverbooktaxi.service.OnClearFromRecentService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
 
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,9 +61,11 @@ public class MainActivity extends AppCompatActivity {
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     int j=0;
-    //String version="4.5";
-    String version="1";//20
+    String version="5";//4.5//4.9
+    //String version="4.5";//20
     String city="Visakhapatnam";
+    //protected MyApplicationNew app;
+    DBAdapter dbAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
 
         REST_CLIENT= RestClient.get();
 
+        dbAdapter=new DBAdapter(getApplicationContext());
+        dbAdapter=dbAdapter.open();
+
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
             if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
@@ -96,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         if(session.checkLogin())
         {
             Log.w("data", "Login done");
-
 
             stName=user.get(SessionManager.KEY_NAME);
             stPd=user.get(SessionManager.KEY_PWD);
@@ -125,11 +132,26 @@ public class MainActivity extends AppCompatActivity {
                         editor.putString("status","online");
                         editor.commit();
 
+                        //System.out.println("!!!!!!!!!!!"+pref.getBoolean("cancelOptions",true));
+
+                        /*if(pref.getBoolean("cancelOptions",true))
+                        {
+                            getCancelData();
+                        }*/
+                        getCancelData();
+                       /* else {
+                            ArrayList<String> a=dbAdapter.getCancelOptions();
+
+                            for(int i=0;i<a.size();i++)
+                            {
+                                System.out.println("&&&&&&&&&&& "+a.get(i));
+                            }
+                        }*/
                         /*Intent serviceIntent = new Intent(MainActivity.this, OnClearFromRecentService.class);
                         serviceIntent.setPackage(MainActivity.this.getPackageName());
                         startService(serviceIntent);*/
 
-                       startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
+                        //startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
 
                         Intent i = new Intent(MainActivity.this, HomeActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -233,11 +255,13 @@ public class MainActivity extends AppCompatActivity {
                                 editor.putString("city",city);
                                 editor.commit();
 
-                                Intent serviceIntent = new Intent(MainActivity.this, OnClearFromRecentService.class);
+                                /*Intent serviceIntent = new Intent(MainActivity.this, OnClearFromRecentService.class);
                                 serviceIntent.setPackage(MainActivity.this.getPackageName());
-                                startService(serviceIntent);
+                                startService(serviceIntent);*/
 
                                 //(new Intent(getBaseContext(), OnClearFromRecentService.class));
+
+                                getCancelData();
 
                                 Intent i=new Intent(MainActivity.this,HomeActivity.class);
                                 startActivity(i);
@@ -464,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<ServiceLocationPojo>> call, Throwable t) {
 
-                Toast.makeText(MainActivity.this,"Check Internet COnnection",Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this,"Check Internet Connection",Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -472,5 +496,42 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    public void getCancelData()
+    {
+        //System.out.println("getting Canel data");
+
+        Call<ArrayList<CancelData>> call=REST_CLIENT.getCancelList(companyId,"driver");
+        call.enqueue(new Callback<ArrayList<CancelData>>() {
+            @Override
+            public void onResponse(Call<ArrayList<CancelData>> call, Response<ArrayList<CancelData>> response) {
+
+                ArrayList<CancelData> cdList=new ArrayList<CancelData>();
+                CancelData cd;
+                if(response.isSuccessful())
+                {
+                    cdList=response.body();
+                    editor.putBoolean("cancelOptions",false);
+                    editor.commit();
+
+                    dbAdapter.deleteCancelData();
+
+                    for(int i=0;i<cdList.size();i++)
+                    {
+                        cd=cdList.get(i);
+
+                        dbAdapter.insertCancelOptions(cd.getReason(),cd.getId());
+
+                        //System.out.println("****** "+cd.getReason());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<CancelData>> call, Throwable t) {
+
+            }
+        });
     }
 }

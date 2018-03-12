@@ -135,8 +135,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     String city;
     List<CabRequestsPojo> dataList;
     ArrayList<GuestData>  cabData=new ArrayList<>();
-    Handler handler,h,hLoc;
-    Runnable r,rr,rLoc;
+    Handler handler,h,hLoc,e;
+    Runnable r,rr,rLoc,dr;
     Marker cab;
     CabRequestsPojo data;
     BottomSheetDialogFragment myBottomSheet;
@@ -174,7 +174,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     //NotificationManager notificationManager;
     SwitchCompat switchCompat;
     //String version="1";
-    String version="4.5";
+    String version="5";//4.9
+    int k=15;
     //FormattedAllRidesData f;
 
 
@@ -303,12 +304,10 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         {
                             // Toast.makeText(AllRidesActivity.this, "Please wait...", Toast.LENGTH_LONG).show();
 
-
-
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
-                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
-                            Intent j = new Intent(getActivity(), RideLocal.class);
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate(), "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges(),d.getPickupLat(),d.getPickupLong(),d.getRidestarttime()));
+                            Intent j = new Intent(a, RideLocal.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
                             getActivity().finish();
@@ -322,8 +321,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode()));
 */
                             cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
-                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
-                            Intent j = new Intent(getActivity(), TrackRideActivity.class);
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate(), "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges(),d.getPickupLat(),d.getPickupLong(),d.getRidestarttime()));
+                            Intent j = new Intent(a, TrackRideActivity.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
                             getActivity().finish();
@@ -332,7 +331,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     }
                     else {
 
-                        Intent j = new Intent(getActivity(), RideOngoingLocal.class);
+                        Intent j = new Intent(a, RideOngoingLocal.class);
                         j.putExtra("list", rideDataList);
                         j.putExtra("position", position);
                         startActivity(j);
@@ -352,8 +351,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
-                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
-                            Intent j = new Intent(getActivity(), RideOutstation.class);
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate(), "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges(),d.getPickupLat(),d.getPickupLong(),d.getRidestarttime()));
+                            Intent j = new Intent(a, RideOutstation.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
                             getActivity().finish();
@@ -364,8 +363,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(d.getRequestid(), d.getGuestProfileId(), d.getGuestName(), d.getGuestMobile(), d.getPickupLatitude(), d.getPickupLongitude(),
-                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate().split(" ")[1], "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges()));
-                            Intent j = new Intent(getActivity(), OutStationTrackRideActivity.class);
+                                    d.getDropLatitude(), d.getDropLongitude(), d.getFromlocation(), d.getTolocation(), d.getTravelType(), d.getTravelpackage(), d.getRidedate(), d.getRidedate(), "", d.getBookingType(),d.getPaymentMode(),d.getOtherCharges(),d.getPickupLat(),d.getPickupLong(),d.getRidestarttime()));
+                            Intent j = new Intent(a, OutStationTrackRideActivity.class);
                             j.putExtra("cabData", cabData);
                             startActivity(j);
                             getActivity().finish();
@@ -374,7 +373,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     }
                     else {
 
-                        Intent j = new Intent(getActivity(), RideOngoingOutstation.class);
+                        Intent j = new Intent(a, RideOngoingOutstation.class);
                         j.putExtra("list", rideDataList);
                         j.putExtra("position", position);
                         startActivity(j);
@@ -410,7 +409,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                 establishConnection();
 
             } else {
-                Toast.makeText(getActivity(), "Permission not granted", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Location Permission is required for this app to run !", Toast.LENGTH_LONG).show();
+                getActivity().finish();
             }
         }
         else {
@@ -670,8 +670,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
         }
 
 
-
-
         if(mLastLocation!=null) {
 
             current_lat=location.getLatitude();
@@ -911,12 +909,14 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     if(cabData.size()==0) {
 
+                        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
                         Call<List<CabRequestsPojo>> call = REST_CLIENT.getCabRequests(stProfileId, companyId);
                         call.enqueue(new Callback<List<CabRequestsPojo>>() {
                             @Override
                             public void onResponse(Call<List<CabRequestsPojo>> call, Response<List<CabRequestsPojo>> response) {
 
-                                System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
 
                                 if (response.isSuccessful()) {
 
@@ -969,7 +969,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     data = dataList.get(0);
                                     cabData.add(new GuestData(data.getRequestId(), data.getGuestProfileid(), data.getGuestName(), data.getGuestMobile(),
                                             data.getPickupLat(), data.getPickupLong(), data.getDropLat(), data.getDropLong(), data.getPickupLoc(),
-                                            data.getDropLoc(), data.getTravelType(), data.getTravelPackage(),data.getScheduledDate(), data.getScheduledTime(), data.getOTPrequired(), data.getBookingtype(),data.getPaymentMode(),data.getOthercharges()));
+                                            data.getDropLoc(), data.getTravelType(), data.getTravelPackage(),data.getScheduledDate(), data.getScheduledTime(), data.getOTPrequired(), data.getBookingtype(),data.getPaymentMode(),data.getOthercharges(),data.getPickupLat(),data.getPickupLong(),""));
 
 
                                     /*System.out.println("%%%%%%%%%%%%%%%%%%%%");
@@ -1000,6 +1000,39 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     LinearLayout llOtherCharges=(LinearLayout)dialogView.findViewById(R.id.acr_ll_other_charges);
                                     TextView tvOtherCharges=(TextView)dialogView.findViewById(R.id.acr_tv_other_charges);
                                     llOtherCharges.setVisibility(View.GONE);
+                                    final TextView tvTime=(TextView)dialogView.findViewById(R.id.acr_tv_time);
+                                    tvTime.setVisibility(View.GONE);
+
+                                    //System.out.println("data bkng type "+data.getBookingtype());
+
+
+                                    if(data.getBookingtype().equals("AppBooking")&&(data.getTravelType().equals("local")||data.getTravelType().equals("Packages"))) {
+
+                                        k=15;
+
+                                        tvTime.setVisibility(View.VISIBLE);
+
+                                         e = new Handler();
+                                         dr = new Runnable() {
+                                            @Override
+                                            public void run() {
+
+                                                //System.out.println("??????????????????????");
+
+                                                e.postDelayed(dr, 1000);
+
+                                                tvTime.setText("Time remaining " + k + " sec");
+
+                                                k--;
+
+                                                if (k == 0) {
+                                                    e.removeCallbacks(dr);
+                                                    //tvTime.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        };
+                                        e.post(dr);
+                                    }
 
                                     if(data.getOthercharges()!=null) {
 
@@ -1023,6 +1056,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     else {
                                         tvTravelPackage.setText(data.getTravelPackage());
                                     }
+                                    //tvReportingTime.setText(data.getScheduledTime().split(" ")[1]);
                                     tvReportingTime.setText(data.getScheduledTime());
 
                                     //tvReportingDate.setText(data.getScheduledDate().split(" ")[0]);
@@ -1114,7 +1148,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 }
                                                                 alertDialog.dismiss();
                                                                 count = 0;
-                                                                Intent i = new Intent(getActivity(), TrackRideActivity.class);
+                                                                Intent i = new Intent(a, TrackRideActivity.class);
                                                                 i.putExtra("cabData", cabData);
                                                                 startActivity(i);
                                                                 getActivity().finish();
@@ -1159,7 +1193,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 }
                                                                 alertDialog.dismiss();
                                                                 count = 0;
-                                                                Intent i = new Intent(getActivity(), RideStartActivity.class);
+                                                                Intent i = new Intent(a, RideStartActivity.class);
                                                                 i.putExtra("cabData", cabData);
                                                                 startActivity(i);
                                                                 getActivity().finish();
@@ -1172,7 +1206,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 }
                                                                 alertDialog.dismiss();
                                                                 count = 0;
-                                                                Intent i = new Intent(getActivity(), TrackRideActivity.class);
+                                                                Intent i = new Intent(a, TrackRideActivity.class);
                                                                 i.putExtra("cabData", cabData);
                                                                 startActivity(i);
                                                                 getActivity().finish();
@@ -1184,7 +1218,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 hLoc.removeCallbacks(rLoc);
                                                                 alertDialog.dismiss();
                                                                 count = 0;
-                                                                Intent i = new Intent(getActivity(), OutStationTrackRideActivity.class);
+                                                                Intent i = new Intent(a, OutStationTrackRideActivity.class);
                                                                 i.putExtra("cabData", cabData);
                                                                 startActivity(i);
                                                                 getActivity().finish();
@@ -1227,7 +1261,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 hLoc.removeCallbacks(rLoc);
                                                                 alertDialog.dismiss();
                                                                 count = 0;
-                                                                Intent i = new Intent(getActivity(), OutStationRideStartActivity.class);
+                                                                Intent i = new Intent(a, OutStationRideStartActivity.class);
                                                                 i.putExtra("cabData", cabData);
                                                                 startActivity(i);
                                                                 getActivity().finish();
@@ -1238,7 +1272,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 hLoc.removeCallbacks(rLoc);
                                                                 alertDialog.dismiss();
                                                                 count = 0;
-                                                                Intent i = new Intent(getActivity(), OutStationTrackRideActivity.class);
+                                                                Intent i = new Intent(a, OutStationTrackRideActivity.class);
                                                                 i.putExtra("cabData", cabData);
                                                                 startActivity(i);
                                                                 getActivity().finish();
@@ -1325,13 +1359,13 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                         // handler.removeCallbacks(r);
                                                         if (data.getTravelType().equals("local")) {
 
-                                                            Intent i = new Intent(getActivity(), TrackRideActivity.class);
+                                                            Intent i = new Intent(a, TrackRideActivity.class);
                                                             i.putExtra("cabData", cabData);
                                                             startActivity(i);
                                                             getActivity().finish();
                                                         }
                                                         else {
-                                                            Intent i = new Intent(getActivity(), OutStationTrackRideActivity.class);
+                                                            Intent i = new Intent(a, OutStationTrackRideActivity.class);
                                                             i.putExtra("cabData", cabData);
                                                             startActivity(i);
                                                             getActivity().finish();
@@ -1404,6 +1438,11 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                                                         h.removeCallbacks(rr);
                                                         handler.post(r);
+
+                                                        if(e!=null)
+                                                        {
+                                                            e.removeCallbacks(dr);
+                                                        }
                                                         alertDialog.dismiss();
                                                         count = 0;
                                                         cabData.clear();
@@ -1474,8 +1513,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                 }
                 else
                 {
-                    //changing the interval from 18 sec to 10 sec
-                    h.postDelayed(rr,10000);
+                    //changing the interval from 18 sec to 10 sec //to 15sec
+                    h.postDelayed(rr,15000);
                     //20000
                 }
 
@@ -1544,15 +1583,21 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
         super.onDestroy();
 
-        stopLocationUpdates();
+        if(mGoogleApiClient!=null) {
 
-        if(handler!=null) {
+            stopLocationUpdates();
+        }
+
+        if(handler!=null)
+        {
             handler.removeCallbacks(r);
+            handler=null;
         }
 
         if(hLoc!=null)
         {
             hLoc.removeCallbacks(rLoc);
+            hLoc=null;
         }
 
         if (mp != null) {
@@ -1564,8 +1609,10 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             mp = null;
         }
 
-
-
+        if(e!=null)
+        {
+            e.removeCallbacks(dr);
+        }
     }
 
     public void selectServiceLocations()
@@ -1724,111 +1771,112 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
     public void sendLocationUpdatesToServer()
     {
+       // System.out.println("is hLoc null.. "+hLoc);
+
         hLoc=new Handler();
         rLoc=new Runnable() {
             @Override
             public void run() {
 
-                hLoc.postDelayed(rLoc,20000);
+                if(hLoc!=null) {
 
-                JsonObject v=new JsonObject();
-                v.addProperty("profileid",stProfileId);
-                v.addProperty("location",city);
-                String c_lat=String.valueOf(current_lat);
-                String c_long=String.valueOf(current_long);
-                v.addProperty("latittude",c_lat);
-                v.addProperty("longitude",c_long);
-                v.addProperty("companyid",companyId);
-                v.addProperty("ReqId","");
+                    //System.out.println("is hLoc null.. " + hLoc);
 
-                System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
+                    hLoc.postDelayed(rLoc, 20000);
 
-                Call<Pojo> call=REST_CLIENT.sendStatus(v);
-                call.enqueue(new Callback<Pojo>() {
-                    @Override
-                    public void onResponse(Call<Pojo> call, Response<Pojo> response) {
+                    JsonObject v = new JsonObject();
+                    v.addProperty("profileid", stProfileId);
+                    v.addProperty("location", city);
+                    String c_lat = String.valueOf(current_lat);
+                    String c_long = String.valueOf(current_long);
+                    v.addProperty("latittude", c_lat);
+                    v.addProperty("longitude", c_long);
+                    v.addProperty("companyid", companyId);
+                    v.addProperty("ReqId", "");
 
-                        Pojo p;
+                    System.out.println("*****" + stProfileId + "**" + city + "**" + c_lat + "**" + c_long + "******");
 
-                        if(myBottomSheet.isAdded())
-                        {
-                            myBottomSheet.dismiss();
-                        }
+                    Call<Pojo> call = REST_CLIENT.sendStatus(v);
+                    call.enqueue(new Callback<Pojo>() {
+                        @Override
+                        public void onResponse(Call<Pojo> call, Response<Pojo> response) {
 
-                        if(response.isSuccessful())
-                        {
-                            p=response.body();
+                            Pojo p;
 
-                         System.out.println(p.getMessage()+"--------------***---------------------");
+                            if (myBottomSheet.isAdded()) {
+                                myBottomSheet.dismiss();
+                            }
 
-                            String[] newbooking = response.body().getMessage().split("-");
+                            if (response.isSuccessful()) {
+                                p = response.body();
 
-                            if (newbooking.length == 1) {
+                                //System.out.println(p.getMessage() + "--------------***---------------------");
 
-                                if(p.getMessage().equals("cancelled"))
-                                {
-                                    Toast.makeText(a,"Booking cancelled!",Toast.LENGTH_LONG).show();
+                                String[] newbooking = response.body().getMessage().split("-");
 
-                                    if(alertDialog!=null) {
+                                if (newbooking.length == 1) {
+
+                                    if (p.getMessage().equals("cancelled")) {
+                                        Toast.makeText(a, "Booking cancelled!", Toast.LENGTH_LONG).show();
+
+                                        if (alertDialog != null) {
+                                            alertDialog.dismiss();
+                                            //notificationManager.cancel(0);
+                                        }
+                                        if (mp != null) {
+
+                                            mp.stop();
+                                            mp.release();
+                                            //mp = MediaPlayer.create(getActivity(), R.raw.beep);
+                                            mp = null;
+                                        }
+                                        if (handler != null) {
+                                            handler.post(r);
+                                        }
+                                        cabData.clear();
+                                        count = 0;
+                                    }
+
+                                } else {
+
+                                    if (newbooking[0].equals("cancelled")) {
+                                        Toast.makeText(a, "Booking cancelled!", Toast.LENGTH_LONG).show();
                                         alertDialog.dismiss();
-                                        //notificationManager.cancel(0);
-                                    }
-                                    if(mp!=null) {
+                                        if (mp != null) {
 
-                                        mp.stop();
-                                        mp.release();
-                                        //mp = MediaPlayer.create(getActivity(), R.raw.beep);
-                                        mp=null;
-                                    }
-                                    if(handler!=null) {
+                                            mp.stop();
+                                            mp.release();
+                                            //mp = MediaPlayer.create(getActivity(), R.raw.beep);
+                                            mp = null;
+                                        }
                                         handler.post(r);
+                                        cabData.clear();
+                                        count = 0;
                                     }
-                                    cabData.clear();
-                                    count = 0;
+                                }
+
+                                if (p.getMessage().equals("Logout")) {
+                                    Toast.makeText(a, " Logout Done! ", Toast.LENGTH_LONG).show();
+                                    session.logoutUser();
+
+                                    Intent i = new Intent(a, MainActivity.class);
+                                    startActivity(i);
+                                    a.finish();
                                 }
 
                             } else {
 
-                                if(newbooking[0].equals("cancelled"))
-                                {
-                                    Toast.makeText(a,"Booking cancelled!",Toast.LENGTH_LONG).show();
-                                    alertDialog.dismiss();
-                                    if(mp!=null) {
-
-                                        mp.stop();
-                                        mp.release();
-                                        //mp = MediaPlayer.create(getActivity(), R.raw.beep);
-                                        mp=null;
-                                    }
-                                    handler.post(r);
-                                    cabData.clear();
-                                    count = 0;
-                                }
                             }
-
-                            if(p.getMessage().equals("Logout"))
-                            {
-                                Toast.makeText(a," Logout Done! ",Toast.LENGTH_LONG).show();
-                                session.logoutUser();
-
-                                Intent i=new Intent(a,MainActivity.class);
-                                startActivity(i);
-                                a.finish();
-                            }
-
                         }
-                        else
-                        {
 
+                        @Override
+                        public void onFailure(Call<Pojo> call, Throwable t) {
+
+                            Toast.makeText(a, "No Internet connection ! Please check!", Toast.LENGTH_LONG).show();
                         }
-                    }
+                    });
 
-                    @Override
-                    public void onFailure(Call<Pojo> call, Throwable t) {
-
-                        Toast.makeText(a,"No Internet connection ! Please check!",Toast.LENGTH_LONG).show();
-                    }
-                });
+                }
 
 
             }
@@ -1888,7 +1936,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     rideDataList.add(new FormattedAllRidesData(0,date1, d.getRequestid(), d.getFromlocation(), d.getTolocation(), d.getVehicleCategory(),
                             d.getVehicleType(), d.getDistancetravelled(), d.getStatusofride(), d.getRidestarttime(), d.getRidestoptime(),
                             d.getTotalamount(), d.getDrivername(),d.getDriverpic(),d.getTravelType(),d.getBookingType(),d.getTravelpackage(),d.getDrivermobile(),d.getGuestProfileId(),d.getGuestName(),d.getGuestMobile(),
-                            d.getPickupLatitude(),d.getPickupLongitude(),d.getDropLatitude(),d.getDropLongitude(),d.getOTPStatus(),d.getDriverBattaAmt(),d.getPaymentMode(),d.getOtherCharges()));
+                            d.getPickupLatitude(),d.getPickupLongitude(),d.getDropLatitude(),d.getDropLongitude(),d.getOTPStatus(),d.getDriverBattaAmt(),d.getPaymentMode(),d.getOtherCharges(),d.getPickupLat(),d.getPickupLong()));
 
 
                     llBottom.setVisibility(View.VISIBLE);
@@ -1897,6 +1945,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     position=0;
 
                     progressDialog.dismiss();
+
+
 
                     getDetails();
                     Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();
@@ -2117,11 +2167,17 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     if(handler!=null) {
                         handler.removeCallbacks(r);
+                        //handler=null;
                     }
 
                     if(hLoc!=null) {
                         hLoc.removeCallbacks(rLoc);
+                        //hLoc=null;
                     }
+
+                    Toast.makeText(getActivity(),"Offline done!",Toast.LENGTH_SHORT).show();
+
+                    getActivity().finish();
 
                     ((HomeActivity) a).enableDisableDrawer(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 

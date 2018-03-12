@@ -231,7 +231,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 data=dataList.get(i);
                                 cabData.add(new GuestData(data.getRequestId(),data.getGuestProfileid(),data.getGuestName(),data.getGuestMobile(),
                                         data.getPickupLat(),data.getPickupLong(),data.getDropLat(),data.getDropLong(),data.getPickupLoc(),
-                                        data.getDropLoc(),"traveltype","travelPackage","xxx","00","-","-",data.getPaymentMode(),""));
+                                        data.getDropLoc(),"traveltype","travelPackage","xxx","00","-","-",data.getPaymentMode(),"","","",""));
                             }
                             mAdapter.notifyDataSetChanged();
                         }

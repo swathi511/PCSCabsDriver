@@ -1,5 +1,6 @@
 package com.hjsoft.driverbooktaxi.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -52,6 +53,7 @@ public class HomeActivity extends AppCompatActivity {
     SessionManager session;
     DBAdapter dbAdapter;
     String companyId="CMP00001";
+    final static int REQUEST_LOCATION = 199;
 
 
     @Override
@@ -112,7 +114,7 @@ public class HomeActivity extends AppCompatActivity {
             case 0:
                 break;
             case 1:
-                Intent i=new Intent(HomeActivity.this,AllRidesActivity.class);
+                Intent i=new Intent(HomeActivity.this,BookingHistoryActivity.class);
                 startActivity(i);
                 finish();
                 break;
@@ -269,6 +271,36 @@ public class HomeActivity extends AppCompatActivity {
     public void enableDisableDrawer(int mode) {
         if (mDrawerLayout != null) {
             mDrawerLayout.setDrawerLockMode(mode);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+
+            case REQUEST_LOCATION:
+
+                switch (resultCode) {
+                    case Activity.RESULT_OK: {
+                        // All required changes were successfully made
+                        Toast.makeText(HomeActivity.this, "Please wait.. Getting Location!", Toast.LENGTH_LONG).show();
+                       /* if(sbMsg!=null) {
+                            sbMsg.dismiss();
+                        }*/
+                        break;
+                    }
+                    case Activity.RESULT_CANCELED: {
+                        Toast.makeText(HomeActivity.this, "GPS should be enabled for the app to run!", Toast.LENGTH_LONG).show();
+                        finish();
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                break;
         }
     }
 }

@@ -13,7 +13,7 @@
         <TextView android:id="@+id/fsr_tv_trip_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textColor="@color/colorTextBlue"
             android:text="TRIP ID"
             android:layout_marginTop="16dp"
@@ -23,7 +23,10 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/colorAshLight"
-            android:layout_margin="16dp" />
+            android:layout_marginLeft="16dp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="16dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -131,7 +134,8 @@
                 android:text="@string/xxx"
                 android:textColor="@color/colorAsh"
                 android:layout_weight="1"
-                android:layout_marginLeft="8dp"/>
+                android:layout_marginLeft="8dp"
+                android:textSize="13sp"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -164,7 +168,8 @@
                 android:text="@string/xxx"
                 android:textColor="@color/colorAsh"
                 android:layout_weight="1"
-                android:layout_marginLeft="8dp"/>
+                android:layout_marginLeft="8dp"
+                android:textSize="13sp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -186,7 +191,7 @@
                 android:layout_height="wrap_content"
                 android:text="Bill Details"
                 android:textAllCaps="true"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textColor="@color/colorBlack"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"/>
@@ -204,14 +209,14 @@
             android:orientation="horizontal"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/total_fare"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:gravity="left"
                 android:textColor="@color/colorAsh"/>
 
@@ -233,14 +238,14 @@
             android:orientation="horizontal"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Other Charges"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:gravity="left"
                 android:textColor="@color/colorAsh"/>
 
@@ -262,14 +267,14 @@
             android:orientation="horizontal"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/outstation_batta"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:gravity="left"
                 android:textColor="@color/colorAsh"/>
 
@@ -291,14 +296,14 @@
             android:orientation="horizontal"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/taxes"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:gravity="left"
                 android:textColor="@color/colorAsh"/>
 
@@ -331,7 +336,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/total_bill"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:gravity="left"
                 android:textColor="@color/colorAsh"
                 android:textAllCaps="true"
@@ -370,7 +375,7 @@
                 android:layout_height="wrap_content"
                 android:text="Payment Details"
                 android:textAllCaps="true"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textColor="@color/colorBlack"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"/>
@@ -397,7 +402,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Payment"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:gravity="left"
                 android:textColor="@color/colorAsh"/>
 

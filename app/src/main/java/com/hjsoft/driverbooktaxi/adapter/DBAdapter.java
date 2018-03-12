@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class DBAdapter {
 
     static final String DATABASE_NAME = "user.db";
-    static final int DATABASE_VERSION = 50;
+    static final int DATABASE_VERSION = 55;//50
     public static final int NAME_COLUMN = 1;
 
     public static final String DB_CREATE_LATLNG = "create table if not exists "+"RIDE_LATLNG"+
@@ -36,7 +36,7 @@ public class DBAdapter {
 
     public static final String DB_NETWORK_ISSUE="create table if not exists NETWORK_ISSUE(REQUEST_ID text,TIME_STAMP text);";
 
-
+    public static final String DB_CANCEL_OPTIONS="create table if not exists CANCEL_OPTIONS(CANCEL_TEXT text,CANCEL_ID text);";
 
 
     // Variable to hold the database instance
@@ -214,11 +214,11 @@ public class DBAdapter {
 
         if(c.getCount()<15)
         {
-            n=1;
+            n=2;//n=1
         }
         else if(c.getCount()>15&&c.getCount()<30)
         {
-            n=2;
+            n=4;//n=2
         }
         else {
             n=c.getCount()/15;
@@ -718,11 +718,115 @@ public class DBAdapter {
         return stNetworkData;
     }
 
+    public void insertCancelOptions(String cancelText,String cancelId)
+    {
+        db=dbHelper.getWritableDatabase();
+        ContentValues newValues = new ContentValues();
+        newValues.put("CANCEL_TEXT",cancelText);
+        newValues.put("CANCEL_ID",cancelId);
+
+        // Assign values for each row.
+
+        // Insert the row into your table
+        db.insert("CANCEL_OPTIONS", null, newValues);
+        //  close();
+        //  System.out.println("Value inserted");
+    }
+
+    public ArrayList<String> getCancelOptions()
+    {
+        ArrayList<String> cancelData=new ArrayList<>();
+
+        db=dbHelper.getReadableDatabase();
+        String sql="SELECT * FROM CANCEL_OPTIONS";
+        Cursor c=db.rawQuery(sql,null);
+
+        if(c.getCount()>0)
+        {
+            for(int i=0;i<c.getCount();i++)
+            {
+                c.moveToNext();
+
+                cancelData.add(c.getString(0));
+            }
+        }
+
+        c.close();
+
+
+        return cancelData;
+    }
+
+    public String getCancelId(String cancelText)
+    {
+        String cancelId="1";
+        db=dbHelper.getReadableDatabase();
+        String sql="SELECT * FROM CANCEL_OPTIONS WHERE CANCEL_TEXT ="+" '"+cancelText+"'" ;
+        Cursor c=db.rawQuery(sql,null);
+
+        if(c.getCount()>0)
+        {
+            c.moveToNext();
+            cancelId=c.getString(1);
+        }
+
+        c.close();
+
+
+        return cancelId;
+    }
+
+    public void deleteCancelData()
+    {
+        db=dbHelper.getReadableDatabase();
+        db.execSQL("delete from CANCEL_OPTIONS");
+        db.close();
+    }
+
     public void deleteNetworkIssueData(String requestId)
     {
         db=dbHelper.getReadableDatabase();
         db.execSQL("delete from NETWORK_ISSUE where REQUEST_ID="+" '"+requestId+"'" );
         db.close();
     }
+
+    /*public void insertCancelOptions(String cancelText)
+    {
+        db=dbHelper.getWritableDatabase();
+        ContentValues newValues = new ContentValues();
+        newValues.put("CANCEL_TEXT",cancelText);
+
+        // Assign values for each row.
+
+        // Insert the row into your table
+        db.insert("CANCEL_OPTIONS", null, newValues);
+        //  close();
+        //  System.out.println("Value inserted");
+    }
+
+    public ArrayList<String> getCancelOptions()
+    {
+        ArrayList<String> cancelData=new ArrayList<>();
+
+        db=dbHelper.getReadableDatabase();
+        String sql="SELECT * FROM CANCEL_OPTIONS";
+        Cursor c=db.rawQuery(sql,null);
+
+        if(c.getCount()>0)
+        {
+            for(int i=0;i<c.getCount();i++)
+            {
+                c.moveToNext();
+
+                cancelData.add(c.getString(0));
+            }
+        }
+
+        c.close();
+
+
+        return cancelData;
+    }
+*/
 
 }

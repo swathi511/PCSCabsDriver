@@ -4,14 +4,88 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite">
 
+    <ImageView android:id="@+id/fmr_iv_retry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/retry"
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:visibility="gone"/>
+
+    <TextView android:id="@+id/fmr_tv_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search Rides By Date"
+        android:gravity="right"
+        android:textSize="12sp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:textColor="@color/colorTextBlue"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="right"
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        android:background="@drawable/rect_blue_stroke_nc_bg"
+        android:padding="4dp"
+        android:visibility="gone"/>
+
+    <LinearLayout android:id="@+id/fmr_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rect_ash_stroke_nc_bg"
+        android:padding="4dp">
+
+        <TextView android:id="@+id/fmr_tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="date"
+            android:textColor="@color/colorBlack"
+            android:gravity="left"
+            android:layout_marginRight="16dp"
+            android:padding="4dp"
+            android:layout_weight="1"
+            />
+
+        <ImageView android:id="@+id/fmr_iv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/m_edit"
+            />
+
+
+    </LinearLayout>
+
+    <TextView android:id="@+id/fmr_tv_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="Clear Search"
+        android:textColor="@color/colorTextBlue"
+        android:gravity="right"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        android:background="@drawable/rect_blue_stroke_nc_bg"
+        android:padding="4dp"
+        android:layout_gravity="right"/>
+
+
     <TextView android:id="@+id/fmr_tv_no_rides"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="No Completed Rides !"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textColor="@color/colorBlack"
         android:gravity="center"
         android:layout_margin="16dp"/>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fmr_rview"

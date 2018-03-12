@@ -2,8 +2,11 @@ package com.hjsoft.driverbooktaxi.webservices;
 
 import com.google.gson.JsonObject;
 import com.hjsoft.driverbooktaxi.model.AllRidesPojo;
+import com.hjsoft.driverbooktaxi.model.BookingHistoryPojo;
 import com.hjsoft.driverbooktaxi.model.CabRequestsPojo;
+import com.hjsoft.driverbooktaxi.model.CancelData;
 import com.hjsoft.driverbooktaxi.model.DistancePojo;
+import com.hjsoft.driverbooktaxi.model.DurationPojo;
 import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.model.RideStopPojo;
 import com.hjsoft.driverbooktaxi.model.ServiceLocationPojo;
@@ -56,7 +59,10 @@ public interface API {
                                              @Query("user") String user);
 
     @GET
-    Call<DistancePojo> getDistanceDetails(@Url String urlString);
+    Call<DurationPojo> getDistanceDetails(@Url String urlString);
+
+    @GET
+    Call<DistancePojo> getOSDistanceDetails(@Url String urlString);
 
     @POST("UpdateDriverStatus/DriverStatus")
     Call<Pojo> toOffline(@Body JsonObject v);
@@ -68,5 +74,25 @@ public interface API {
     Call<ArrayList<AllRidesPojo>> getCurrentBooking(@Query("driverprofileid") String profileId,
                                                @Query("companyid") String companyId);
 
+    @GET("BookingHistory/GetDetails")
+    Call<ArrayList<AllRidesPojo>> getRideHistory(@Query("profileid") String profileId,
+                                               @Query("user") String user,
+                                               @Query("companyid") String companyId,
+                                                 @Query("fromdate") String fromdate,
+                                                 @Query("todate") String todate);
+
+    @GET("CancellationReasons/GetReasons")
+    Call<ArrayList<CancelData>> getCancelList(@Query("companyid") String companyId,
+                                              @Query("user") String user);
+
+    @POST("DriverCancellation/CancelRide")
+    Call<Pojo> sendCancelStatus(@Body JsonObject v);
+
+    @GET("BookingsCount/GetDetails")
+    Call<ArrayList<BookingHistoryPojo>> getBookingCountDetails(@Query("profileid") String profileId,
+                                                               @Query("user") String user,
+                                                               @Query("companyid") String companyId,
+                                                               @Query("fromdate") String fromdate,
+                                                               @Query("todate") String todate);
 
 }

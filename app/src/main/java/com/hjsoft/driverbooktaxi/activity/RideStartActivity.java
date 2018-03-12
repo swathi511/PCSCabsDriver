@@ -1377,7 +1377,7 @@ public class RideStartActivity extends AppCompatActivity implements OnMapReadyCa
 
             rideData=rideData+"*"+urlString;
 
-            Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+            Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
             call1.enqueue(new Callback<DistancePojo>() {
                 @Override
                 public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {

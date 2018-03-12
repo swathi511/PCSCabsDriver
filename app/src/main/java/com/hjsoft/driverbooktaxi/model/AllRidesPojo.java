@@ -94,6 +94,12 @@ public class AllRidesPojo implements Serializable {
     @SerializedName("othercharges")
     @Expose
     private String otherCharges;
+    @SerializedName("pickup_lat")
+    @Expose
+    private String pickupLat;
+    @SerializedName("pickup_long")
+    @Expose
+    private String pickupLong;
 
 
 
@@ -320,6 +326,22 @@ public class AllRidesPojo implements Serializable {
 
     public void setOtherCharges(String otherCharges) {
         this.otherCharges = otherCharges;
+    }
+
+    public String getPickupLat() {
+        return pickupLat;
+    }
+
+    public void setPickupLat(String pickupLat) {
+        this.pickupLat = pickupLat;
+    }
+
+    public String getPickupLong() {
+        return pickupLong;
+    }
+
+    public void setPickupLong(String pickupLong) {
+        this.pickupLong = pickupLong;
     }
 }
 

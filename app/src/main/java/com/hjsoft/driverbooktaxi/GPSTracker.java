@@ -53,6 +53,8 @@ public class GPSTracker extends Service implements LocationListener {
     static Double distance = 0.0;
     static int status = 0;
 
+    boolean first=true;
+
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
@@ -240,11 +242,28 @@ public class GPSTracker extends Service implements LocationListener {
 
         if(location!=null&&location.hasAccuracy()) {
 
-            if (location.getAccuracy() <= 10) {
+            if(first) {
 
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
+                first=false;
+
+                System.out.println("first "+location.getAccuracy()+":"+"lt&lng"+latitude+":"+longitude);
             }
+            else {
+                if (location.getAccuracy() <= 10) {
+
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                }
+
+            }
+
+            /*if (location.getAccuracy() <= 10) {
+
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+            }*/
         }
 
         /*if (status == 0) {

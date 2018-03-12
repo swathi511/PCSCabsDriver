@@ -29,7 +29,7 @@
     </string-array>
     <string name="Signup">Signup</string>
     <string name="fpwd">forgot password ?</string>
-    <string name="tripId">Trip Id</string>
+    <string name="tripId">Trip No</string>
     <string name="xxx">xxx</string>
     <string name="ride_start_time">Ride Start Time</string>
     <string name="ride_stop_time">Ride Stop Time</string>

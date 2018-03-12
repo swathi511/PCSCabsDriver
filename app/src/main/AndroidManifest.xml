@@ -104,6 +104,10 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
+        <activity android:name=".activity.BookingHistoryActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
 
         <service
             android:name=".service.RideStartOverlayService"
@@ -124,8 +128,8 @@
             android:name=".service.OutStationRideOngoingOverlayService"
             android:exported="false" />
 
-        <service android:name=".service.OnClearFromRecentService"
-            android:stopWithTask="false" />
+        <!--<service android:name=".service.OnClearFromRecentService"
+            android:stopWithTask="false" />-->
 
 
 

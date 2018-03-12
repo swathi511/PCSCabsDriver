@@ -53,6 +53,9 @@ public class RideStopPojo
     @SerializedName("othercharges")
     @Expose
     private String otherCharges;
+    @SerializedName("cancelprevrideamount")
+    @Expose
+    private String cancelPrevRideAmount;
 
 
 
@@ -174,5 +177,13 @@ public class RideStopPojo
 
     public void setOtherCharges(String otherCharges) {
         this.otherCharges = otherCharges;
+    }
+
+    public String getCancelPrevRideAmount() {
+        return cancelPrevRideAmount;
+    }
+
+    public void setCancelPrevRideAmount(String cancelPrevRideAmount) {
+        this.cancelPrevRideAmount = cancelPrevRideAmount;
     }
 }

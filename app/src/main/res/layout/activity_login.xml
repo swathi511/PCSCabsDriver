@@ -2,14 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
         android:background="#1976d2">
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -18,7 +16,6 @@
             android:gravity="center"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"/>
-
         <TextView android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
@@ -28,31 +25,25 @@
             android:layout_marginRight="16dp"
             android:textStyle="bold"
             android:textAllCaps="true"/>
-
-
     </LinearLayout>
-
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
         android:orientation="vertical"
         android:padding="16dp"
         android:gravity="center_horizontal">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
             android:padding="16dp">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp">
-
                 <TextView android:id="@+id/al_tv_signup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -63,7 +54,6 @@
                     android:layout_weight="1"
                     android:textStyle="bold"
                     android:visibility="gone"/>
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -74,9 +64,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:visibility="gone"/>
-
             </LinearLayout>
-
             <EditText android:id="@+id/am_et_uname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -89,7 +77,6 @@
                 android:layout_marginBottom="16dp"
                 android:drawableRight="@android:drawable/sym_action_email"
                 android:inputType="text" />
-
             <EditText android:id="@+id/am_et_pwd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -103,9 +90,7 @@
                 android:layout_marginBottom="16dp"
                 android:drawableRight="@android:drawable/ic_lock_idle_lock"
                 android:inputType="textPassword"/>
-
         </LinearLayout>
-
         <Button android:id="@+id/am_bt_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -120,7 +105,5 @@
             android:background="@drawable/login_bt_bg"
             android:padding="12dp"
             android:textStyle="bold"/>
-
     </LinearLayout>
-
 </LinearLayout>

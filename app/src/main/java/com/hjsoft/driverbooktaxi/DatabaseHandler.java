@@ -24,6 +24,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(DBAdapter.DB_CREATE_LOC_UPDATES);
         sqLiteDatabase.execSQL(DBAdapter.DB_ONGOING_RIDE);
         sqLiteDatabase.execSQL(DBAdapter.DB_NETWORK_ISSUE);
+        sqLiteDatabase.execSQL(DBAdapter.DB_CANCEL_OPTIONS);
     }
 
     @Override
@@ -33,6 +34,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + "LOC_UPDATES");
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + "ONGOING_RIDE");
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + "NETWORK_ISSUE");
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + "CANCEL_OPTIONS");
 
 
         onCreate(sqLiteDatabase);

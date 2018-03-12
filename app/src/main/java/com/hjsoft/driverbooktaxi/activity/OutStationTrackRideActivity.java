@@ -39,6 +39,8 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,6 +69,7 @@ import com.google.gson.JsonObject;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
+import com.hjsoft.driverbooktaxi.adapter.DBAdapter;
 import com.hjsoft.driverbooktaxi.model.GuestData;
 import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.service.OutStationRideOverlayService;
@@ -144,7 +147,10 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     String requestId;
-    TextView tvPaymentMode;
+    TextView tvPaymentMode,tvRideTitle,tvCancelRide;
+    String pickupLat,pickupLong,rideStartingTime,cancelOption="";
+    DBAdapter dbAdapter;
+    boolean checked=false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -171,6 +177,8 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         btGetDirections = (ImageButton) findViewById(R.id.aotr_bt_get_directions);
         myBottomSheet = MyBottomSheetDialogFragment.newInstance("Modal Bottom Sheet");
         tvDateTime = (TextView) findViewById(R.id.aotr_tv_date_time);
+        tvRideTitle=(TextView)findViewById(R.id.aotr_tv_creq_title);
+        tvCancelRide=(TextView)findViewById(R.id.aotr_tv_cancel_ride);
 
         tvPaymentMode = (TextView) findViewById(R.id.aotr_tv_payment);
 
@@ -184,43 +192,67 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         editor = pref.edit();
 
         city = pref.getString("city", null);
+        dbAdapter=new DBAdapter(getApplicationContext());
+        dbAdapter=dbAdapter.open();
 
         cabData = (ArrayList<GuestData>) getIntent().getSerializableExtra("cabData");
 
-        data = cabData.get(0);
+        if(cabData!=null) {
+            data = cabData.get(0);
 
-        tvGname.setText(data.getgName());
-        tvGmobile.setText(data.getgMobile());
-        tvPickup.setText(data.getgPickup());
-        tvDrop.setText(data.getgDrop());
+            if(data!=null)
+            {
+                tvGname.setText(data.getgName());
+                tvGmobile.setText(data.getgMobile());
+                tvPickup.setText(data.getgPickup());
+                tvDrop.setText(data.getgDrop());
+                tvRideTitle.setText(data.getTravelType()+" - "+data.getTravelPackage());
 
-        if(data.getPaymentMode()!=null) {
-            String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
-            tvPaymentMode.setText(upperString + " Payment");
+                if(data.getPaymentMode()!=null) {
+                    String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
+                    tvPaymentMode.setText(upperString + " Payment");
+                }
+                else {
+                    tvPaymentMode.setText("Cash Payment");
+
+                }
+
+                //System.out.println("+++++++++++"+data.getScheduledDate()+"**"+data.getScheduledTime());
+
+                final SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
+                SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
+                try {
+                    tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
+                }
+                catch (ParseException e)
+                {
+                    e.printStackTrace();
+                }
+
+                requestId = data.getgRequestId();
+
+            }
+            else {
+
+                Toast.makeText(OutStationTrackRideActivity.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
+                Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
+                startActivity(i);
+                finish();
+            }
         }
         else {
-            tvPaymentMode.setText("Cash Payment");
 
+            Toast.makeText(OutStationTrackRideActivity.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
+            Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
+            startActivity(i);
+            finish();
         }
-
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
-        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
-        try {
-            tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
-        }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
-
-        requestId = data.getgRequestId();
 
         mRequestingLocationUpdates = false;
 
         dropTime = java.text.DateFormat.getTimeInstance().format(new Date());
 
         mp = MediaPlayer.create(OutStationTrackRideActivity.this, R.raw.beep);
-
 
         final BottomSheetBehavior behavior = BottomSheetBehavior.from(rlBottomSheet);
         behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -266,6 +298,127 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
             }
         }
+
+
+        tvCancelRide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                checked=false;
+
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationTrackRideActivity.this);
+
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.alert_cancel_options, null);
+                dialogBuilder.setView(dialogView);
+
+                final AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.show();
+
+                final RadioGroup rg=(RadioGroup)dialogView.findViewById(R.id.aco_rb);
+                TextView ok=(TextView)dialogView.findViewById(R.id.aco_bt_ok);
+
+                ArrayList<String> cancelData=dbAdapter.getCancelOptions();
+
+                for (int i = 0; i < cancelData.size(); i++) {
+                    RadioButton radioButton = new RadioButton(OutStationTrackRideActivity.this);
+                    radioButton.setText(cancelData.get(i));
+                    radioButton.setId(i);
+                    rg.addView(radioButton);
+                }
+
+                //set listener to radio button group
+                rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        System.out.println(rg.getCheckedRadioButtonId()+"::"+checkedId);
+                        int checkedRadioButtonId =rg.getCheckedRadioButtonId();
+                        RadioButton radioBtn = (RadioButton)dialogView.findViewById(checkedId);
+                        //System.out.println("++++"+radioBtn.getText());
+                        //System.out.println("++++"+radioBtn.getText().toString());
+
+                        cancelOption=radioBtn.getText().toString();
+                        checked=true;
+                        //radioBtn.getText()
+                        //Toast.makeText(ConfigurationActivity.this, radioBtn.getText(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        if(checked) {
+
+                        alertDialog.dismiss();
+
+                        final ProgressDialog progressDialog = new ProgressDialog(OutStationTrackRideActivity.this);
+                        progressDialog.setIndeterminate(true);
+                        progressDialog.setMessage("Please Wait..!");
+                        progressDialog.show();
+
+                        //System.out.println("+++++++++++++ 0" + dbAdapter.getCancelId(cancelOption));
+                            String id=dbAdapter.getCancelId(cancelOption);
+                            System.out.println("id "+id);
+
+
+                            //Toast.makeText(TrackRideActivity.this,cancelOption,Toast.LENGTH_SHORT).show();
+
+                        JsonObject j = new JsonObject();
+                        j.addProperty("requestid", requestId);
+                        j.addProperty("companyid", companyId);
+                        j.addProperty("reasonid", id);
+                        j.addProperty("source", "driver");
+                        j.addProperty("profileid", stProfileId);
+                        j.addProperty("reason", cancelOption);
+
+                        Call<Pojo> call = REST_CLIENT.sendCancelStatus(j);
+                        call.enqueue(new Callback<Pojo>() {
+                            @Override
+                            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
+
+                                progressDialog.dismiss();
+
+                                if (response.isSuccessful()) {
+
+                                    if (h != null) {
+                                        h.removeCallbacks(r);
+                                    }
+                                    stopLocationUpdates();
+                                    //mGoogleApiClient.disconnect();
+
+                                    editor.putString("booking", "out");
+                                    editor.commit();
+
+                                    Intent i = new Intent(OutStationTrackRideActivity.this, HomeActivity.class);
+                                    startActivity(i);
+                                    finish();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Pojo> call, Throwable t) {
+
+                                progressDialog.dismiss();
+                                Toast.makeText(OutStationTrackRideActivity.this, "Check Internet connection..Please retry!", Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+                    }
+                        else {
+
+                            Toast.makeText(OutStationTrackRideActivity.this,"Please select a reason!",Toast.LENGTH_SHORT).show();
+                        }
+
+
+                        //API Call
+                    }
+                });
+
+
+
+            }
+        });
 
         btGetDirections.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -386,10 +539,10 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                             if (response.isSuccessful()) {
 
-                                if (myBottomSheet.isAdded()) {
+                                /*if (myBottomSheet.isAdded()) {
                                     myBottomSheet.dismiss();
 
-                                }
+                                }*/
 
                                 msg = response.body();
 
@@ -409,7 +562,9 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                                     Button btOk = (Button) dialogView.findViewById(R.id.arc_bt_ok);
                                     // Toast.makeText(OutStationTrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
-                                    h.removeCallbacks(r);
+                                    if(h!=null) {
+                                        h.removeCallbacks(r);
+                                    }
                                     stopLocationUpdates();
                                     //mGoogleApiClient.disconnect();
 
@@ -445,11 +600,11 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                         @Override
                                         public void onResponse(Call<Pojo> call, Response<Pojo> response) {
 
-                                            if (myBottomSheet.isAdded()) {
+                                            /*if (myBottomSheet.isAdded()) {
                                                 myBottomSheet.dismiss();
 
                                             }
-
+*/
                                             if (response.isSuccessful()) {
 
                                                 if(response.message().equals("cancelled"))
@@ -470,7 +625,9 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                                                     Button btOk=(Button)dialogView.findViewById(R.id.arc_bt_ok);
                                                     // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
-                                                    h.removeCallbacks(r);
+                                                    if(h!=null) {
+                                                        h.removeCallbacks(r);
+                                                    }
                                                     stopLocationUpdates();
                                                     //mGoogleApiClient.disconnect();
 
@@ -508,11 +665,13 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                         @Override
                                         public void onFailure(Call<Pojo> call, Throwable t) {
 
-                                            if (myBottomSheet.isAdded()) {
+                                            /*if (myBottomSheet.isAdded()) {
                                                 //return;
                                             } else {
                                                 myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                            }
+                                            }*/
+                                            Toast.makeText(OutStationTrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
+
                                             progressDialog.dismiss();
 
                                         }
@@ -526,12 +685,13 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                         @Override
                         public void onFailure(Call<Pojo> call, Throwable t) {
 
+                            Toast.makeText(OutStationTrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
 
-                            if (myBottomSheet.isAdded()) {
+                            /*if (myBottomSheet.isAdded()) {
                                 //return;
                             } else {
                                 myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                            }
+                            }*/
                         }
                     });
                 }
@@ -593,10 +753,10 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                             if (response.isSuccessful()) {
 
-                                if (myBottomSheet.isAdded()) {
+                               /* if (myBottomSheet.isAdded()) {
                                     myBottomSheet.dismiss();
 
-                                }
+                                }*/
 
                                 msg = response.body();
 
@@ -617,7 +777,9 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                                     Button btOk = (Button) dialogView.findViewById(R.id.arc_bt_ok);
                                     // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
-                                    h.removeCallbacks(r);
+                                    if(h!=null) {
+                                        h.removeCallbacks(r);
+                                    }
                                     stopLocationUpdates();
                                     //mGoogleApiClient.disconnect();
                                     editor.putString("booking","out");
@@ -657,12 +819,15 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                     alertDialog.show();
 
                                     final EditText etOtp = (EditText) dialogView.findViewById(R.id.ao_et_otp);
-                                    Button btOk = (Button) dialogView.findViewById(R.id.ao_bt_ok);
+                                    final Button btOk = (Button) dialogView.findViewById(R.id.ao_bt_ok);
                                     Button btCancel = (Button) dialogView.findViewById(R.id.ao_bt_cancel);
 
                                     btOk.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
+
+                                            btOk.setEnabled(false);
+                                            btOk.setClickable(false);
 
                                             pickupTime = java.text.DateFormat.getTimeInstance().format(new Date());
 
@@ -672,7 +837,9 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                             v.addProperty("requestid", data.getgRequestId());
                                             v.addProperty("otp", stOtp);
                                             v.addProperty("companyid", companyId);
-                                            v.addProperty("rideStartTime", getCurrentTime());
+                                            v.addProperty("rideStartTime", getCurrentTimeForOS());
+                                            v.addProperty("pickup_lat",String.valueOf(current_lat));
+                                            v.addProperty("pickup_long",String.valueOf(current_long));
 
                                             Call<Pojo> call = REST_CLIENT.checkOTP(v);
 
@@ -681,18 +848,21 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                                 public void onResponse(Call<Pojo> call, Response<Pojo> response) {
 
                                                     if (response.isSuccessful()) {
+
                                                         alertDialog.dismiss();
                                                         //btPickup.setVisibility(View.GONE);
                                                         // btDrop.setVisibility(View.VISIBLE);
 
-                                                        if (myBottomSheet.isAdded()) {
+                                                       /* if (myBottomSheet.isAdded()) {
                                                             myBottomSheet.dismiss();
-                                                        }
+                                                        }*/
 
                                                         getStartingKms();
 
                                                     } else {
                                                         alertDialog.dismiss();
+                                                        btOk.setEnabled(true);
+                                                        btOk.setClickable(true);
                                                         Toast.makeText(OutStationTrackRideActivity.this, "OTP Authentication Failed", Toast.LENGTH_LONG).show();
                                                     }
                                                 }
@@ -700,12 +870,18 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                                 @Override
                                                 public void onFailure(Call<Pojo> call, Throwable t) {
 
+                                                    btOk.setEnabled(true);
+                                                    btOk.setClickable(true);
+
                                                     alertDialog.dismiss();
-                                                    if (myBottomSheet.isAdded()) {
+                                                    /*if (myBottomSheet.isAdded()) {
                                                         //return;
                                                     } else {
                                                         myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                                    }
+                                                    }*/
+                                                    Toast.makeText(OutStationTrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
+
+
                                                 }
                                             });
                                         }
@@ -731,12 +907,13 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                             progressDialog.dismiss();
 
+                            Toast.makeText(OutStationTrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
 
-                            if (myBottomSheet.isAdded()) {
+                            /* if (myBottomSheet.isAdded()) {
                                 //return;
                             } else {
                                 myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                            }
+                            }*/
                         }
                     });
                 }
@@ -893,7 +1070,7 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                             String newbooking[]=msg.getMessage().split("-");
 
-                            System.out.println("msg.getMessage() "+msg.getMessage());
+                            //System.out.println("msg.getMessage() "+msg.getMessage());
 
                             if(newbooking.length==1)
                             {
@@ -1215,10 +1392,14 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
     }
 
     protected void stopLocationUpdates(){
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, OutStationTrackRideActivity.this);
 
         if (mGoogleApiClient != null) {
-            mGoogleApiClient.disconnect();
+
+            if(mGoogleApiClient.isConnected()) {
+
+                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, OutStationTrackRideActivity.this);
+                mGoogleApiClient.disconnect();
+            }
         }
     }
 
@@ -1561,11 +1742,32 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                     if (value.matches("[0-9]+")) {
 
+                        pickupLat = String.valueOf(current_lat);
+                        pickupLong = String.valueOf(current_long);
+                           /* if(data.getTravelType().equals("outstation")) {
+                                rideStartingTime = getCurrentTimeForOS();
+                            }
+                            else {
+                                rideStartingTime = getCurrentTime();
+                            }*/
+
+                        rideStartingTime=getCurrentTimeForOS();
+
+                        editor.putString("pickup_lat", pickupLat);
+                        editor.putString("pickup_long", pickupLong);
+                        editor.putString("rideStartingTime", rideStartingTime);
+
                         editor.putString("startingKms", value);
                         editor.commit();
                         alertDialog.dismiss();
 
-                        h.removeCallbacks(r);
+                        //System.out.println("pickup data "+pickupLat+":"+pickupLong);
+                        //System.out.println("rideStartingTime "+rideStartingTime);
+
+                        if(h!=null) {
+                            h.removeCallbacks(r);
+                        }
+
                         stopLocationUpdates();
                         //mGoogleApiClient.disconnect();
                         Intent i = new Intent(OutStationTrackRideActivity.this, RideOutstation.class);
@@ -1583,7 +1785,13 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 }
             }
         });
+    }
 
+    public static String getCurrentTimeForOS() {
+        //date output format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
+        Calendar cal = Calendar.getInstance();
+        return dateFormat.format(cal.getTime());
     }
 }
 

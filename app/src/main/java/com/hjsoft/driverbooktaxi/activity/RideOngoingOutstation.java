@@ -56,6 +56,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.JsonObject;
 import com.hjsoft.driverbooktaxi.GPSTracker;
+import com.hjsoft.driverbooktaxi.GPSTrackerOngoing;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
@@ -148,14 +149,14 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
     String companyId="CMP00001";
     TextView tvNewBooking,tvDateTime;
     String pickupLat,pickupLong,dropLat,dropLong;
-    float finalDistance,distance=0;
+    double finalDistance,distance=0;
     String rideData=" ";
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     SharedPreferences pref;
-    GPSTracker gps;
+    GPSTrackerOngoing gps;
     boolean start=true;
-    TextView tvPaymentMode;
+    TextView tvPaymentMode,tvRideTitle;
     SharedPreferences.Editor editor;
     int totalKms;
     String billing="-";
@@ -187,12 +188,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         tvDateTime=(TextView)findViewById(R.id.asoro_tv_date_time);
         tvNewBooking=(TextView)findViewById(R.id.asoro_tv_new_booking);
         tvNewBooking.setVisibility(View.GONE);
+        tvRideTitle=(TextView)findViewById(R.id.asoro_tv_creq_title);
 
         tvPaymentMode=(TextView)findViewById(R.id.asoro_tv_payment);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         geocoder = new Geocoder(this, Locale.getDefault());
-        gps=new GPSTracker(RideOngoingOutstation.this);
+        gps=new GPSTrackerOngoing(RideOngoingOutstation.this);
         mapFragment.getMapAsync(this);
 
         //rideStartingTime=java.text.DateFormat.getTimeInstance().format(new Date());
@@ -202,12 +204,24 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         city=pref.getString("city",null);
 
         cabData= (ArrayList<FormattedAllRidesData>) getIntent().getSerializableExtra("list");
-        Bundle b=getIntent().getExtras();
-        int pos=b.getInt("position");
-        data=cabData.get(pos);
 
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
-        tvDateTime.setText(format.format(data.getRideDate()));
+        if(cabData!=null) {
+
+            Bundle b=getIntent().getExtras();
+            int pos=b.getInt("position");
+            data = cabData.get(pos);
+        }
+        else {
+            Toast.makeText(RideOngoingOutstation.this,"Unknown error!Please retry.",Toast.LENGTH_SHORT).show();
+            Intent i=new Intent(RideOngoingOutstation.this,HomeActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+        if(data.getRideDate()!=null) {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.ENGLISH);
+            tvDateTime.setText(format.format(data.getRideDate()));
+        }
 
         if(data.getPaymentMode()!=null) {
             String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
@@ -221,6 +235,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         tvGpickup.setText(data.getFromLocation());
         tvGdrop.setText(data.getToLocation());
         requestId=data.getRequestId();
+        tvRideTitle.setText(data.getTravelType()+" - "+data.getTravelPackage());
 
 
         dataList=dbAdapter.getAllLocUpdates(requestId);
@@ -1264,12 +1279,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         //super.onBackPressed();
     }
 
-    public static String getCurrentTimeForOS() {
-        //date output format
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-        Calendar cal = Calendar.getInstance();
-        return dateFormat.format(cal.getTime());
-    }
+
 
 
     public void getGPSLocationUpdates()
@@ -1298,14 +1308,14 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                         start = false;
                     }
                 }
-                else {
+               /* else {
 
-                   /* current_lat=latitude1;
-                    current_long=longitude1;*/
+                   *//* current_lat=latitude1;
+                    current_long=longitude1;*//*
 
                     final_lat=latitude1;
                     final_lng=latitude1;
-                }
+                }*/
             }
         };
 
@@ -1342,17 +1352,19 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         Date date = new Date();
         timeUpdated = dateFormat.format(date);
 
-        dbAdapter.insertEntry(requestId, current_lat, current_long, complete_address, resDist, timeUpdated);
-
         if(current_lat!=0.0&&current_long!=0.0) {
 
             dropLat = String.valueOf(current_lat);
             dropLong = String.valueOf(current_long);
+
+            dbAdapter.insertEntry(requestId, current_lat, current_long, complete_address, resDist, timeUpdated);
         }
         else {
 
         dropLat=String.valueOf(latitude1);
         dropLong=String.valueOf(longitude1);
+
+            dbAdapter.insertEntry(requestId, latitude1, longitude1, complete_address, resDist, timeUpdated);
     }
 
 
@@ -1374,28 +1386,23 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         dbAdapter.deleteRideStatus(requestId);
 
-        if(h!=null) {
-            h.removeCallbacks(r);
-        }
-
-        if(hC!=null) {
-            hC.removeCallbacks(rC);
-        }
         //alertDialog.dismiss();
 
         //rideStoppingTime=java.text.DateFormat.getTimeInstance().format(new Date());
         rideStartingTime = pref.getString("rideStartingTime", rideStartingTime);
         //rideStoppingTime = getCurrentTimeForOS();
-        if(data.getTravelType().equals("outstation")) {
+        /*if(data.getTravelType().equals("outstation")) {
             rideStoppingTime = getCurrentTimeForOS();
         }
         else {
             rideStoppingTime= getCurrentTime();
-        }
+        }*/
+
+        rideStoppingTime=getCurrentTimeForOS();
 
         if(data.getTravelType().equals("outstation")) {
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             try {
                 //System.out.println(pref.getString("ride_starting_time", rideStartingTime) + "::" + rideStartingTime);
@@ -1409,7 +1416,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         }
         else {
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             try {
                 //System.out.println(pref.getString("ride_starting_time", rideStartingTime) + "::" + rideStartingTime);
@@ -1482,7 +1489,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         rideData=rideData+"*"+urlString;
 
-        Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+        Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
         call1.enqueue(new Callback<DistancePojo>() {
             @Override
             public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1523,9 +1530,24 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 //                        System.out.println("totalKms"+totalKms);
 
                         String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
-                        System.out.println("missing data is "+missingCoordinates);
-                        System.out.println("billing is "+billing);
+                        //System.out.println("missing data is "+missingCoordinates);
+                        //System.out.println("billing is "+billing);
 
+                        System.out.println("*** "+stProfileId);
+                        System.out.println("*** "+data.getRequestId());
+                        System.out.println("*** "+finalDistance);
+                        System.out.println("*** "+movingTimeFormat);
+                        System.out.println("*** "+rideData);
+                        System.out.println("*** "+rideStartingTime);
+                        System.out.println("*** "+rideStoppingTime);
+                        System.out.println("*** "+companyId);
+                        System.out.println("*** "+billing);
+                        System.out.println("*** "+Integer.parseInt(pref.getString("startingKms","0")));
+                        System.out.println("*** "+Integer.parseInt(pref.getString("closingKms","0")));
+                        System.out.println("*** "+totalKms);
+                        System.out.println("*** "+missingCoordinates);
+
+                        System.out.println("moving time format iss "+movingTimeFormat);
 
                         JsonObject v = new JsonObject();
                         v.addProperty("profileid", stProfileId);
@@ -1543,7 +1565,7 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                         v.addProperty("totalKms",totalKms);
                         v.addProperty("missingcoordinates",missingCoordinates);
 
-                        System.out.println("missing data is "+dbAdapter.getNetworkIssueData(requestId));
+                        //System.out.println("missing data is "+dbAdapter.getNetworkIssueData(requestId));
 
                         Call<Pojo> call2 = REST_CLIENT.sendRideDetails(v);
                         call2.enqueue(new Callback<Pojo>() {
@@ -1560,14 +1582,23 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                     progressDialog.dismiss();
                                     msg = response.body();
 
-                                    if (myBottomSheet.isAdded()) {
+                                    /*if (myBottomSheet.isAdded()) {
                                         myBottomSheet.dismiss();
+                                    }*/
+
+
+                                    if(h!=null) {
+                                        h.removeCallbacks(r);
+                                    }
+
+                                    if(hC!=null) {
+                                        hC.removeCallbacks(rC);
                                     }
 
                                     ArrayList<GuestData> gd = new ArrayList<GuestData>();
                                     gd.add(new GuestData(requestId, stProfileId, "-", "-", String.valueOf(locationData.getpLat()), String.valueOf(locationData.getpLng()),
                                             String.valueOf(locationData.getdLat()), String.valueOf(locationData.getdLng()), data.getFromLocation(), data.getToLocation(),
-                                            "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges()));
+                                            "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges(),"","",""));
 
                                     Intent i = new Intent(RideOngoingOutstation.this, RideFinishActivity.class);
                                     i.putExtra("distance", finalDistance);
@@ -1579,6 +1610,10 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                     startActivity(i);
                                     finish();
                                 }
+                                else {
+                                    progressDialog.dismiss();
+                                    //System.out.println("data iss"+response.message()+"::"+response.code()+"::"+response.isSuccessful());
+                                }
                             }
 
                             @Override
@@ -1586,11 +1621,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
                                 progressDialog.dismiss();
 
-                                if (myBottomSheet.isAdded()) {
+                                /*if (myBottomSheet.isAdded()) {
                                     //return;
                                 } else {
                                     myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                }
+                                }*/
+
+                                Toast.makeText(RideOngoingOutstation.this,"Please check Internet connection",Toast.LENGTH_SHORT).show();
                             }
                         });
 
@@ -1621,6 +1658,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
     public static String getCurrentTime() {
         //date output format
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");
+        Calendar cal = Calendar.getInstance();
+        return dateFormat.format(cal.getTime());
+    }
+
+    public static String getCurrentTimeForOS() {
+        //date output format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
     }

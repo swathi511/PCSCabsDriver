@@ -151,7 +151,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
     double cpLat,cpLng;
     String companyId="CMP00001";
     String guestName,guestMobile;
-    TextView tvNewBooking,tvDateTime;
+    TextView tvNewBooking,tvDateTime,tvRideTitle;
     String pickupLat,pickupLong,dropLat,dropLong;
     float finalDistance,distance=0;
     String rideData=" ";
@@ -185,6 +185,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
         btStop=(ImageButton)findViewById(R.id.aors_bt_stop);
         myBottomSheet = MyBottomSheetDialogFragment.newInstance("Modal Bottom Sheet");
         tvDateTime=(TextView)findViewById(R.id.aors_tv_date_time);
+        tvRideTitle=(TextView)findViewById(R.id.aors_tv_creq_title);
 
         tvNewBooking=(TextView)findViewById(R.id.aors_tv_new_booking);
         tvNewBooking.setVisibility(View.GONE);
@@ -207,6 +208,8 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
         tvGmobile.setText(data.getgMobile());
         tvGpickup.setText(data.getgPickup());
         tvGdrop.setText(data.getgDrop());
+        tvRideTitle.setText(data.getTravelType()+" - "+data.getTravelPackage());
+
         SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
         try {
             tvDateTime.setText(format.format(format.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
@@ -1515,7 +1518,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
         System.out.println(urlString);
 
-        Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+        Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
         call1.enqueue(new Callback<DistancePojo>() {
             @Override
             public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1579,7 +1582,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
         System.out.println(urlString);
 
-        Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+        Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
         call1.enqueue(new Callback<DistancePojo>() {
             @Override
             public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1807,7 +1810,7 @@ public class OutStationRideStartActivity extends AppCompatActivity implements On
 
             System.out.println("ridedata isssssss "+rideData);
 
-            Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+            Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
             call1.enqueue(new Callback<DistancePojo>() {
                 @Override
                 public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {

@@ -52,6 +52,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.JsonObject;
 import com.hjsoft.driverbooktaxi.GPSTracker;
+import com.hjsoft.driverbooktaxi.GPSTrackerOngoing;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
@@ -59,12 +60,16 @@ import com.hjsoft.driverbooktaxi.adapter.DBAdapter;
 import com.hjsoft.driverbooktaxi.model.CabRequestsPojo;
 import com.hjsoft.driverbooktaxi.model.Distance;
 import com.hjsoft.driverbooktaxi.model.DistancePojo;
+import com.hjsoft.driverbooktaxi.model.Duration;
+import com.hjsoft.driverbooktaxi.model.DurationPojo;
+import com.hjsoft.driverbooktaxi.model.Element;
 import com.hjsoft.driverbooktaxi.model.FormattedAllRidesData;
 import com.hjsoft.driverbooktaxi.model.GuestData;
 import com.hjsoft.driverbooktaxi.model.Leg;
 import com.hjsoft.driverbooktaxi.model.LocationUpdates;
 import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.model.Route;
+import com.hjsoft.driverbooktaxi.model.Row;
 import com.hjsoft.driverbooktaxi.service.RideOngoingOverlayService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
@@ -143,14 +148,14 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
     String companyId="CMP00001";
     TextView tvNewBooking,tvDateTime;
     String pickupLat,pickupLong,dropLat,dropLong;
-    float finalDistance,distance=0;
+    double finalDistance,distance=0;
     String rideData=" ";
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
     SharedPreferences pref;
     long idleTime=0;
     String billing="-";
-    GPSTracker gps;
+    GPSTrackerOngoing gps;
     boolean first=true;
     TextView tvPaymentMode;
 
@@ -184,7 +189,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         geocoder = new Geocoder(this, Locale.getDefault());
-        gps=new GPSTracker(RideOngoingLocal.this);
+        gps=new GPSTrackerOngoing(RideOngoingLocal.this);
         mapFragment.getMapAsync(this);
 
         pref = getSharedPreferences(PREF_NAME, PRIVATE_MODE);
@@ -194,15 +199,28 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
         //rideStartingTime=java.text.DateFormat.getTimeInstance().format(new Date());
 
         cabData= (ArrayList<FormattedAllRidesData>) getIntent().getSerializableExtra("list");
-        Bundle b=getIntent().getExtras();
-        int pos=b.getInt("position");
-        data=cabData.get(pos);
+
+        if(cabData!=null) {
+
+            Bundle b=getIntent().getExtras();
+            int pos=b.getInt("position");
+            data = cabData.get(pos);
+        }
+        else {
+            Toast.makeText(RideOngoingLocal.this,"Unknown error!Please retry.",Toast.LENGTH_SHORT).show();
+            Intent i=new Intent(RideOngoingLocal.this,HomeActivity.class);
+            startActivity(i);
+            finish();
+        }
 
         requestId=data.getRequestId();
 
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
 
-        tvDateTime.setText(format.format(data.getRideDate()));
+
+        if(data.getRideDate()!=null) {
+            SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
+            tvDateTime.setText(format.format(data.getRideDate()));
+        }
 
         dataList=dbAdapter.getAllLocUpdates(requestId);
 
@@ -1036,7 +1054,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
                             Toast.makeText(RideOngoingLocal.this, "Error in network connection", Toast.LENGTH_LONG).show();
 
-                            dbAdapter.insertNetworkIssueData(requestId, "N/W " + getCurrentTime());
+                            dbAdapter.insertNetworkIssueData(requestId, "N/W " + getCurrentDateTime());
 
 
                         }
@@ -1048,7 +1066,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
                     Toast.makeText(RideOngoingLocal.this, "GPS is not enabled..Please Check!", Toast.LENGTH_SHORT).show();
 
-                    dbAdapter.insertNetworkIssueData(requestId, "GPS " + getCurrentTime());
+                    dbAdapter.insertNetworkIssueData(requestId, "GPS " + getCurrentDateTime());
 
                 }
             }
@@ -1478,35 +1496,51 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
             final Date date = new Date();
             timeUpdated = dateFormat.format(date);
 
-            dbAdapter.insertEntry(requestId, current_lat, current_long, complete_address, resDist, timeUpdated);
-
-            if(current_lat!=0.0&&current_long!=0.0) {
+           /* if(current_lat!=0.0&&current_long!=0.0) {
 
                 dropLat = String.valueOf(current_lat);
                 dropLong = String.valueOf(current_long);
+
+                dbAdapter.insertEntry(requestId, current_lat, current_long, complete_address, resDist, timeUpdated);
             }
             else {
 
                 dropLat=String.valueOf(final_lat);
                 dropLong=String.valueOf(final_lng);
+
+                dbAdapter.insertEntry(requestId, final_lat, final_lng, complete_address, resDist, timeUpdated);
+            }*/
+
+            //System.out.println("$$$$$$$$$$$$$$$$$"+pref.getString("dropLat","nodata")+":"+pref.getString("dropLng","nodata"));
+
+
+           /* if(!(pref.getString("dropLat","nodata").equals("nodata"))&&!(pref.getString("dropLng","nodata").equals("nodata")))
+            {
+                dropLat=pref.getString("dropLat",String.valueOf(current_lat));
+                dropLong=pref.getString("dropLng",String.valueOf(current_long));
             }
+            else {
+                dropLat = String.valueOf(current_lat);
+                dropLong = String.valueOf(current_long);
+            }*/
+
+            //drop location redefined to current location.
+
+            dropLat = String.valueOf(current_lat);
+            dropLong = String.valueOf(current_long);
+
+            dbAdapter.insertEntry(requestId, Double.parseDouble(dropLat), Double.parseDouble(dropLong), complete_address, resDist, timeUpdated);
 
             dbAdapter.deleteRideStatus(requestId);
 
-            if(h!=null) {
-                h.removeCallbacks(r);
-            }
-
-            if(hC!=null) {
-                hC.removeCallbacks(rC);
-            }
 
             //alertDialog.dismiss();
             // rideStoppingTime=java.text.DateFormat.getTimeInstance().format(new Date());
             rideStartingTime = pref.getString("rideStartingTime",null);
-            rideStoppingTime = getCurrentTime();
+            //rideStoppingTime = getCurrentTime();
+            rideStoppingTime=getCurrentDateTime();
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             try {
                 Date date1 = timeFormat.parse(rideStartingTime);
@@ -1550,10 +1584,14 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
                     "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
 
 
+            /*String urlString="https://maps.googleapis.com/maps/api/distancematrix/json?" +
+                    "origins="+pickupLat+","+pickupLong+"&destinations="+dropLat+","+dropLong+"&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
+
+            */Log.i("URL",urlString);
+
             rideData=rideData+"*"+urlString;
 
-            Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
-
+            Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
             call1.enqueue(new Callback<DistancePojo>() {
                 @Override
                 public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1569,6 +1607,7 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
                         if (rDataList != null) {
 
+
                             for (int i = 0; i < rDataList.size(); i++) {
                                 rData = rDataList.get(i);
 
@@ -1581,16 +1620,20 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
 
                                     distance = distance + d.getValue();
-
                                 }
 
                             }
 
+                        //System.out.println("dist before "+distance);
+
                             distance = distance / 1000;
                             finalDistance = distance;
 
+                        //System.out.println("dist aftre "+distance);
+
                             String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
-                            System.out.println("missing data is "+missingCoordinates);
+                            //System.out.println("missing data is "+missingCoordinates);
+                            System.out.println("moving time format iss "+movingTimeFormat);
 
 
                             JsonObject v = new JsonObject();
@@ -1627,14 +1670,22 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
                                         progressDialog.dismiss();
                                         msg = response.body();
 
-                                        if (myBottomSheet.isAdded()) {
+                                        /*if (myBottomSheet.isAdded()) {
                                             myBottomSheet.dismiss();
+                                        }*/
+
+                                        if(h!=null) {
+                                            h.removeCallbacks(r);
+                                        }
+
+                                        if(hC!=null) {
+                                            hC.removeCallbacks(rC);
                                         }
 
                                         ArrayList<GuestData> gd = new ArrayList<GuestData>();
                                         gd.add(new GuestData(requestId, stProfileId, "-", "-", String.valueOf(locationData.getpLat()), String.valueOf(locationData.getpLng()),
                                                 String.valueOf(locationData.getdLat()), String.valueOf(locationData.getdLng()), data.getFromLocation(), data.getToLocation(),
-                                                "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges()));
+                                                "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges(),"","",""));
 
                                         Intent i = new Intent(RideOngoingLocal.this, RideFinishActivity.class);
                                         i.putExtra("distance", finalDistance);
@@ -1653,11 +1704,13 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
 
                                     progressDialog.dismiss();
 
-                                    if (myBottomSheet.isAdded()) {
+                                    /*if (myBottomSheet.isAdded()) {
                                         //return;
                                     } else {
                                         myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                    }
+                                    }*/
+
+                                    Toast.makeText(RideOngoingLocal.this,"Please check Internet connection!",Toast.LENGTH_SHORT).show();
                                 }
                             });
 
@@ -1715,22 +1768,29 @@ public class RideOngoingLocal extends AppCompatActivity implements OnMapReadyCal
                         first = false;
                     }
                 }
-                else {
+                /*else {
 
                     if(String.valueOf(locationData.getdLat())!=null&&String.valueOf(locationData.getdLng())!=null) {
 
-                        /*current_lat = locationData.getdLat();
-                        current_long = locationData.getdLng();*/
+                        *//*current_lat = locationData.getdLat();
+                        current_long = locationData.getdLng();*//*
 
                         final_lat = locationData.getdLat();
                         final_lng =  locationData.getdLng();
                     }
-                }
+                }*/
 
             }
         };
 
         g.post(gR);
+    }
+
+    public static String getCurrentDateTime() {
+        //date output format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
+        Calendar cal = Calendar.getInstance();
+        return dateFormat.format(cal.getTime());
     }
 }
 

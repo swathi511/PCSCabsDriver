@@ -71,6 +71,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
         data=mResultList.get(position);
 
+        //data=mOriginalList.get(position);
+
 
         if(data.getTravelType().equals("outstation")) {
             holder.tvTravelType.setText(data.getTravelType()+" - "+data.getTravelPackage());
@@ -119,14 +121,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             holder.tvStatus.setText(data.getRideStatus());
             holder.tvStatus.setTextColor(Color.parseColor("#f44336"));
         }
-        else
+        else if(data.getRideStatus().equals("COMPLETED"))
         {
+            holder.tvStatus.setText(data.getRideStatus());
+            holder.tvStatus.setTextColor(Color.parseColor("#068924"));
+        }
+        else {
             holder.tvStatus.setText(data.getRideStatus());
             holder.tvStatus.setTextColor(Color.parseColor("#0067de"));
         }
 
 
-        holder.rLayout.setTag(data.getPosition());
+        System.out.println("data.getPosition"+data.getPosition()+"pos"+position);
+
+        holder.rLayout.setTag(position);
 
         /*holder.rLayout.setOnClickListener(new View.OnClickListener() {
             @Override

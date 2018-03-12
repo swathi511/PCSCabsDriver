@@ -1298,7 +1298,7 @@ public class SpecificRideOngoingActivity extends AppCompatActivity implements On
 
             rideData=rideData+"*"+urlString;
 
-            Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+            Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
             call1.enqueue(new Callback<DistancePojo>() {
                 @Override
                 public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1366,7 +1366,7 @@ public class SpecificRideOngoingActivity extends AppCompatActivity implements On
                                         ArrayList<GuestData> gd = new ArrayList<GuestData>();
                                         gd.add(new GuestData(requestId, stProfileId, "-", "-", String.valueOf(locationData.getpLat()), String.valueOf(locationData.getpLng()),
                                                 String.valueOf(locationData.getdLat()), String.valueOf(locationData.getdLng()), data.getFromLocation(), data.getToLocation(),
-                                                "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges()));
+                                                "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges(),"","",""));
 
                                         Intent i = new Intent(SpecificRideOngoingActivity.this, RideFinishActivity.class);
                                         i.putExtra("distance", finalDistance);

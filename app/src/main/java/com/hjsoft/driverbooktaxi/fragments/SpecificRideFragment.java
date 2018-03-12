@@ -142,6 +142,10 @@ public class SpecificRideFragment extends Fragment {
             tvDistance.setText(data.getDistanceTravelled());
         }
 
+        System.out.println("ride start time "+data.getRideStartTime());
+        System.out.println("ride stop time "+data.getRideStopTime());
+        System.out.println("requestid "+data.getRequestId());
+
         //if(data.getRideStartTime().length()>=4) {
             if ((data.getRideStartTime().substring(data.getRideStartTime().length() - 4, data.getRideStartTime().length()).equals("a.m.")
                     || data.getRideStartTime().substring(data.getRideStartTime().length() - 4, data.getRideStartTime().length()).equals("p.m."))) {
@@ -182,11 +186,12 @@ public class SpecificRideFragment extends Fragment {
             }
        // }
 
-        tvRideStartTime.setText(data.getRideStartTime());
-        tvRideStopTime.setText(data.getRideStopTime());
+        tvRideStartTime.setText(data.getRideStartTime().split(" ")[0]+"\n"+"\n"+data.getRideStartTime().split(" ")[1]);
+        tvRideStopTime.setText(data.getRideStopTime().split(" ")[0]+"\n"+"\n"+data.getRideStopTime().split(" ")[1]);
 
-       // SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-        if(data.getTravelType().equals("local")||data.getTravelType().equals("Packages")) {
+
+        // SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+       /* if(data.getTravelType().equals("local")||data.getTravelType().equals("Packages")) {
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a", Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -212,9 +217,9 @@ public class SpecificRideFragment extends Fragment {
 
             tvTime.setText(time);
         }
-        else {
+        else {*/
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.ENGLISH);
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
             try {
@@ -239,7 +244,7 @@ public class SpecificRideFragment extends Fragment {
 
             tvTime.setText(time);
 
-        }
+        //}
 
         tvPayment.setText(data.getPaymentMode());
 

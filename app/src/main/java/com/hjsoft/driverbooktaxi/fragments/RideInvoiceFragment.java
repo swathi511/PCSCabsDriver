@@ -13,7 +13,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
@@ -51,8 +53,8 @@ public class RideInvoiceFragment extends Fragment {
     double stDistance;
     GuestData data;
     TextView tvTripId,tvPickup,tvDrop,tvDistance,tvTime,tvFare,tvRideStart,tvRideStop,tvTotalFare,tvTaxes,tvTotalBill,tvOutstationBatta;
-    TextView tvWalletAmnt,tvCash,tvOtherCharges;
-    LinearLayout llWallet,llCash,llOSBatta,llCashInfo,llWalletInfo,llOtherCharges;
+    TextView tvWalletAmnt,tvCash,tvOtherCharges,tvRetry,tvCancelCharges;
+    LinearLayout llWallet,llCash,llOSBatta,llCashInfo,llWalletInfo,llOtherCharges,llCancelCharges;
     ImageButton ibLogout;
     SessionManager session;
     API REST_CLIENT;
@@ -68,6 +70,7 @@ public class RideInvoiceFragment extends Fragment {
     SharedPreferences.Editor editor;
     String osbatta;
     ImageView ivPayU;
+    RatingBar rbStars;
 
     @Nullable
     @Override
@@ -99,6 +102,13 @@ public class RideInvoiceFragment extends Fragment {
         llWalletInfo=(LinearLayout)rootView.findViewById(R.id.arfd_ll_wallet_info);
         tvOtherCharges=(TextView)rootView.findViewById(R.id.arfd_tv_charges);
         llOtherCharges=(LinearLayout)rootView.findViewById(R.id.arfd_ll_other_charges);
+        tvRetry=(TextView)rootView.findViewById(R.id.arfd_tv_retry);
+        tvRetry.setVisibility(View.GONE);
+        llCancelCharges=(LinearLayout)rootView.findViewById(R.id.arfd_ll_cancel_charges);
+        llCancelCharges.setVisibility(View.GONE);
+        tvCancelCharges=(TextView)rootView.findViewById(R.id.arfd_tv_cancel_charges);
+
+        rbStars=(RatingBar)rootView.findViewById(R.id.arfd_rb_stars);
 
         REST_CLIENT= RestClient.get();
         tvOutstationBatta.setVisibility(View.GONE);
@@ -113,7 +123,7 @@ public class RideInvoiceFragment extends Fragment {
 
         Bundle b=getActivity().getIntent().getExtras();
         stFare=b.getString("fare");
-        stDistance=b.getFloat("distance");
+        stDistance=b.getDouble("distance");
         stTime=b.getString("time");
         stRideStart=b.getString("rideStart");
         stRideStop=b.getString("rideStop");
@@ -125,212 +135,34 @@ public class RideInvoiceFragment extends Fragment {
 
         /*editor.putString("pickup_lat","-");
         editor.putString("pickup_long","-");*/
+        editor.putString("pickup_lat","nodata");
+        editor.putString("pickup_long","nodata");
+        editor.putString("rideStartingTime","nodata");
         editor.putString("booking","out");
         editor.putBoolean("saved",false);
+//        editor.putString("dropLat","nodata");
+//        editor.putString("dropLng","nodata");
         editor.commit();
 
-        Call<List<RideStopPojo>> call=REST_CLIENT.getRideStopData(data.getgRequestId(),companyId,"driver");
-        call.enqueue(new Callback<List<RideStopPojo>>() {
+        rbStars.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
-            public void onResponse(Call<List<RideStopPojo>> call, Response<List<RideStopPojo>> response) {
+            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
 
-                List<RideStopPojo> dataList;
-                RideStopPojo data1;
-
-                if(response.isSuccessful())
-                {
-                    dataList=response.body();
-
-                    data1=dataList.get(0);
-
-                    tvRideStart.setText(stRideStart);
-                    tvRideStop.setText(stRideStop);
-                    tvTripId.setText(data.getgRequestId());
-                    tvPickup.setText(data.getgPickup());
-                    tvDrop.setText(data.getgDrop());
-                    System.out.println("distance isss "+data1.getDistancetravelled()+"@@@@@@@@"+String.valueOf((float)stDistance));
-                    tvDistance.setText(data1.getDistancetravelled());
-                    tvTime.setText(stTime);
-                   /* tvFare.setText("Rs. "+data.getTotalfare());
-                    tvTotalFare.setText("Rs. "+data.getTotalfare());
-                    tvTotalBill.setText("Rs. "+data.getTotalfare());
-                    tvTaxes.setText("Rs. 0");*/
-
-                    if(data1.getTravelType().equals("outstation"))
-                    {
-                        llOSBatta.setVisibility(View.VISIBLE);
-                        tvOutstationBatta.setVisibility(View.VISIBLE);
-                        tvOutstationBatta.setText(getString(R.string.Rs)+" "+data1.getDriverBattaAmt());
-                        osbatta=data1.getDriverBattaAmt();
-                    }
-
-                    if(data1.getOtherCharges()==null||data1.getOtherCharges().equals("0"))
-                    {
-
-                    }
-                    else {
-                        llOtherCharges.setVisibility(View.VISIBLE);
-                        tvOtherCharges.setText(getString(R.string.Rs)+" "+data1.getOtherCharges());
-                        otherCharges=Double.parseDouble(data1.getOtherCharges());
-                    }
-
-
-                    if(data1.getTotalfare().equals("")) {
-
-                        tvFare.setText(getString(R.string.Rs)+" "+"-");
-                        tvTotalFare.setText(getString(R.string.Rs)+" "+"-");
-                        tvTotalBill.setText(getString(R.string.Rs)+" "+"-");
-                        tvTaxes.setText(getString(R.string.Rs)+" "+"0");
-                    }
-                    else
-                    {
-                        String[] amount = data1.getTotalfare().split("-");
-
-
-                        if (data1.getTotalfare().equals("-")) {
-                            tvFare.setText(getString(R.string.Rs)+" "+"0");
-                            tvTotalFare.setText(getString(R.string.Rs)+" "+"0");
-                            tvTotalBill.setText(getString(R.string.Rs)+" "+"0");
-                        } else {
-                            String fare = amount[0];
-                            String tax = amount[1];
-
-                            if(data1.getTravelType().equals("outstation"))
-                            {
-                                Double finalFare=Double.parseDouble(fare)-Double.parseDouble(osbatta)-otherCharges;
-                                tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
-                                tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
-                            }
-                            else {
-                                Double finalFare=Double.parseDouble(fare)-otherCharges;
-                                tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
-                                tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
-                            }
-
-
-                            tvTaxes.setText(getString(R.string.Rs)+" "+ tax);
-                            totalBill = Double.parseDouble(fare)+Double.parseDouble(tax);
-                            tvTotalBill.setText(getString(R.string.Rs)+" "+ String.valueOf(totalBill));
-                        }
-
-            /*
-            tvFare.setText("Rs. "+data.getTotalAmount());
-            tvTotalFare.setText("Rs. "+data.getTotalAmount());
-            tvTotalBill.setText("Rs. "+data.getTotalAmount());*/
-                    }
-
-                    tvDistance.setText(data1.getDistancetravelled());
-
-                    if(data1.getTravelType().equals("local")||data1.getTravelType().equals("Packages")) {
-
-                        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
-                        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-                        try {
-                            Date date1 = timeFormat.parse(data1.getRidestarttime());
-                            Date date2 = timeFormat.parse(data1.getRidestoptime());
-
-                            diff = (date2.getTime() - date1.getTime());
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        int Hours = (int) (diff / (1000 * 60 * 60));
-                        int Mins = (int) (diff / (1000 * 60)) % 60;
-                        long Secs = (int) (diff / 1000) % 60;
-
-                        DecimalFormat formatter = new DecimalFormat("00");
-                        String hFormatted = formatter.format(Hours);
-                        String mFormatted = formatter.format(Mins);
-                        String sFormatted = formatter.format(Secs);
-                        String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
-
-                        tvTime.setText(time);
-                    }
-                    else {
-
-                        SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-                        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-                        try {
-                            Date date1 = timeFormat.parse(data1.getRidestarttime());
-                            Date date2 = timeFormat.parse(data1.getRidestoptime());
-
-                            diff = (date2.getTime() - date1.getTime());
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        int Hours = (int) (diff / (1000 * 60 * 60));
-                        int Mins = (int) (diff / (1000 * 60)) % 60;
-                        long Secs = (int) (diff / 1000) % 60;
-
-                        DecimalFormat formatter = new DecimalFormat("00");
-                        String hFormatted = formatter.format(Hours);
-                        String mFormatted = formatter.format(Mins);
-                        String sFormatted = formatter.format(Secs);
-                        String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
-
-                        tvTime.setText(time);
-
-
-                    }
-
-                    if(data1.getPaymentMode().equals("cash"))
-                    {
-                        llWallet.setVisibility(View.GONE);
-                        tvCash.setText(getString(R.string.Rs)+" "+data1.getPaymentCash());
-                        llCashInfo.setVisibility(View.VISIBLE);
-
-                    }else if(data1.getPaymentMode().equals("wallet"))
-                    {
-                        // llCash.setVisibility(View.GONE);
-                        tvWalletAmnt.setText(getString(R.string.Rs)+" "+data1.getPaymentWallet());
-                        if(data1.getPaymentCash().equals("0"))
-                        {
-                            llCash.setVisibility(View.GONE);
-                        }
-                        else {
-                            tvCash.setText(getString(R.string.Rs)+" "+data1.getPaymentCash());
-                        }
-                        ivPayU.setVisibility(View.VISIBLE);
-                        llWalletInfo.setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        llWallet.setVisibility(View.GONE);
-                        tvCash.setText(getString(R.string.Rs)+" "+totalBill);
-                        llCashInfo.setVisibility(View.VISIBLE);
-                    }
-
-
-                }
-                else {
-
-                }
-
-
-
-
-            }
-
-            @Override
-            public void onFailure(Call<List<RideStopPojo>> call, Throwable t) {
-
-                if(myBottomSheet.isAdded())
-                {
-                    //return;
-                }
-                else
-                {
-                    if(rootView.isShown()) {
-                        myBottomSheet.show(getChildFragmentManager(), myBottomSheet.getTag());
-                    }
-                }
 
             }
         });
+
+
+        getBookingFinishDetails();
+
+        tvRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                getBookingFinishDetails();
+            }
+        });
+
 
         /*
 
@@ -398,5 +230,220 @@ public class RideInvoiceFragment extends Fragment {
         });
 
         return  rootView;
+    }
+
+
+    public void getBookingFinishDetails()
+    {
+        tvRetry.setVisibility(View.GONE);
+
+        Call<List<RideStopPojo>> call=REST_CLIENT.getRideStopData(data.getgRequestId(),companyId,"driver");
+        call.enqueue(new Callback<List<RideStopPojo>>() {
+            @Override
+            public void onResponse(Call<List<RideStopPojo>> call, Response<List<RideStopPojo>> response) {
+
+                List<RideStopPojo> dataList;
+                RideStopPojo data1;
+
+                if(response.isSuccessful())
+                {
+                    dataList=response.body();
+
+                    data1=dataList.get(0);
+
+                    tvRideStart.setText(stRideStart.split(" ")[0]+"\n"+"\n"+stRideStart.split(" ")[1]);
+                    tvRideStop.setText(stRideStop.split(" ")[0]+"\n"+"\n"+stRideStop.split(" ")[1]);
+                    tvTripId.setText(data.getgRequestId());
+                    tvPickup.setText(data.getgPickup());
+                    tvDrop.setText(data.getgDrop());
+                    //System.out.println("distance isss "+data1.getDistancetravelled()+"@@@@@@@@"+String.valueOf((float)stDistance));
+                    tvDistance.setText(data1.getDistancetravelled());
+                    tvTime.setText(stTime);
+                   /* tvFare.setText("Rs. "+data.getTotalfare());
+                    tvTotalFare.setText("Rs. "+data.getTotalfare());
+                    tvTotalBill.setText("Rs. "+data.getTotalfare());
+                    tvTaxes.setText("Rs. 0");*/
+
+                    if(data1.getTravelType().equals("outstation"))
+                    {
+                        llOSBatta.setVisibility(View.VISIBLE);
+                        tvOutstationBatta.setVisibility(View.VISIBLE);
+                        tvOutstationBatta.setText(getString(R.string.Rs)+" "+data1.getDriverBattaAmt());
+                        osbatta=data1.getDriverBattaAmt();
+                    }
+
+                    if(data1.getOtherCharges()==null||data1.getOtherCharges().equals("0"))
+                    {
+
+                    }
+                    else {
+                        llOtherCharges.setVisibility(View.VISIBLE);
+                        tvOtherCharges.setText(getString(R.string.Rs)+" "+data1.getOtherCharges());
+                        otherCharges=Double.parseDouble(data1.getOtherCharges());
+                    }
+
+                    if(data1.getCancelPrevRideAmount().equals("0"))
+                    {
+
+                    }
+                    else {
+                        llCancelCharges.setVisibility(View.VISIBLE);
+                        tvCancelCharges.setText(data1.getCancelPrevRideAmount());
+
+                    }
+
+
+                    if(data1.getTotalfare().equals("")) {
+
+                        tvFare.setText(getString(R.string.Rs)+" "+"-");
+                        tvTotalFare.setText(getString(R.string.Rs)+" "+"-");
+                        tvTotalBill.setText(getString(R.string.Rs)+" "+"-");
+                        tvTaxes.setText(getString(R.string.Rs)+" "+"0");
+                    }
+                    else
+                    {
+                        String[] amount = data1.getTotalfare().split("-");
+
+
+                        if (data1.getTotalfare().equals("-")) {
+                            tvFare.setText(getString(R.string.Rs)+" "+"0");
+                            tvTotalFare.setText(getString(R.string.Rs)+" "+"0");
+                            tvTotalBill.setText(getString(R.string.Rs)+" "+"0");
+                        } else {
+                            String fare = amount[0];
+                            String tax = amount[1];
+
+                            if(data1.getTravelType().equals("outstation"))
+                            {
+                                Double finalFare=Double.parseDouble(fare)-Double.parseDouble(osbatta)-otherCharges;
+                                tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
+                                tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
+                            }
+                            else {
+                                Double finalFare=Double.parseDouble(fare)-otherCharges;
+                                tvFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
+                                tvTotalFare.setText(getString(R.string.Rs)+" "+ String.valueOf(finalFare));
+                            }
+
+
+                            tvTaxes.setText(getString(R.string.Rs)+" "+ tax);
+                            totalBill = Double.parseDouble(fare)+Double.parseDouble(tax)+Double.parseDouble(data1.getCancelPrevRideAmount());
+                            tvTotalBill.setText(getString(R.string.Rs)+" "+ String.valueOf(totalBill));
+                        }
+
+            /*
+            tvFare.setText("Rs. "+data.getTotalAmount());
+            tvTotalFare.setText("Rs. "+data.getTotalAmount());
+            tvTotalBill.setText("Rs. "+data.getTotalAmount());*/
+                    }
+
+                    tvDistance.setText(data1.getDistancetravelled());
+
+                   /* if(data1.getTravelType().equals("local")||data1.getTravelType().equals("Packages")) {
+
+                        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+                        timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                        try {
+                            Date date1 = timeFormat.parse(data1.getRidestarttime());
+                            Date date2 = timeFormat.parse(data1.getRidestoptime());
+
+                            diff = (date2.getTime() - date1.getTime());
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        int Hours = (int) (diff / (1000 * 60 * 60));
+                        int Mins = (int) (diff / (1000 * 60)) % 60;
+                        long Secs = (int) (diff / 1000) % 60;
+
+                        DecimalFormat formatter = new DecimalFormat("00");
+                        String hFormatted = formatter.format(Hours);
+                        String mFormatted = formatter.format(Mins);
+                        String sFormatted = formatter.format(Secs);
+                        String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
+
+                        tvTime.setText(time);
+                    }
+                    else {*/
+
+                    SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
+                    timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                    try {
+                        Date date1 = timeFormat.parse(data1.getRidestarttime());
+                        Date date2 = timeFormat.parse(data1.getRidestoptime());
+
+                        diff = (date2.getTime() - date1.getTime());
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    int Hours = (int) (diff / (1000 * 60 * 60));
+                    int Mins = (int) (diff / (1000 * 60)) % 60;
+                    long Secs = (int) (diff / 1000) % 60;
+
+                    DecimalFormat formatter = new DecimalFormat("00");
+                    String hFormatted = formatter.format(Hours);
+                    String mFormatted = formatter.format(Mins);
+                    String sFormatted = formatter.format(Secs);
+                    String time = hFormatted + ":" + mFormatted + ":" + sFormatted;
+
+                    tvTime.setText(time);
+
+
+                    //}
+
+                    if(data1.getPaymentMode().equals("cash"))
+                    {
+                        llWallet.setVisibility(View.GONE);
+                        tvCash.setText(getString(R.string.Rs)+" "+data1.getPaymentCash());
+                        llCashInfo.setVisibility(View.VISIBLE);
+
+                    }else if(data1.getPaymentMode().equals("wallet"))
+                    {
+                        // llCash.setVisibility(View.GONE);
+                        tvWalletAmnt.setText(getString(R.string.Rs)+" "+data1.getPaymentWallet());
+                        if(data1.getPaymentCash().equals("0"))
+                        {
+                            llCash.setVisibility(View.GONE);
+                        }
+                        else {
+                            tvCash.setText(getString(R.string.Rs)+" "+data1.getPaymentCash());
+                        }
+                        ivPayU.setVisibility(View.VISIBLE);
+                        llWalletInfo.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        llWallet.setVisibility(View.GONE);
+                        tvCash.setText(getString(R.string.Rs)+" "+totalBill);
+                        llCashInfo.setVisibility(View.VISIBLE);
+                    }
+
+
+                }
+                else {
+
+                    Toast.makeText(getActivity(),"Please retry!"+response.message(),Toast.LENGTH_SHORT).show();
+
+                    tvRetry.setVisibility(View.VISIBLE);
+                }
+
+
+
+
+            }
+
+            @Override
+            public void onFailure(Call<List<RideStopPojo>> call, Throwable t) {
+
+                tvRetry.setVisibility(View.VISIBLE);
+
+               Toast.makeText(getActivity(),"Check Internet connection!",Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 }

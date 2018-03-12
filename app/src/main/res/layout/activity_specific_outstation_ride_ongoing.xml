@@ -22,7 +22,7 @@
             android:padding="12dp"
             android:text="@string/ride_progress"
             android:gravity="center"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorWhite"
             android:textSize="13sp"
             android:background="@drawable/rect_bg"
             android:textAllCaps="true"
@@ -31,7 +31,7 @@
         <RelativeLayout android:layout_width="match_parent"
             android:layout_height="wrap_content"
             xmlns:android="http://schemas.android.com/apk/res/android"
-            android:background="@color/colorAshLight"
+            android:background="@color/colorPrimary"
             android:id="@+id/asoro_rl"
             android:layout_below="@+id/asoro_tv_title">
 
@@ -151,10 +151,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/c_req_from"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="6dp"
+            android:layout_marginBottom="4dp"
             android:textAllCaps="true"
             android:textColor="@color/colorTextBlue"
             android:textStyle="bold"/>
@@ -208,8 +208,8 @@
             android:layout_below="@+id/asoro_tv_gmobile_title">
 
             <TextView
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
                 android:background="@drawable/round_green"
                 android:layout_marginRight="4dp"
                 android:gravity="center"
@@ -223,13 +223,14 @@
                 android:textSize="10sp"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:layout_marginRight="4dp"/>
+                android:layout_marginRight="4dp"
+                android:visibility="gone"/>
             <TextView android:id="@+id/asoro_tv_ploc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/xxx"
                 android:textColor="@color/colorBlack"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:gravity="left"
                 android:layout_gravity="center"/>
         </LinearLayout>
@@ -242,8 +243,8 @@
             android:layout_below="@+id/asoro_ll1">
 
             <TextView
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
                 android:background="@drawable/round_pink"
                 android:layout_marginRight="6dp"
                 android:gravity="center"
@@ -258,13 +259,14 @@
                 android:layout_marginRight="6dp"
                 android:textSize="10sp"
                 android:layout_gravity="center"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:visibility="gone"/>
             <TextView android:id="@+id/asoro_tv_dloc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/xxx"
                 android:textColor="@color/colorBlack"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:layout_gravity="center"
                 android:gravity="left" />
 
@@ -323,7 +325,7 @@
                     android:text="XXX Payment"
                     android:textColor="@color/colorTextBlue"
                     android:layout_marginRight="6dp"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:layout_gravity="center"
                     android:gravity="center" />
 

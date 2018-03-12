@@ -144,7 +144,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
     String guestName,guestMobile;
     TextView tvNewBooking,tvDateTime;
     String pickupLat,pickupLong,dropLat,dropLong;
-    float finalDistance,distance=0;
+    double finalDistance,distance=0;
     String rideData=" ";
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
@@ -155,7 +155,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
     boolean first=true,start=true;
     GPSTracker gps;
     Bundle b;
-    TextView tvPaymentMode;
+    TextView tvPaymentMode,tvRideTitle;
     int totalKms;
     String billing="-";
     long idleTime=0;
@@ -181,6 +181,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         btStop=(ImageButton)findViewById(R.id.aors_bt_stop);
         myBottomSheet = MyBottomSheetDialogFragment.newInstance("Modal Bottom Sheet");
         tvDateTime=(TextView)findViewById(R.id.aors_tv_date_time);
+        tvRideTitle=(TextView)findViewById(R.id.aors_tv_creq_title);
 
         tvNewBooking=(TextView)findViewById(R.id.aors_tv_new_booking);
         tvNewBooking.setVisibility(View.GONE);
@@ -196,17 +197,43 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
 
         pref = getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
-
         city=pref.getString("city",null);
 
+        dbAdapter=new DBAdapter(getApplicationContext());
+        dbAdapter=dbAdapter.open();
+
         cabData= (ArrayList<GuestData>) getIntent().getSerializableExtra("cabData");
-        data=cabData.get(0);
+
+        if(cabData!=null) {
+            data = cabData.get(0);
+
+            if(data!=null)
+            {
+
+            }
+            else {
+
+                Toast.makeText(RideOutstation.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
+                Intent i=new Intent(RideOutstation.this,HomeActivity.class);
+                startActivity(i);
+                finish();
+            }
+        }
+        else {
+
+            Toast.makeText(RideOutstation.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
+            Intent i=new Intent(RideOutstation.this,HomeActivity.class);
+            startActivity(i);
+            finish();
+        }
+
         b=getIntent().getExtras();
 
         tvGname.setText(data.getgName());
         tvGmobile.setText(data.getgMobile());
         tvGpickup.setText(data.getgPickup());
         tvGdrop.setText(data.getgDrop());
+        tvRideTitle.setText(data.getTravelType()+" - "+data.getTravelPackage());
 
         if(data.getPaymentMode()!=null) {
             String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
@@ -247,8 +274,6 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         user = session.getUserDetails();
         stProfileId=user.get(SessionManager.KEY_PROFILE_ID);
 
-        dbAdapter=new DBAdapter(getApplicationContext());
-        dbAdapter=dbAdapter.open();
         dbAdapter.insertRideStatus(requestId,"ongoing");
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -662,6 +687,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                                         }
                                     }
                                 });
+
 
                                 if(data.getTravelType().equals("outstation"))
                                 {
@@ -1321,13 +1347,6 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         //super.onBackPressed();
     }
 
-    public static String getCurrentTimeForOS() {
-        //date output format
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
-        Calendar cal = Calendar.getInstance();
-        return dateFormat.format(cal.getTime());
-    }
-
 
     public void getGPSLocationUpdates()
     {
@@ -1347,18 +1366,58 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
 
                         if(!pref.getBoolean("saved",false)) {
 
-                            pickupLat = String.valueOf(current_lat);
+                            /*System.out.println("dataaaa1"+pref.getString("rideStartingTime","nodata"));
+                            System.out.println("dataaaa2"+pref.getString("pickup_lat","nodata"));
+                            System.out.println("dataaaa3"+pref.getString("pickup_long","nodata"));*/
+
+                            String rst=pref.getString("rideStartingTime","nodata");
+                            String pLat=pref.getString("pickup_lat","nodata");
+                            String pLng=pref.getString("pickup_long","nodata");
+
+                            if(rst.equals("nodata")&&pLat.equals("nodata")&&pLng.equals("nodata"))
+                            {
+                                /*pickupLat = String.valueOf(current_lat);
+                                pickupLong = String.valueOf(current_long);
+
+                                //rideStartingTime = getCurrentTime();
+                                rideStartingTime=getCurrentTimeForOS();*/
+
+                                pickupLat = data.getAppPickupLat();
+                                pickupLong = data.getAppPickupLong();
+
+                                if(data.getRideStartTime().equals(""))
+                                {
+                                    rideStartingTime=getCurrentTimeForOS();
+                                }
+                                else {
+                                    rideStartingTime = data.getRideStartTime();
+                                }
+
+                                //System.out.println("details "+rideStartingTime+":"+pickupLat+":"+pickupLong);
+
+                                editor.putString("pickup_lat", pickupLat);
+                                editor.putString("pickup_long", pickupLong);
+                                editor.putString("rideStartingTime", rideStartingTime);
+                                editor.commit();
+
+                            }
+
+                            /*pickupLat = String.valueOf(current_lat);
                             pickupLong = String.valueOf(current_long);
-                            if(data.getTravelType().equals("outstation")) {
+
+
+                           *//* if(data.getTravelType().equals("outstation")) {
                                 rideStartingTime = getCurrentTimeForOS();
                             }
                             else {
                                 rideStartingTime = getCurrentTime();
-                            }
+                            }*//*
+
+                            rideStartingTime=getCurrentTimeForOS();
 
                             editor.putString("pickup_lat", pickupLat);
                             editor.putString("pickup_long", pickupLong);
-                            editor.putString("rideStartingTime", rideStartingTime);
+                            editor.putString("rideStartingTime", rideStartingTime);*/
                             editor.putBoolean("saved", true);
                             editor.commit();
 
@@ -1410,20 +1469,21 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         // rideStoppingTime=java.text.DateFormat.getTimeInstance().format(new Date());
         rideStartingTime = pref.getString("rideStartingTime", rideStartingTime);
         //rideStoppingTime = getCurrentTimeForOS();
-        if(data.getTravelType().equals("outstation")) {
+        /*if(data.getTravelType().equals("outstation")) {
             rideStoppingTime = getCurrentTimeForOS();
         }
         else {
             rideStoppingTime= getCurrentTime();
-        }
+        }*/
 
+        rideStoppingTime=getCurrentTimeForOS();
 
 //            rideStartingTime="18/11/2017 05:30:00 am";
 //            rideStoppingTime="20/11/2017 02:38:00 pm";
 
         if(data.getTravelType().equals("outstation")) {
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             try {
                 //System.out.println(pref.getString("ride_starting_time", rideStartingTime) + "::" + rideStartingTime);
@@ -1437,7 +1497,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         }
         else {
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             try {
                 //System.out.println(pref.getString("ride_starting_time", rideStartingTime) + "::" + rideStartingTime);
@@ -1511,7 +1571,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
 
         rideData=rideData+"*"+urlString;
 
-        Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+        Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
         call1.enqueue(new Callback<DistancePojo>() {
             @Override
             public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1549,13 +1609,14 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                         totalKms=Integer.parseInt(pref.getString("closingKms","0"))-Integer.parseInt(pref.getString("startingKms","0"));
 
                         String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
-                        System.out.println("missing data is "+missingCoordinates);
-                        System.out.println("billing is "+billing);
+                       // System.out.println("missing data is "+missingCoordinates);
+                       // System.out.println("billing is "+billing);
 
 //                        System.out.println("sKms"+Integer.parseInt(pref.getString("startingKms","0")));
 //                        System.out.println("cKms"+Integer.parseInt(pref.getString("closingKms","0")));
 //                        System.out.println("totalKms"+totalKms);
 
+                        System.out.println("moving time format iss "+movingTimeFormat);
                         JsonObject v = new JsonObject();
                         v.addProperty("profileid", stProfileId);
                         v.addProperty("requestid", pref.getString("request_id", requestId));
@@ -1573,7 +1634,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                         v.addProperty("missingcoordinates",missingCoordinates);
 
 
-                        System.out.println("missing data is "+dbAdapter.getNetworkIssueData(requestId));
+                       // System.out.println("missing data is "+dbAdapter.getNetworkIssueData(requestId));
 
 
                         Call<Pojo> call2 = REST_CLIENT.sendRideDetails(v);
@@ -1592,12 +1653,17 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                                     progressDialog.dismiss();
                                     msg = response.body();
 
-                                    if (myBottomSheet.isAdded()) {
+                                    /*if (myBottomSheet.isAdded()) {
                                         myBottomSheet.dismiss();
+                                    }*/
+
+                                    if(h!=null) {
+                                        h.removeCallbacks(r);
                                     }
 
-                                    h.removeCallbacks(r);
-                                    hC.removeCallbacks(rC);
+                                    if(hC!=null) {
+                                        hC.removeCallbacks(rC);
+                                    }
 
                                     Intent i = new Intent(RideOutstation.this, RideFinishActivity.class);
                                     i.putExtra("distance", finalDistance);
@@ -1609,6 +1675,10 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                                     startActivity(i);
                                     finish();
                                 }
+                                else {
+                                    progressDialog.dismiss();
+                                   // System.out.println("data iss"+response.message());
+                                }
                             }
 
                             @Override
@@ -1616,11 +1686,13 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
 
                                 progressDialog.dismiss();
 
-                                if (myBottomSheet.isAdded()) {
+                                /*if (myBottomSheet.isAdded()) {
                                     //return;
                                 } else {
                                     myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                                }
+                                }*/
+
+                                Toast.makeText(RideOutstation.this,"Please check Internet connection!",Toast.LENGTH_SHORT).show();
                             }
                         });
                         ////
@@ -1653,4 +1725,13 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
     }
+
+    public static String getCurrentTimeForOS() {
+        //date output format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
+        Calendar cal = Calendar.getInstance();
+        return dateFormat.format(cal.getTime());
+    }
+
+
 }

@@ -26,7 +26,8 @@
         android:textAllCaps="true"
         android:textStyle="bold"
         android:background="@drawable/rect_blue_stroke_nc_bg"
-        android:padding="4dp"/>
+        android:padding="4dp"
+        android:visibility="gone"/>
 
     <LinearLayout android:id="@+id/fmr_ll"
         android:layout_width="match_parent"

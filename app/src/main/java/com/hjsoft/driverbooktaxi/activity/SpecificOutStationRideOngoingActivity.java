@@ -155,7 +155,7 @@ public class SpecificOutStationRideOngoingActivity extends AppCompatActivity imp
     double cpLat,cpLng;
     boolean isMarkerRotating=false;
     String companyId="CMP00001";
-    TextView tvNewBooking,tvDateTime;
+    TextView tvNewBooking,tvDateTime,tvRideTitle;
     String pickupLat,pickupLong,dropLat,dropLong;
     float finalDistance,distance=0;
     String rideData=" ";
@@ -191,6 +191,8 @@ public class SpecificOutStationRideOngoingActivity extends AppCompatActivity imp
         tvDateTime=(TextView)findViewById(R.id.asoro_tv_date_time);
         tvNewBooking=(TextView)findViewById(R.id.asoro_tv_new_booking);
         tvNewBooking.setVisibility(View.GONE);
+        tvRideTitle=(TextView)findViewById(R.id.asoro_tv_creq_title);
+
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         geocoder = new Geocoder(this, Locale.getDefault());
@@ -211,6 +213,7 @@ public class SpecificOutStationRideOngoingActivity extends AppCompatActivity imp
         tvGpickup.setText(data.getFromLocation());
         tvGdrop.setText(data.getToLocation());
         requestId=data.getRequestId();
+        tvRideTitle.setText(data.getTravelType()+" - "+data.getTravelPackage());
 
 
         dataList=dbAdapter.getAllLocUpdates(requestId);
@@ -1308,7 +1311,7 @@ public class SpecificOutStationRideOngoingActivity extends AppCompatActivity imp
 
         System.out.println(urlString);
 
-        Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+        Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
         call1.enqueue(new Callback<DistancePojo>() {
             @Override
             public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1362,7 +1365,7 @@ public class SpecificOutStationRideOngoingActivity extends AppCompatActivity imp
 
         System.out.println(urlString);
 
-        Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+        Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
         call1.enqueue(new Callback<DistancePojo>() {
             @Override
             public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1582,7 +1585,7 @@ public class SpecificOutStationRideOngoingActivity extends AppCompatActivity imp
 
             rideData=rideData+"*"+urlString;
 
-            Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+            Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
             call1.enqueue(new Callback<DistancePojo>() {
                 @Override
                 public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1665,7 +1668,7 @@ public class SpecificOutStationRideOngoingActivity extends AppCompatActivity imp
                                         ArrayList<GuestData> gd = new ArrayList<GuestData>();
                                         gd.add(new GuestData(requestId, stProfileId, "-", "-", String.valueOf(locationData.getpLat()), String.valueOf(locationData.getpLng()),
                                                 String.valueOf(locationData.getdLat()), String.valueOf(locationData.getdLng()), data.getFromLocation(), data.getToLocation(),
-                                                "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges()));
+                                                "travel_type", "travel_package", "scheduled_date", "scheduled_time", "otp_required", "booking_type",data.getPaymentMode(),data.getOtherCharges(),"","",""));
 
                                         Intent i = new Intent(SpecificOutStationRideOngoingActivity.this, RideFinishActivity.class);
                                         i.putExtra("distance", finalDistance);

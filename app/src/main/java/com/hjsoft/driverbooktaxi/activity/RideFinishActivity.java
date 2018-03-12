@@ -136,7 +136,7 @@ public class RideFinishActivity extends AppCompatActivity{
                 finish();
                 break;
             case 1:
-                Intent i=new Intent(RideFinishActivity.this,AllRidesActivity.class);
+                Intent i=new Intent(RideFinishActivity.this,BookingHistoryActivity.class);
                 startActivity(i);
                 finish();
                 break;

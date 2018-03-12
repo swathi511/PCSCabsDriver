@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             xmlns:android="http://schemas.android.com/apk/res/android"
-            android:background="@color/colorAshLight"
+            android:background="@color/colorPrimary"
             android:layout_below="@+id/ar_ll_main">
 
             <LinearLayout android:id="@+id/ar_ll"
@@ -113,13 +113,28 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/ar_rl_1"
             android:visibility="gone"/>
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switchButton"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:checked="true"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Online"
+            android:layout_below="@+id/ar_rl_1"
+            android:background="@drawable/rect_online"
+            android:padding="10dp"
+            android:textSize="14sp"/>
 
         <LinearLayout android:id="@+id/ar_ll_below"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_alignParentBottom="true"
             android:background="@color/colorWhite"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:visibility="gone">
 
             <TextView android:layout_width="match_parent"
@@ -131,27 +146,40 @@
                 android:textStyle="bold"
                 android:gravity="left"
                 android:layout_marginTop="12dp"
-                android:layout_marginLeft="18dp"/>
+                android:layout_marginLeft="18dp"
+                android:visibility="gone"/>
 
-            <TextView android:layout_width="match_parent"
+            <ImageButton android:id="@+id/atr_ib_call"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_alert"
+                android:background="@drawable/round_btn_yellow"
+                android:layout_below="@+id/atr_rl"
+                android:scaleX="0.9"
+                android:scaleY="0.9"
+                android:layout_marginLeft="16dp"/>
+
+            <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Previous Duty in ONGOING.\n Click OK to finish!"
-                android:layout_marginBottom="16dp"
-                android:textSize="13sp"
+                android:text="Previous Duty in ONGOING.\nClick ' Continue ' to finish!"
+                android:layout_margin="16dp"
+                android:textSize="12sp"
                 android:textColor="@color/colorBlack"
-                android:gravity="center" />
+                android:gravity="left"
+                android:layout_weight="1"/>
 
-            <Button android:id="@+id/ar_bt_ok"
+            <TextView android:id="@+id/ar_bt_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/ok"
-                android:background="@drawable/rect_blue_stroke_nc_bg"
-                android:textAllCaps="true"
-                android:textSize="13sp"
+                android:text="Continue"
+                android:background="@drawable/btn_bg"
+                android:textAllCaps="false"
+                android:textSize="12sp"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:layout_marginBottom="16dp"
-                android:textColor="@color/colorTextBlue"/>
+                android:layout_marginRight="24dp"
+                android:textColor="#ffd600"
+                android:padding="10dp" />
 
         </LinearLayout>
 

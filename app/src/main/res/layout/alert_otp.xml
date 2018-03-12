@@ -30,7 +30,8 @@
         android:textSize="16sp"
         android:textColor="@color/colorAsh"
         android:layout_below="@+id/ao_vw"
-        android:background="@drawable/alert_et_bg"/>
+        android:background="@drawable/alert_et_bg"
+        android:inputType="number"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

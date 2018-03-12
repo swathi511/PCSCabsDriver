@@ -11,15 +11,14 @@ public class FormattedAllRidesData implements Serializable {
         String requestId,fromLocation,toLocation,vehicleCategory,vehicleType,distanceTravelled;
         String rideStatus,rideStartTime,rideStopTime,totalAmount,driverName,driverPic,travelType,bookingType,travelPackage,osBatta;
         Date rideDate;
-        String driverMobile,guestProfileId,guestName,guestMobile,pickupLat,pickupLong,dropLat,dropLong,otpStatus,paymentMode,otherCharges;
-
+        String driverMobile,guestProfileId,guestName,guestMobile,pickupLat,pickupLong,dropLat,dropLong,otpStatus,paymentMode,otherCharges,appPickupLat,appPickupLong;
         int position;
 
 
         public FormattedAllRidesData(int position, Date rideDate, String requestId,String fromLocation,String toLocation,String vehicleCategory,String vehicleType,String distanceTravelled,
                                      String rideStatus,String rideStartTime,String rideStopTime,String totalAmount,String driverName,String driverPic,String travelType,String bookingType,String travelPackage,
                                      String driverMobile,String guestProfileId,String guestName,String guestMobile,String pickupLat,String pickupLong,String dropLat,String dropLong,
-                                     String otpStatus,String osBatta,String paymentMode,String otherCharges)
+                                     String otpStatus,String osBatta,String paymentMode,String otherCharges,String appPickupLat,String appPickupLong)
         {
                 this.position=position;
                 this.rideDate=rideDate;
@@ -50,6 +49,8 @@ public class FormattedAllRidesData implements Serializable {
                 this.osBatta=osBatta;
                 this.paymentMode=paymentMode;
                 this.otherCharges=otherCharges;
+                this.appPickupLat=appPickupLat;
+                this.appPickupLong=appPickupLong;
         }
 
         public int getPosition() {
@@ -282,6 +283,22 @@ public class FormattedAllRidesData implements Serializable {
 
         public void setOtherCharges(String otherCharges) {
                 this.otherCharges = otherCharges;
+        }
+
+        public String getAppPickupLong() {
+                return appPickupLong;
+        }
+
+        public void setAppPickupLong(String appPickupLong) {
+                this.appPickupLong = appPickupLong;
+        }
+
+        public String getAppPickupLat() {
+                return appPickupLat;
+        }
+
+        public void setAppPickupLat(String appPickupLat) {
+                this.appPickupLat = appPickupLat;
         }
 }
 

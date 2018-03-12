@@ -7,11 +7,11 @@ import java.io.Serializable;
  */
 public class GuestData implements Serializable{
 
-    String gName,gMobile,gPickup,gDrop,pLat,pLng,dLat,dLng,gRequestId,gProfileId,travelType,travelPackage,scheduledDate,scheduledTime,otpRequired,bookingType,paymentMode,otherCharges;
+    String gName,gMobile,gPickup,gDrop,pLat,pLng,dLat,dLng,gRequestId,gProfileId,travelType,travelPackage,scheduledDate,scheduledTime,otpRequired,bookingType,paymentMode,otherCharges,appPickupLat,appPickupLong,rideStartTime;
 
     public GuestData(String gRequestId,String gProfileId,String gName,String gMobile,String pLat,
                      String pLng,String dLat,String dLng,String gPickup,String gDrop,String travelType,String travelPackage,String scheduledDate,String scheduledTime,
-                     String otpRequired,String bookingType,String paymentMode,String otherCharges)
+                     String otpRequired,String bookingType,String paymentMode,String otherCharges,String appPickupLat,String appPickupLong,String rideStartTime)
     {
        this.gRequestId=gRequestId;
         this.gProfileId=gProfileId;
@@ -31,6 +31,9 @@ public class GuestData implements Serializable{
         this.bookingType=bookingType;
         this.paymentMode=paymentMode;
         this.otherCharges=otherCharges;
+        this.appPickupLat=appPickupLat;
+        this.appPickupLong=appPickupLong;
+        this.rideStartTime=rideStartTime;
     }
 
 
@@ -176,5 +179,29 @@ public class GuestData implements Serializable{
 
     public void setOtherCharges(String otherCharges) {
         this.otherCharges = otherCharges;
+    }
+
+    public String getAppPickupLat() {
+        return appPickupLat;
+    }
+
+    public void setAppPickupLat(String appPickupLat) {
+        this.appPickupLat = appPickupLat;
+    }
+
+    public String getAppPickupLong() {
+        return appPickupLong;
+    }
+
+    public void setAppPickupLong(String appPickupLong) {
+        this.appPickupLong = appPickupLong;
+    }
+
+    public String getRideStartTime() {
+        return rideStartTime;
+    }
+
+    public void setRideStartTime(String rideStartTime) {
+        this.rideStartTime = rideStartTime;
     }
 }

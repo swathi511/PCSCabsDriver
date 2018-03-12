@@ -323,6 +323,20 @@
         android:textAllCaps="false"
         />
 
+    <TextView android:id="@+id/acr_tv_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time remaining .."
+        android:textSize="13sp"
+        android:textColor="@color/colorBlack"
+        android:layout_below="@+id/acr_ll_local"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:textAllCaps="true"
+        android:textStyle="bold" />
+
 
 
 </RelativeLayout>

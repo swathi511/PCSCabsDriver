@@ -21,10 +21,12 @@ import android.widget.Toast;
 import com.google.gson.JsonObject;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
+import com.hjsoft.driverbooktaxi.adapter.BookingHistoryRecyclerAdapter;
 import com.hjsoft.driverbooktaxi.adapter.DBAdapter;
 import com.hjsoft.driverbooktaxi.adapter.DrawerItemCustomAdapter;
 import com.hjsoft.driverbooktaxi.adapter.RecyclerAdapter;
 import com.hjsoft.driverbooktaxi.fragments.AllRidesFragment;
+import com.hjsoft.driverbooktaxi.fragments.BookingHistoryFragment;
 import com.hjsoft.driverbooktaxi.fragments.ShowRequestsFragment;
 import com.hjsoft.driverbooktaxi.fragments.SpecificRideFragment;
 import com.hjsoft.driverbooktaxi.model.FormattedAllRidesData;
@@ -35,8 +37,11 @@ import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -89,9 +94,24 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
         Fragment fragment=new AllRidesFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.content_frame, fragment,"all_rides").commit();
-        setTitle("All Rides");
+        Bundle b=getIntent().getExtras();
+        String s=b.getString("dateValue","Booking History");
 
-        adapter.setSelectedItem(1);
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            String format = new SimpleDateFormat("dd MMM, yyyy",Locale.ENGLISH).format(dateFormat.parse(s));
+
+            setTitle(format);
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+
+            setTitle(s);
+        }
+
+
+        adapter.setSelectedItem(-1);
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -117,14 +137,29 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
                 }
                 else
                 {
-                    mDrawerToggle.setDrawerIndicatorEnabled(true);
-                    setTitle("All Rides");
+                    mDrawerToggle.setDrawerIndicatorEnabled(false);
+                    Bundle b=getIntent().getExtras();
+                    String s=b.getString("dateValue","Booking History");
+                    try {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+                        String format = new SimpleDateFormat("dd MMM, yyyy",Locale.ENGLISH).format(dateFormat.parse(s));
+
+                        setTitle(format);
+                    }
+                    catch (ParseException e)
+                    {
+                        e.printStackTrace();
+
+                        setTitle(s);
+                    }
 
                     toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
 
-                            mDrawerLayout.openDrawer(mDrawerList);
+//                            Intent i=new Intent(AllRidesActivity.this,BookingHistoryActivity.class);
+//                            startActivity(i);
+                            finish();
                         }
                     });
                 }
@@ -229,6 +264,15 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
         mDrawerToggle = new android.support.v7.app.ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.app_name, R.string.app_name);
         //This is necessary to change the icon of the Drawer Toggle upon state change.
         mDrawerToggle.syncState();
+        mDrawerToggle.setDrawerIndicatorEnabled(false);
+        mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Intent i=new Intent(AllRidesActivity.this,BookingHistoryActivity.class);
+//                startActivity(i);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -243,7 +287,8 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
         System.out.println("ALLRIDESACTIVITY CALLED"+data.size());
 
-        position=data.size()-position-1;
+        //position=data.size()-position-1;
+        //this.position=position;
 
         System.out.println("possssssss "+position);
 
@@ -291,7 +336,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges(),"","",""));
 
                             Intent i = new Intent(AllRidesActivity.this, RideLocal.class);
                             i.putExtra("cabData", cabData);
@@ -304,7 +349,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(),"", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges(),"","",""));
 
                             Intent i = new Intent(AllRidesActivity.this, TrackRideActivity.class);
                             i.putExtra("cabData", cabData);
@@ -334,7 +379,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges(),"","",""));
 
                             Intent i = new Intent(AllRidesActivity.this, RideOutstation.class);
                             i.putExtra("cabData", cabData);
@@ -347,7 +392,7 @@ public class AllRidesActivity extends AppCompatActivity implements RecyclerAdapt
 
                             ArrayList<GuestData> cabData = new ArrayList<>();
                             cabData.add(new GuestData(item.getRequestId(), item.getGuestProfileId(), item.getGuestName(), item.getGuestMobile(), item.getPickupLat(), item.getPickupLong(),
-                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(), "", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges()));
+                                    item.getDropLat(), item.getDropLong(), item.getFromLocation(), item.getToLocation(), item.getTravelType(), item.getTravelPackage(),"", "", "", item.getBookingType(),item.getPaymentMode(),item.getOtherCharges(),"","",""));
 
                             Intent i = new Intent(AllRidesActivity.this, OutStationTrackRideActivity.class);
                             i.putExtra("cabData", cabData);

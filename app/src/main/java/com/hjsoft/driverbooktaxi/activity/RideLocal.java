@@ -58,11 +58,15 @@ import com.hjsoft.driverbooktaxi.adapter.DBAdapter;
 import com.hjsoft.driverbooktaxi.model.CabRequestsPojo;
 import com.hjsoft.driverbooktaxi.model.Distance;
 import com.hjsoft.driverbooktaxi.model.DistancePojo;
+import com.hjsoft.driverbooktaxi.model.Duration;
+import com.hjsoft.driverbooktaxi.model.DurationPojo;
+import com.hjsoft.driverbooktaxi.model.Element;
 import com.hjsoft.driverbooktaxi.model.GuestData;
 import com.hjsoft.driverbooktaxi.model.Leg;
 import com.hjsoft.driverbooktaxi.model.LocationUpdates;
 import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.model.Route;
+import com.hjsoft.driverbooktaxi.model.Row;
 import com.hjsoft.driverbooktaxi.service.RideStartOverlayService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
@@ -140,7 +144,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
     String guestName,guestMobile;
     TextView tvNewBooking,tvPaymentMode;
     String pickupLat,pickupLong,dropLat,dropLong;
-    float finalDistance,distance=0;
+    double finalDistance,distance=0;
     String rideData;
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "SharedPref";
@@ -185,66 +189,101 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
         geocoder = new Geocoder(this, Locale.getDefault());
         gps=new GPSTracker(RideLocal.this);
+        dbAdapter=new DBAdapter(getApplicationContext());
+        dbAdapter=dbAdapter.open();
 
         // rideStartingTime=java.text.DateFormat.getTimeInstance().format(new Date());
 //        rideStartingTime=getCurrentTime();
 
-        b=getIntent().getExtras();
-
         cabData= (ArrayList<GuestData>) getIntent().getSerializableExtra("cabData");
-        data=cabData.get(0);
+
+        //data=cabData.get(0);
+
+        if(cabData!=null) {
+
+            data = cabData.get(0);
+
+            if(data!=null)
+            {
+                tvGname.setText(data.getgName());
+                tvGmobile.setText(data.getgMobile());
+                tvGpickup.setText(data.getgPickup());
+                tvGdrop.setText(data.getgDrop());
+
+                if(data.getPaymentMode()!=null) {
+                    String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
+                    tvPaymentMode.setText(upperString + " Payment");
+                }
+                else {
+                    tvPaymentMode.setText("Cash Payment");
+                }
+
+                SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
+                SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
+                try {
+                    tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
+                }
+                catch (ParseException e)
+                {
+                    e.printStackTrace();
+                }
+
+                requestId=data.getgRequestId();
+
+                if(data.getTravelPackage().equals(""))
+                {
+
+                }
+                else {
+
+                    tvRid.setText("Ride Details - "+data.getTravelPackage());
+                }
+
+                guestName=data.getgName();
+                guestMobile=data.getgMobile();
+                dbAdapter.insertRideStatus(requestId,"ongoing");
+            }
+            else {
+
+                Toast.makeText(RideLocal.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
+                Intent i=new Intent(RideLocal.this,HomeActivity.class);
+                startActivity(i);
+                finish();
+            }
+        }
+        else {
+
+            Toast.makeText(RideLocal.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
+            Intent i=new Intent(RideLocal.this,HomeActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+        b=getIntent().getExtras();
 
         pref = getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
-
         city=pref.getString("city",null);
 
-        tvGname.setText(data.getgName());
-        tvGmobile.setText(data.getgMobile());
-        tvGpickup.setText(data.getgPickup());
-        tvGdrop.setText(data.getgDrop());
+        //System.out.println("$$$$$$$$$$$$$$$$$"+pref.getString("dropLat","nodata")+":"+pref.getString("dropLng","nodata"));
 
-        if(data.getPaymentMode()!=null) {
-            String upperString = data.getPaymentMode().substring(0, 1).toUpperCase() + data.getPaymentMode().substring(1);
-            tvPaymentMode.setText(upperString + " Payment");
-        }
-        else {
-            tvPaymentMode.setText("Cash Payment");
-        }
-
-        SimpleDateFormat  format1 = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a",Locale.ENGLISH);
-        SimpleDateFormat  format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a",Locale.ENGLISH);
-        try {
-            tvDateTime.setText(format.format(format1.parse(data.getScheduledDate())).split(" ")[0] + " " + data.getScheduledTime());
-        }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
-
-        requestId=data.getgRequestId();
-
-        if(data.getTravelPackage().equals(""))
+        /*if(data.getdLat().equals("")||data.getdLng().equals(""))
         {
 
         }
         else {
 
-            tvRid.setText("Ride Details - "+data.getTravelPackage());
-        }
+            editor.putString("dropLat", data.getdLat());
+            editor.putString("dropLng", data.getdLng());
+            editor.commit();
 
-        guestName=data.getgName();
-        guestMobile=data.getgMobile();
+        }*/
 
         REST_CLIENT=RestClient.get();
 
         session = new SessionManager(getApplicationContext());
         user = session.getUserDetails();
         stProfileId=user.get(SessionManager.KEY_PROFILE_ID);
-
-        dbAdapter=new DBAdapter(getApplicationContext());
-        dbAdapter=dbAdapter.open();
-        dbAdapter.insertRideStatus(requestId,"ongoing");
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         mRequestingLocationUpdates=false;
@@ -1028,7 +1067,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                             Toast.makeText(RideLocal.this, "Error in network connection!", Toast.LENGTH_LONG).show();
 
-                            dbAdapter.insertNetworkIssueData(requestId,"N/W "+getCurrentTime());
+                            dbAdapter.insertNetworkIssueData(requestId,"N/W "+getCurrentDateTime());
 
 
                         }
@@ -1040,7 +1079,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                     Toast.makeText(RideLocal.this, "GPS is not enabled..Please Check!", Toast.LENGTH_SHORT).show();
 
-                        dbAdapter.insertNetworkIssueData(requestId,"GPS "+getCurrentTime());
+                    dbAdapter.insertNetworkIssueData(requestId,"GPS "+getCurrentDateTime());
 
                 }
 
@@ -1506,10 +1545,25 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             Date date = new Date();
             timeUpdated = dateFormat.format(date);
 
-            dbAdapter.insertEntry(requestId, current_lat, current_long, complete_address, resDist, timeUpdated);
+            //System.out.println("$$$$$$$$$$$$$$$$$"+pref.getString("dropLat","nodata")+":"+pref.getString("dropLng","nodata"));
+
+
+         /*   if(!(pref.getString("dropLat","nodata").equals("nodata"))&&!(pref.getString("dropLng","nodata").equals("nodata")))
+            {
+                dropLat=pref.getString("dropLat",String.valueOf(current_lat));
+                dropLong=pref.getString("dropLng",String.valueOf(current_long));
+            }
+            else {
+                dropLat = String.valueOf(current_lat);
+                dropLong = String.valueOf(current_long);
+            }*/
+
+            // drop location redefined to current location.
 
             dropLat = String.valueOf(current_lat);
             dropLong = String.valueOf(current_long);
+
+            dbAdapter.insertEntry(requestId, Double.parseDouble(dropLat), Double.parseDouble(dropLong), complete_address, resDist, timeUpdated);
 
             dbAdapter.deleteRideStatus(requestId);
 
@@ -1517,10 +1571,11 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             // alertDialog.dismiss();
 
             //rideStoppingTime=java.text.DateFormat.getTimeInstance().format(new Date());
-            rideStoppingTime = getCurrentTime();
+            //rideStoppingTime = getCurrentTime();
+            rideStoppingTime=getCurrentDateTime();
             rideStartingTime=pref.getString("rideStartingTime",null);
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
             timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             try {
                 Date date1 = timeFormat.parse(rideStartingTime);
@@ -1566,11 +1621,54 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
             String urlString = "https://maps.googleapis.com/maps/api/directions/json?" +
                     "origin=" + pickupLat + "," + pickupLong + "&destination=" + dropLat + "," + dropLong + "&waypoints=" + stWaypoints + "&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
 
+
+
+            /*String urlString="https://maps.googleapis.com/maps/api/distancematrix/json?" +
+                    "origins="+pickupLat+","+pickupLong+"&destinations="+dropLat+","+dropLong+"&key=AIzaSyBNlJ8qfN-FCuka8rjh7NEK1rlwWmxG1Pw";
+
+*/
             Log.i("URL",urlString);
 
             rideData=rideData+"*"+urlString;
 
-            Call<DistancePojo> call1 = REST_CLIENT.getDistanceDetails(urlString);
+            /*Call<DurationPojo> call=REST_CLIENT.getDistanceDetails(urlString);
+            call.enqueue(new Callback<DurationPojo>() {
+                @Override
+                public void onResponse(Call<DurationPojo> call, Response<DurationPojo> response) {
+
+                    DurationPojo d;
+
+                    if(response.isSuccessful())
+                    {
+                        d=response.body();
+                        List<Row> r2=d.getRows();
+                        Row r1;
+                        for(int a=0;a<r2.size();a++)
+                        {
+                            r1=r2.get(a);
+                            List<Element> e=r1.getElements();
+
+                            Element e1;
+
+                            for(int b=0;b<e.size();b++)
+                            {
+                                e1=e.get(b);
+                                Distance t1=e1.getDistance();
+
+                                Duration t2=e1.getDuration();
+
+                               // String stDist=t1.getText();
+                               *//* String stDistDetails[]=stDist.split(" ");
+                                distance=Double.parseDouble(stDistDetails[0]);*//*
+
+                                distance=t1.getValue();
+                                progressDialog.dismiss();
+
+                                //System.out.println("d & t is "+stKms+":"+stTime);
+                            }
+                        }*/
+
+            Call<DistancePojo> call1 = REST_CLIENT.getOSDistanceDetails(urlString);
             call1.enqueue(new Callback<DistancePojo>() {
                 @Override
                 public void onResponse(Call<DistancePojo> call, Response<DistancePojo> response) {
@@ -1585,6 +1683,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                         List<Route> rDataList = distData.getRoutes();
 
                         if (rDataList != null) {
+
 
                             for (int i = 0; i < rDataList.size(); i++) {
                                 rData = rDataList.get(i);
@@ -1602,12 +1701,16 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                             }
 
+                        //System.out.println("dist before "+distance);
+
                             distance = distance / 1000;
                             finalDistance = distance;
 
-                            String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
-                            System.out.println("missing data is "+missingCoordinates);
+                        //System.out.println("dist aftre "+distance);
 
+                            String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
+                            System.out.println("moving time format iss "+movingTimeFormat);
+                            //System.out.println("missing data is "+missingCoordinates);
 
                             JsonObject v = new JsonObject();
                             v.addProperty("profileid", stProfileId);
@@ -1643,12 +1746,16 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                                         progressDialog.dismiss();
                                         msg = response.body();
 
-                                        if (myBottomSheet.isAdded()) {
+                                        /*if (myBottomSheet.isAdded()) {
                                             myBottomSheet.dismiss();
-                                        }
+                                        }*/
 
-                                        h.removeCallbacks(r);
-                                        hC.removeCallbacks(rC);
+                                        if(h!=null) {
+                                            h.removeCallbacks(r);
+                                        }
+                                        if(hC!=null) {
+                                            hC.removeCallbacks(rC);
+                                        }
                                         //mGoogleApiClient.disconnect();
 
                                         Intent i = new Intent(RideLocal.this, RideFinishActivity.class);
@@ -1717,7 +1824,7 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
                 current_lat = gps.getLatitude();
                 current_long = gps.getLongitude();
 
-                System.out.println("*********** "+current_lat+":"+current_long);
+                //System.out.println("*********** "+current_lat+":"+current_long);
 
                 if (current_lat != 0.0 && current_long != 0.0) {
 
@@ -1725,14 +1832,46 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
                         if(!pref.getBoolean("saved",false)) {
 
-                            pickupLat = String.valueOf(current_lat);
+                            /*System.out.println("dataaaa1"+pref.getString("rideStartingTime","nodata"));
+                            System.out.println("dataaaa2"+pref.getString("pickup_lat","nodata"));
+                            System.out.println("dataaaa3"+pref.getString("pickup_long","nodata"));*/
+
+                            String rst=pref.getString("rideStartingTime","nodata");
+                            String pLat=pref.getString("pickup_lat","nodata");
+                            String pLng=pref.getString("pickup_long","nodata");
+
+                            if(rst.equals("nodata")&&pLat.equals("nodata")&&pLng.equals("nodata"))
+                            {
+                                /*pickupLat = String.valueOf(current_lat);
+                                pickupLong = String.valueOf(current_long);
+                                rideStartingTime=getCurrentDateTime();*/
+
+                                pickupLat = data.getAppPickupLat();
+                                pickupLong = data.getAppPickupLong();
+                                if(data.getRideStartTime().equals(""))
+                                {
+                                    rideStartingTime=getCurrentDateTime();
+                                }
+                                else {
+                                    rideStartingTime = data.getRideStartTime();
+                                }
+
+                                editor.putString("pickup_lat", pickupLat);
+                                editor.putString("pickup_long", pickupLong);
+                                editor.putString("rideStartingTime", rideStartingTime);
+                                editor.commit();
+
+                            }
+
+                           /* pickupLat = String.valueOf(current_lat);
                             pickupLong = String.valueOf(current_long);
 
-                            rideStartingTime = getCurrentTime();
+                            //rideStartingTime = getCurrentTime();
+                            rideStartingTime=getCurrentDateTime();
 
                             editor.putString("pickup_lat", pickupLat);
                             editor.putString("pickup_long", pickupLong);
-                            editor.putString("rideStartingTime", rideStartingTime);
+                            editor.putString("rideStartingTime", rideStartingTime);*/
                             editor.putBoolean("saved", true);
                             editor.commit();
 
@@ -1750,6 +1889,18 @@ public class RideLocal extends AppCompatActivity implements OnMapReadyCallback
 
         g.post(gR);
     }
+
+
+    public static String getCurrentDateTime() {
+        //date output format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.ENGLISH);
+        Calendar cal = Calendar.getInstance();
+        return dateFormat.format(cal.getTime());
+    }
+
+
+
+
 
 
 
