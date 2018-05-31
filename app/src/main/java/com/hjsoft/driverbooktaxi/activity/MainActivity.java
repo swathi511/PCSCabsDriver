@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     final static int REQUEST_LOCATION = 199;
     String deviceId,profileid;
     final String TOKEN = "b505c85d-71ae-4ad6-803b-78b2f8893cb4"; //(swathipriya)
-    //final String TOKEN = "0a67196b-aaf1-4b23-af0b-3f7f1dc95ecb"; //(hjsoftware)
+
 
 
     private Thread.UncaughtExceptionHandler androidDefaultUEH;

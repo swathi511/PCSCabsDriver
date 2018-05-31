@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+    <ImageView android:id="@+id/fbh_iv_retry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/retry"
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From Date"
+        android:textColor="#9e9e9e"
+        android:textSize="10sp"
+        android:gravity="left"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"/>
+
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_gravity="center"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="2dp"
+        >
+
+        <TextView android:id="@+id/fbh_tv_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/xxx"
+            android:textColor="@color/colorBlack"
+            android:textSize="13sp"
+            android:gravity="left"
+            android:layout_weight="1"
+            android:layout_marginRight="24dp"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+
+            />
+        <ImageView android:id="@+id/fbh_iv_from"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_calendar"
+            android:layout_marginRight="8dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To Date"
+        android:textColor="#9e9e9e"
+        android:textSize="10sp"
+        android:gravity="left"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"/>
+
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_gravity="center"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView android:id="@+id/fbh_tv_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/xxx"
+            android:textColor="@color/colorBlack"
+            android:textSize="13sp"
+            android:gravity="left"
+            android:layout_weight="1"
+            android:layout_marginRight="24dp"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+
+            />
+        <ImageView android:id="@+id/fbh_iv_to"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_calendar"
+            android:layout_marginRight="8dp"/>
+
+    </LinearLayout>
+
+    <TextView android:id="@+id/fbh_tv_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:textColor="@color/colorYellow"
+        android:background="@drawable/btn_bg"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="12sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@drawable/background"
+        android:layout_marginTop="16dp"/>
+
+    <TextView android:id="@+id/fbh_tv_no_rides"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You haven't booked any rides yet."
+        android:textSize="18sp"
+        android:textColor="@color/colorBlack"
+        android:gravity="center"
+        android:layout_margin="16dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fbh_rview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:scrollbars="vertical">
+
+    </android.support.v7.widget.RecyclerView>
+
+</LinearLayout>

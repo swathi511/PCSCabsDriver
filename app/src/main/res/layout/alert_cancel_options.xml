@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select a Reason"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:textColor="@color/colorAsh"
+        android:layout_margin="4dp"
+        android:textAllCaps="true"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#cecece"
+        android:layout_marginBottom="6dp"/>
+    <RadioGroup android:id="@+id/aco_rb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="8dp">
+
+    </RadioGroup>
+
+    <TextView android:id="@+id/aco_bt_ok"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ok"
+        android:textSize="14sp"
+        android:gravity="right"
+        android:textColor="#33ab37"
+        android:layout_gravity="center"
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        android:padding="16dp"/>
+
+</LinearLayout>
