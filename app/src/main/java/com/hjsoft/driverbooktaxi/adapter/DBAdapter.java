@@ -214,7 +214,7 @@ public class DBAdapter {
 
         if(c.getCount()<15)
         {
-            n=2;//n=1
+            n=2;//n=1//n=2
         }
         else if(c.getCount()>15&&c.getCount()<30)
         {

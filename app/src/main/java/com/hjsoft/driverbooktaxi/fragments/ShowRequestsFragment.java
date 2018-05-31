@@ -1,14 +1,11 @@
 package com.hjsoft.driverbooktaxi.fragments;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -25,27 +22,27 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
-import android.view.KeyEvent;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -61,8 +58,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.hjsoft.driverbooktaxi.KalmanLatLong;
+import com.hjsoft.driverbooktaxi.Constants;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
@@ -75,8 +73,6 @@ import com.hjsoft.driverbooktaxi.activity.RideOngoingLocal;
 import com.hjsoft.driverbooktaxi.activity.RideOngoingOutstation;
 import com.hjsoft.driverbooktaxi.activity.RideOutstation;
 import com.hjsoft.driverbooktaxi.activity.RideStartActivity;
-import com.hjsoft.driverbooktaxi.activity.SpecificOutStationRideOngoingActivity;
-import com.hjsoft.driverbooktaxi.activity.SpecificRideOngoingActivity;
 import com.hjsoft.driverbooktaxi.activity.TrackRideActivity;
 import com.hjsoft.driverbooktaxi.adapter.DBAdapter;
 import com.hjsoft.driverbooktaxi.model.AllRidesPojo;
@@ -86,15 +82,25 @@ import com.hjsoft.driverbooktaxi.model.GuestData;
 import com.hjsoft.driverbooktaxi.model.LocationUpdates;
 import com.hjsoft.driverbooktaxi.model.Pojo;
 import com.hjsoft.driverbooktaxi.model.ServiceLocationPojo;
+import com.hjsoft.driverbooktaxi.service.CabRequestService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
+import com.inrista.loggliest.Loggly;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNReconnectionPolicy;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -174,10 +180,36 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     //NotificationManager notificationManager;
     SwitchCompat switchCompat;
     //String version="1";
-    String version="5";//4.9
+    String version="4.5";//4.5//5.7
     int k=15;
     //FormattedAllRidesData f;
+    //private final static String API_KEY = "3PzQvg.MchECw:Brb2D4FEUuEXMuKs";
+    //prod::private final static String API_KEY = "kcfhRA.H13JVA:pX7G9-lrgVftOHBZ";
 
+    PubNub pubnub;
+    boolean debugLogs;
+    String deviceId;
+
+    /*private Thread.UncaughtExceptionHandler androidDefaultUEH;
+
+    private Thread.UncaughtExceptionHandler handler1 = new Thread.UncaughtExceptionHandler() {
+        public void uncaughtException(Thread thread, Throwable ex) {
+
+            Log.e("TestApplication", "Uncaught exception is: ", ex);
+            // log it & phone home.
+
+            String trace = ex.toString() + "\n";
+
+            for (StackTraceElement e1 : ex.getStackTrace()) {
+                trace += "\t at " + e1.toString() + "\n";
+            }
+
+            Loggly.i("ShowRequestsFragment","Uncaught Exception: "+trace);
+            Loggly.forceUpload();
+
+            androidDefaultUEH.uncaughtException(thread, ex);
+        }
+    };*/
 
     @Nullable
     @Override
@@ -205,6 +237,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
         pref = getActivity().getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
         city=pref.getString("city",null);
+        debugLogs=pref.getBoolean("debugLogs",true);
         tvCity.setText(city);
 
         mRequestingLocationUpdates=false;
@@ -213,6 +246,10 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
         dbAdapter=new DBAdapter(getActivity());
         dbAdapter=dbAdapter.open();
+
+        TelephonyManager telephonyManager = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        deviceId=telephonyManager.getDeviceId();
+        //deviceId="12345";
 
         tvCity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -290,9 +327,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                 /*editor.putString("booking","in");
                 editor.putBoolean("saved",false);
                 editor.commit();*/
-
-
                 //if(d.getTravelType().equals("local")||d.getTravelType().equals("Packages"))
+
                 if(d.getTravelType().equals("local"))
                 {
 
@@ -394,11 +430,66 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /*androidDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(handler1);*/
+
+
+
         geocoder = new Geocoder(getContext(), Locale.getDefault());
         mp = MediaPlayer.create(getActivity(), R.raw.beep);
+
+        onStartService();
+
+        IntentFilter filter = new IntentFilter(CabRequestService.ACTION);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(testReceiver, filter);
         //notificationManager =(NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         // Metres per second
+
+
+
+        /*final String LOGGLY_TOKEN = "b505c85d-71ae-4ad6-803b-78b2f8893cb4";
+        Timber.plant(new LogglyTree(LOGGLY_TOKEN));*/
     }
+
+    public void onStartService() {
+        Intent i = new Intent(getActivity(), CabRequestService.class);
+        //i.putExtra("foo", "bar");
+        getActivity().startService(i);
+    }
+
+    private BroadcastReceiver testReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            //System.out.println("In Main activity... broadcast receiver");
+            int resultCode = intent.getIntExtra("resultCode", Activity.RESULT_CANCELED);
+            if (resultCode == Activity.RESULT_OK) {
+                String resultValue = intent.getStringExtra("resultValue");
+                //Toast.makeText(getActivity(), resultValue, Toast.LENGTH_SHORT).show();
+
+                if(cabData.size()==0)
+                {
+                    getDetails();
+                }
+                else {
+
+                    if (resultValue.equals("Telebooking")) {
+
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                //getDetails();
+
+                            }
+
+                        }, 15000);
+                    }
+                }
+            }
+        }
+    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -422,13 +513,10 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
         buildGoogleApiClient();
         buildLocationSettingsRequest();
-        //getDetails();
+
+        initPubNub(stProfileId);
         showIfBookingIsOngoing();
         entered=true;
-        //Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();
-        //getCabs();
-        //sendLocationUpdatesToServer();
-        //showIfBookingIsOngoing();
 
     }
 
@@ -450,8 +538,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
         }
         else
         {
-            //mGoogleApiClient.connect();
-            // super.onStart();
+
         }
 
 
@@ -465,7 +552,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
         if(mGoogleApiClient!=null) {
             //mGoogleApiClient.disconnect();
         }
-        super.onStop();
+        //super.onStop();
         //gettingCabs=true;
 
     }
@@ -485,7 +572,6 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     @Override
     public void onResume() {
         super.onResume();
-
 
         if(entered)
         {
@@ -602,7 +688,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
         if(mGoogleApiClient!=null)
         {
-            mGoogleApiClient.disconnect();
+            if(mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.disconnect();
+            }
         }
     }
 
@@ -819,13 +907,14 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             @Override
             public void run() {
 
-                handler.postDelayed(r,10000);
+                //System.out.println("******************************************");
+
+                //handler.postDelayed(r,10000);
 
                 // Getting details
 
                 if (cabData.size() != 0 && (data.getTravelType().equals("local")||data.getTravelType().equals("Packages")) && data.getBookingtype().equals("AppBooking") ) {
 
-                    //if (mp.isPlaying()) {
                     if(mp!=null) {
 
                         //mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, userVolume, AudioManager.FLAG_PLAY_SOUND);
@@ -909,7 +998,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     if(cabData.size()==0) {
 
-                        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+                        //System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
                         Call<List<CabRequestsPojo>> call = REST_CLIENT.getCabRequests(stProfileId, companyId);
                         call.enqueue(new Callback<List<CabRequestsPojo>>() {
@@ -1012,8 +1101,8 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                                         tvTime.setVisibility(View.VISIBLE);
 
-                                         e = new Handler();
-                                         dr = new Runnable() {
+                                        e = new Handler();
+                                        dr = new Runnable() {
                                             @Override
                                             public void run() {
 
@@ -1142,7 +1231,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                         if (data.getTravelType().equals("local")) {
 
                                                             if (data.getOTPrequired().equals("Yes")) {
-                                                                h.removeCallbacks(rr);
+                                                                if(h!=null) {
+                                                                    h.removeCallbacks(rr);
+                                                                }
                                                                 if(hLoc!=null) {
                                                                     hLoc.removeCallbacks(rLoc);
                                                                 }
@@ -1187,7 +1278,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                                                                     */
 
-                                                                h.removeCallbacks(rr);
+                                                                if(h!=null) {
+                                                                    h.removeCallbacks(rr);
+                                                                }
                                                                 if(hLoc!=null) {
                                                                     hLoc.removeCallbacks(rLoc);
                                                                 }
@@ -1199,7 +1292,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                 getActivity().finish();
 
                                                             } else {
-                                                                h.removeCallbacks(rr);
+                                                                if(h!=null) {
+                                                                    h.removeCallbacks(rr);
+                                                                }
                                                                 if(hLoc!=null) {
 
                                                                     hLoc.removeCallbacks(rLoc);
@@ -1214,7 +1309,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                         } else {
 
                                                             if (data.getOTPrequired().equals("Yes")) {
-                                                                h.removeCallbacks(rr);
+                                                                if(h!=null) {
+                                                                    h.removeCallbacks(rr);
+                                                                }
                                                                 hLoc.removeCallbacks(rLoc);
                                                                 alertDialog.dismiss();
                                                                 count = 0;
@@ -1257,7 +1354,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                                     });
                                                                     */
 
-                                                                h.removeCallbacks(rr);
+                                                                if(h!=null) {
+                                                                    h.removeCallbacks(rr);
+                                                                }
                                                                 hLoc.removeCallbacks(rLoc);
                                                                 alertDialog.dismiss();
                                                                 count = 0;
@@ -1268,7 +1367,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
 
                                                             } else {
-                                                                h.removeCallbacks(rr);
+                                                                if(h!=null) {
+                                                                    h.removeCallbacks(rr);
+                                                                }
                                                                 hLoc.removeCallbacks(rLoc);
                                                                 alertDialog.dismiss();
                                                                 count = 0;
@@ -1303,6 +1404,15 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     btAccept.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
+
+                                           /* try {
+                                                publishMessage(data.getRequestId()+"accept");
+                                            }catch (AblyException e)
+                                            {
+                                                e.printStackTrace();
+                                            }*/
+
+                                            publish(data.getRequestId()+"accept",stProfileId);
 
                                             btAccept.setEnabled(false);
                                             btAccept.setClickable(false);
@@ -1374,9 +1484,17 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                 }
 
                                                 @Override
-                                                public void onFailure(Call<Pojo> call, Throwable t) {
+                                                public void onFailure(Call<Pojo> call, Throwable t1) {
 
                                                     alertDialog.dismiss();
+
+                                                    String trace = t1.toString() + "\n";
+
+                                                    for (StackTraceElement e1 : t1.getStackTrace()) {
+                                                        trace += "\t at " + e1.toString() + "\n";
+                                                    }
+
+                                                    Loggly.i("ShowRequestsFragment",stProfileId+" [API failed,AcceptBooking] "+trace);
 
                                                     if (myBottomSheet.isAdded()) {
                                                         //return;
@@ -1398,6 +1516,16 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                         @Override
                                         public void onClick(View view) {
 
+
+                                            /*try {
+                                                publishMessage(data.getRequestId()+"decline");
+                                            }catch (AblyException e)
+                                            {
+                                                e.printStackTrace();
+                                            }*/
+
+
+                                            publish(data.getRequestId()+"decline",stProfileId);
 
                                             //  if (mp.isPlaying()) {
                                             if(mp!=null) {
@@ -1451,9 +1579,17 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                                 }
 
                                                 @Override
-                                                public void onFailure(Call<Pojo> call, Throwable t) {
+                                                public void onFailure(Call<Pojo> call, Throwable t1) {
 
                                                     alertDialog.dismiss();
+
+                                                    String trace = t1.toString() + "\n";
+
+                                                    for (StackTraceElement e1 : t1.getStackTrace()) {
+                                                        trace += "\t at " + e1.toString() + "\n";
+                                                    }
+                                                    Loggly.i("ShowRequestsFragment",stProfileId+" [API failed,DeclineBooking] "+trace);
+
                                                     if (myBottomSheet.isAdded()) {
                                                         //return;
                                                     } else {
@@ -1473,8 +1609,14 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                             }
 
                             @Override
-                            public void onFailure(Call<List<CabRequestsPojo>> call, Throwable t) {
+                            public void onFailure(Call<List<CabRequestsPojo>> call, Throwable t1) {
 
+                                String trace = t1.toString() + "\n";
+
+                                for (StackTraceElement e1 : t1.getStackTrace()) {
+                                    trace += "\t at " + e1.toString() + "\n";
+                                }
+                                Loggly.i("ShowRequestsFragment",stProfileId+" [API failed,UserDetailsToCab/getUserDetails] "+trace);
 
 
                             }
@@ -1578,42 +1720,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
     }
 
 
-    @Override
-    public void onDestroy() {
 
-        super.onDestroy();
-
-        if(mGoogleApiClient!=null) {
-
-            stopLocationUpdates();
-        }
-
-        if(handler!=null)
-        {
-            handler.removeCallbacks(r);
-            handler=null;
-        }
-
-        if(hLoc!=null)
-        {
-            hLoc.removeCallbacks(rLoc);
-            hLoc=null;
-        }
-
-        if (mp != null) {
-
-            if (mp.isPlaying()) {
-                mp.stop();
-            }
-            mp.release();
-            mp = null;
-        }
-
-        if(e!=null)
-        {
-            e.removeCallbacks(dr);
-        }
-    }
 
     public void selectServiceLocations()
     {
@@ -1771,7 +1878,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
     public void sendLocationUpdatesToServer()
     {
-       // System.out.println("is hLoc null.. "+hLoc);
+        // System.out.println("is hLoc null.. "+hLoc);
 
         hLoc=new Handler();
         rLoc=new Runnable() {
@@ -1793,8 +1900,9 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                     v.addProperty("longitude", c_long);
                     v.addProperty("companyid", companyId);
                     v.addProperty("ReqId", "");
+                    v.addProperty("imei",deviceId);
 
-                    System.out.println("*****" + stProfileId + "**" + city + "**" + c_lat + "**" + c_long + "******");
+                    System.out.println("*****" + stProfileId + "**" + city + "**" + c_lat + "**" + c_long + "******"+deviceId);
 
                     Call<Pojo> call = REST_CLIENT.sendStatus(v);
                     call.enqueue(new Callback<Pojo>() {
@@ -1810,7 +1918,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                             if (response.isSuccessful()) {
                                 p = response.body();
 
-                                //System.out.println(p.getMessage() + "--------------***---------------------");
+                                System.out.println(p.getMessage() + "--------------***---------------------");
 
                                 String[] newbooking = response.body().getMessage().split("-");
 
@@ -1862,6 +1970,18 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                                     Intent i = new Intent(a, MainActivity.class);
                                     startActivity(i);
                                     a.finish();
+                                }
+
+                                if(p.getMessage().equals("not updated"))
+                                {
+                                    Toast.makeText(getActivity(),"Profile is active in other device.\nHence,deactivated here!",Toast.LENGTH_LONG).show();
+
+                                    session.logoutUser();
+                                    Loggly.i("ShowRequestsFragment",stProfileId+" deactivated!");
+                                    Intent i=new Intent(getActivity(),MainActivity.class);
+                                    startActivity(i);
+                                    getActivity().finish();
+
                                 }
 
                             } else {
@@ -1946,9 +2066,7 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     progressDialog.dismiss();
 
-
-
-                    getDetails();
+                    //getDetails();
                     Toast.makeText(getActivity(),"OnDuty !",Toast.LENGTH_SHORT).show();
                 }
 
@@ -1960,13 +2078,21 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             }
 
             @Override
-            public void onFailure(Call<ArrayList<AllRidesPojo>> call, Throwable t) {
+            public void onFailure(Call<ArrayList<AllRidesPojo>> call, Throwable t1) {
 
-                //getActivity().finish();
+                String trace = t1.toString() + "\n";
+
+                for (StackTraceElement e1 : t1.getStackTrace()) {
+                    trace += "\t at " + e1.toString() + "\n";
+                }
+                Loggly.i("ShowRequestsFragment",stProfileId+" [API failed,OngoingBooking] "+trace);
+
                 progressDialog.dismiss();
 
+
+
                 //System.out.println("called getDetails in Fai;ure *************");
-                getDetails();
+                //getDetails();
 
             }
         });
@@ -2100,8 +2226,17 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
 
                     ((HomeActivity) a).enableDisableDrawer(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-                    handler.post(r);
-                    hLoc.post(rLoc);
+                    if(handler!=null) {
+                        handler.post(r);
+                    }
+                    if(hLoc!=null) {
+                        hLoc.post(rLoc);
+                    }
+
+                    if(debugLogs)
+                    {
+                        Loggly.i("ShowRequestsFragment",stProfileId+" [Online mode]");
+                    }
                 }
                 else {
 
@@ -2175,6 +2310,11 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
                         //hLoc=null;
                     }
 
+                    if(debugLogs)
+                    {
+                        Loggly.i("ShowRequestsFragment",stProfileId+" [Offline mode]");
+                    }
+
                     Toast.makeText(getActivity(),"Offline done!",Toast.LENGTH_SHORT).show();
 
                     getActivity().finish();
@@ -2196,6 +2336,253 @@ public class ShowRequestsFragment extends Fragment  implements OnMapReadyCallbac
             }
         });
     }
+
+
+    /*private void initAbly(String driverId) throws AblyException {
+
+        System.out.println("ABLY IS INITIALISED!!!");
+        System.out.println("driverId is "+driverId);
+
+
+        AblyRealtime realtime = new AblyRealtime(API_KEY);
+
+        channel = realtime.channels.get(driverId);
+        //Toast.makeText(getBaseContext(), "Message received: " + messages.data, Toast.LENGTH_SHORT).show();
+        PresenceMessage[] members = channel.presence.get();
+
+        System.out.println("There are " + members.length + " members on this channel");
+
+        for(int i=0;i<members.length;i++)
+        {
+            System.out.println("The first member has client ID: " + members[i].clientId);
+        }
+    }
+
+
+    public void publishMessage(String msg) throws AblyException{
+
+        channel.publish("update", msg, new CompletionListener() {
+            @Override
+            public void onSuccess() {
+
+
+                //Toast.makeText(getBaseContext(), "Message sent", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(ErrorInfo reason) {
+
+                // Toast.makeText(getBaseContext(), "Message not sent", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+*/
+    private final void initPubNub(String driverId) {
+
+        //System.out.println("Pubnub is initialised!!!");
+
+        PNConfiguration config = new PNConfiguration();
+
+        config.setPublishKey(Constants.PUBNUB_PUBLISH_KEY);
+        config.setSubscribeKey(Constants.PUBNUB_SUBSCRIBE_KEY);
+        // config.setUuid(this.mUsername);
+        config.setReconnectionPolicy(PNReconnectionPolicy.LINEAR);
+        config.setSecure(true);
+
+        pubnub=new PubNub(config);
+
+        pubnub.addListener(subscribeCallback);
+
+        pubnub.subscribe()
+                .channels(Arrays.asList(driverId)) // subscribe to channels
+                .execute();
+
+        if(debugLogs)
+        {
+            Loggly.i("ShowRequestsFragment",stProfileId+" [Pubnub initialised]");
+        }
+
+    }
+
+    public void publish(final String msg,String profileId)
+    {
+
+        pubnub.publish()
+                .message(msg)
+                .channel(profileId)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError() to see if error happened
+                        if(!status.isError()) {
+                            //System.out.println("pub timetoken: " + result.getTimetoken());
+                            if(debugLogs)
+                            {
+                                Loggly.i("ShowRequestsFragment",stProfileId+" "+msg+" [published]");
+                            }
+
+                        }
+                        else {
+                            Loggly.i("ShowRequestsFragment",stProfileId+" "+msg+" [error,published] "+status.isError());
+                        }
+
+                        //System.out.println("pub status code: " + status.getStatusCode());
+                    }
+                });
+    }
+
+    SubscribeCallback subscribeCallback = new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubnub, PNStatus status) {
+
+           /* switch (status.getOperation()) {
+                // let's combine unsubscribe and subscribe handling for ease of use
+                case PNSubscribeOperation:
+                case PNUnsubscribeOperation:
+                    // note: subscribe statuses never have traditional
+                    // errors, they just have categories to represent the
+                    // different issues or successes that occur as part of subscribe*/
+
+                    System.out.println("SRF*******"+status.getCategory());
+
+                    //Loggly.i("ShowRequestsFragment",stProfileId+" subscribe status "+status.getCategory());
+
+                    switch (status.getCategory()) {
+                        case PNConnectedCategory:
+                            //Toast.makeText(MainActivity.this, "hey", Toast.LENGTH_SHORT).show();
+                            // this is expected for a subscribe, this means there is no error or issue whatsoever
+                            break;
+                        case PNReconnectedCategory:
+                            // this usually occurs if subscribe temporarily fails but reconnects. This means
+                            // there was an error but there is no longer any issue
+                            break;
+                        case PNDisconnectedCategory:
+                            // this is the expected category for an unsubscribe. This means there
+                            // was no error in unsubscribing from everything
+                            break;
+
+                        case PNUnexpectedDisconnectCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        // this is usually an issue with the internet connection, this is an error, handle appropriately
+                        case PNTimeoutCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        case PNAccessDeniedCategory:
+                            // this means that PAM does allow this client to subscribe to this
+                            // channel and channel group configuration. This is another explicit error
+                            break;
+                        default:
+                            // More errors can be directly specified by creating explicit cases for other
+                            // error categories of `PNStatusCategory` such as `PNTimeoutCategory` or `PNMalformedFilterExpressionCategory` or `PNDecryptionErrorCategory`
+                            break;
+                    }
+
+
+                /*case PNHeartbeatOperation:
+                    // heartbeat operations can in fact have errors, so it is important to check first for an error.
+                    // For more information on how to configure heartbeat notifications through the status
+                    // PNObjectEventListener callback, consult <link to the PNCONFIGURATION heartbeart config>
+                    if (status.isError()) {
+                        // There was an error with the heartbeat operation, handle here
+                    } else {
+                        // heartbeat operation was successful
+                    }
+                default: {
+                    // Encountered unknown status type
+                }
+            }*/
+        }
+
+        @Override
+        public void message(PubNub pubnub, PNMessageResult message) {
+
+            System.out.println("SRF"+message.toString());
+
+            JsonElement msg = message.getMessage();
+            String s=message.toString();
+
+            if(msg.getAsString().equals("Hello"))
+            {
+                //mainUIThread("Hurray");
+            }
+
+
+            //getHistory();
+
+        }
+
+        @Override
+        public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+
+            System.out.println("SRH presence "+presence);
+
+        }
+
+    };
+
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+
+        if(mGoogleApiClient!=null) {
+
+            stopLocationUpdates();
+        }
+
+        if(handler!=null)
+        {
+            handler.removeCallbacks(r);
+            handler=null;
+        }
+
+        if(hLoc!=null)
+        {
+            hLoc.removeCallbacks(rLoc);
+            hLoc=null;
+        }
+
+        if (mp != null) {
+
+            if (mp.isPlaying()) {
+                mp.stop();
+            }
+            mp.release();
+            mp = null;
+        }
+
+        if(e!=null)
+        {
+            e.removeCallbacks(dr);
+        }
+
+        if(pubnub!=null)
+        {
+
+            pubnub.removeListener(subscribeCallback);
+
+            pubnub.unsubscribe();
+
+            pubnub.destroy();
+        }
+
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(testReceiver);
+
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(testReceiver);
+        Intent i = new Intent(getActivity(), CabRequestService.class);
+        //i.putExtra("foo", "bar");
+        getActivity().stopService(i);
+
+    }
+
+
 
 
 

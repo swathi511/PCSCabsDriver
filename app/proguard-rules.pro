@@ -19,6 +19,10 @@
 -dontwarn android.support.**
 -dontwarn retrofit2.**
 -dontwarn sun.misc.Unsafe
+-dontwarn rx.**
+-dontwarn com.squareup.okhttp.**
+-dontwarn okhttp3.**
+-dontwarn javax.annotation.**
 
 -keep class sun.misc.Unsafe { *; }
 -keep class com.google.gson.** { *; }
@@ -32,13 +36,27 @@
     @retrofit.** *;
 }
 
+-dontwarn retrofit.**
+-keep class retrofit.** { *; }
+-keepclassmembers,allowobfuscation interface * {
+    @retrofit.http.** <methods>;
+}
+
 -keepclassmembers class * {
   public void *(android.view.View);
 }
 
 -renamesourcefileattribute SourceFile
--keepattributes  Signature,SourceFile,LineNumberTable
--keepattributes *Annotation*
--keepattributes Exceptions
+#-keepattributes  Signature,SourceFile,LineNumberTable
+#-keepattributes *Annotation*
+#-keepattributes Exceptions
 -keep public class * extends android.app.Application
+
+
+-keepattributes Exceptions, InnerClasses,*Annotation*, Signature, Deprecated, SourceFile, LineNumberTable,EnclosingMethod
+
+-dontwarn com.pubnub.**
+-keep class com.pubnub.** { *; }
+
+-dontwarn org.slf4j.**
 

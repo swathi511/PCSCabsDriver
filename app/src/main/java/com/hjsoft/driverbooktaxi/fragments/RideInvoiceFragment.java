@@ -17,23 +17,36 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonElement;
+import com.hjsoft.driverbooktaxi.Constants;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
 import com.hjsoft.driverbooktaxi.activity.HomeActivity;
 import com.hjsoft.driverbooktaxi.activity.MainActivity;
-import com.hjsoft.driverbooktaxi.activity.RequestsActivity;
 import com.hjsoft.driverbooktaxi.adapter.DBAdapter;
 import com.hjsoft.driverbooktaxi.model.GuestData;
 import com.hjsoft.driverbooktaxi.model.RideStopPojo;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
+import com.inrista.loggliest.Loggly;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNReconnectionPolicy;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -71,6 +84,14 @@ public class RideInvoiceFragment extends Fragment {
     String osbatta;
     ImageView ivPayU;
     RatingBar rbStars;
+    //private final static String API_KEY = "3PzQvg.MchECw:Brb2D4FEUuEXMuKs";
+    //prod::private final static String API_KEY = "kcfhRA.H13JVA:pX7G9-lrgVftOHBZ";
+    String stProfileId;
+    HashMap<String, String> user;
+
+    PubNub pubnub;
+    boolean debugLogs;
+    String requestId;
 
     @Nullable
     @Override
@@ -120,6 +141,8 @@ public class RideInvoiceFragment extends Fragment {
         dbAdapter=dbAdapter.open();
 
         session=new SessionManager(getActivity());
+        user = session.getUserDetails();
+        stProfileId=user.get(SessionManager.KEY_PROFILE_ID);
 
         Bundle b=getActivity().getIntent().getExtras();
         stFare=b.getString("fare");
@@ -127,11 +150,14 @@ public class RideInvoiceFragment extends Fragment {
         stTime=b.getString("time");
         stRideStart=b.getString("rideStart");
         stRideStop=b.getString("rideStop");
+
         cabData= (ArrayList<GuestData>) getActivity().getIntent().getSerializableExtra("cabData");
         data=cabData.get(0);
+        requestId=data.getgRequestId();
 
         pref = getActivity().getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
+        debugLogs=pref.getBoolean("debugLogs",true);
 
         /*editor.putString("pickup_lat","-");
         editor.putString("pickup_long","-");*/
@@ -143,6 +169,16 @@ public class RideInvoiceFragment extends Fragment {
 //        editor.putString("dropLat","nodata");
 //        editor.putString("dropLng","nodata");
         editor.commit();
+
+        /*try {
+            initAbly(stProfileId);
+        }
+        catch (AblyException e)
+        {
+            e.printStackTrace();
+        }*/
+
+        initPubNub(stProfileId);
 
         rbStars.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -247,6 +283,17 @@ public class RideInvoiceFragment extends Fragment {
 
                 if(response.isSuccessful())
                 {
+                    /*try {
+
+                        publishMessage(data.getgRequestId()+"finished");
+                    }
+                    catch (AblyException e)
+                    {
+                        e.printStackTrace();s
+                    }*/
+
+
+
                     dataList=response.body();
 
                     data1=dataList.get(0);
@@ -422,28 +469,220 @@ public class RideInvoiceFragment extends Fragment {
                         llCashInfo.setVisibility(View.VISIBLE);
                     }
 
+                    //Loggly.forceUpload();
 
+                    publish(data.getgRequestId()+"finished",stProfileId);
                 }
                 else {
 
                     Toast.makeText(getActivity(),"Please retry!"+response.message(),Toast.LENGTH_SHORT).show();
 
+                    Loggly.i("RideInvoiceFragment",stProfileId+"[API error,GuestDetailsByRequest/GetGuestDetails] "+response.message());
+
                     tvRetry.setVisibility(View.VISIBLE);
                 }
-
-
-
-
             }
 
             @Override
-            public void onFailure(Call<List<RideStopPojo>> call, Throwable t) {
+            public void onFailure(Call<List<RideStopPojo>> call, Throwable t1) {
 
                 tvRetry.setVisibility(View.VISIBLE);
 
-               Toast.makeText(getActivity(),"Check Internet connection!",Toast.LENGTH_SHORT).show();
+                String trace = t1.toString() + "\n";
+
+                for (StackTraceElement e1 : t1.getStackTrace()) {
+                    trace += "\t at " + e1.toString() + "\n";
+                }
+                Loggly.i("RideInvoiceFragment",stProfileId+"[API failed,GuestDetailsByRequest/GetGuestDetails]"+trace);
+
+                Toast.makeText(getActivity(),"Check Internet connection!",Toast.LENGTH_SHORT).show();
 
             }
         });
+    }
+
+    /*private void initAbly(String profileid) throws AblyException {
+
+        System.out.println("ABLY IS INITIALISED!!!");
+        ///System.out.println("driverId is "+driverId);
+
+
+        AblyRealtime realtime = new AblyRealtime(API_KEY);
+
+        channel = realtime.channels.get(profileid);
+
+    }
+
+    public void publishMessage(String msg) throws AblyException{
+
+        channel.publish("update", msg, new CompletionListener() {
+            @Override
+            public void onSuccess() {
+
+                System.out.println("***************** success");
+
+                //Toast.makeText(getBaseContext(), "Message sent", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(ErrorInfo reason) {
+
+                System.out.println("********************** error");
+
+                // Toast.makeText(getBaseContext(), "Message not sent", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*/
+
+    private final void initPubNub(String driverId) {
+
+        PNConfiguration config = new PNConfiguration();
+
+        config.setPublishKey(Constants.PUBNUB_PUBLISH_KEY);
+        config.setSubscribeKey(Constants.PUBNUB_SUBSCRIBE_KEY);
+        config.setReconnectionPolicy(PNReconnectionPolicy.LINEAR);
+        // config.setUuid(this.mUsername);
+        config.setSecure(true);
+
+        pubnub=new PubNub(config);
+
+        pubnub.subscribe()
+                .channels(Arrays.asList(driverId)) // subscribe to channels
+                .execute();
+
+        pubnub.addListener(subscribeCallback);
+
+        if(debugLogs)
+        {
+            Loggly.i("RideInvoiceFragment",stProfileId+" "+requestId+" [Pubnub initialised]");
+        }
+
+    }
+
+    public void publish(final String msg,String profileId)
+    {
+       /* JsonObject position = new JsonObject();
+        position.addProperty("lat", 32L);
+        position.addProperty("lng", 32L);
+
+        String p="Hello";
+
+        System.out.println("before pub: " + position);*/
+        pubnub.publish()
+                .message(msg)
+                .channel(profileId)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError() to see if error happened
+                        if(!status.isError()) {
+                            //System.out.println("pub timetoken: " + result.getTimetoken());
+                            if(debugLogs)
+                            {
+                                Loggly.i("RideInvoiceFragment",stProfileId+" "+requestId+" "+msg+" [published]");
+                            }
+                        }
+                        else {
+                            Loggly.i("RideInvoiceFragment",stProfileId+" "+requestId+" "+msg+" [error,published]"+status.isError());
+                        }
+                        //System.out.println("pub status code: " + status.getStatusCode());
+                    }
+                });
+    }
+
+    SubscribeCallback subscribeCallback=new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubnub, PNStatus status) {
+
+          /*  switch (status.getOperation()) {
+                // let's combine unsubscribe and subscribe handling for ease of use
+                case PNSubscribeOperation:
+                case PNUnsubscribeOperation:
+                    // note: subscribe statuses never have traditional
+                    // errors, they just have categories to represent the
+                    // different issues or successes that occur as part of subscribe
+*/
+                    switch (status.getCategory()) {
+                        case PNConnectedCategory:
+                            //Toast.makeText(MainActivity.this, "hey", Toast.LENGTH_SHORT).show();
+                            // this is expected for a subscribe, this means there is no error or issue whatsoever
+                            break;
+                        case PNReconnectedCategory:
+                            // this usually occurs if subscribe temporarily fails but reconnects. This means
+                            // there was an error but there is no longer any issue
+                            break;
+                        case PNDisconnectedCategory:
+                            // this is the expected category for an unsubscribe. This means there
+                            // was no error in unsubscribing from everything
+                            break;
+
+                        case PNUnexpectedDisconnectCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        // this is usually an issue with the internet connection, this is an error, handle appropriately
+                        case PNTimeoutCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        case PNAccessDeniedCategory:
+                            // this means that PAM does allow this client to subscribe to this
+                            // channel and channel group configuration. This is another explicit error
+                            break;
+                        default:
+                            // More errors can be directly specified by creating explicit cases for other
+                            // error categories of `PNStatusCategory` such as `PNTimeoutCategory` or `PNMalformedFilterExpressionCategory` or `PNDecryptionErrorCategory`
+                            break;
+                    }
+
+                /*case PNHeartbeatOperation:
+                    // heartbeat operations can in fact have errors, so it is important to check first for an error.
+                    // For more information on how to configure heartbeat notifications through the status
+                    // PNObjectEventListener callback, consult <link to the PNCONFIGURATION heartbeart config>
+                    if (status.isError()) {
+                        // There was an error with the heartbeat operation, handle here
+                    } else {
+                        // heartbeat operation was successful
+                    }
+                default: {
+                    // Encountered unknown status type
+                }
+            }*/
+        }
+
+        @Override
+        public void message(PubNub pubnub, PNMessageResult message) {
+
+            System.out.println(message.toString());
+
+            JsonElement msg = message.getMessage();
+            String s=message.toString();
+
+            if(msg.getAsString().equals("Hello"))
+            {
+                //mainUIThread("Hurray");
+            }
+        }
+
+        @Override
+        public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+
+        }
+
+    };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(pubnub!=null)
+        {
+            pubnub.removeListener(subscribeCallback);
+
+            pubnub.unsubscribe();
+        }
     }
 }

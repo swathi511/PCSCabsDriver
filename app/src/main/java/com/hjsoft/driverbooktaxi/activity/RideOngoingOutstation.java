@@ -21,9 +21,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -42,9 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -54,8 +52,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.hjsoft.driverbooktaxi.GPSTracker;
+import com.hjsoft.driverbooktaxi.Constants;
 import com.hjsoft.driverbooktaxi.GPSTrackerOngoing;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
@@ -73,12 +72,23 @@ import com.hjsoft.driverbooktaxi.model.Route;
 import com.hjsoft.driverbooktaxi.service.OutStationRideOngoingOverlayService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
+import com.inrista.loggliest.Loggly;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNReconnectionPolicy;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -160,7 +170,33 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
     SharedPreferences.Editor editor;
     int totalKms;
     String billing="-";
+    //private final static String API_KEY = "kcfhRA.H13JVA:pX7G9-lrgVftOHBZ";
 
+    PubNub pubnub;
+    boolean debugLogs;
+    String deviceId;
+
+   /* private Thread.UncaughtExceptionHandler androidDefaultUEH;
+
+    private Thread.UncaughtExceptionHandler handler1 = new Thread.UncaughtExceptionHandler() {
+        public void uncaughtException(Thread thread, Throwable ex) {
+
+            Log.e("TestApplication", "Uncaught exception is: ", ex);
+            // log it & phone home.
+
+            String trace = ex.toString() + "\n";
+
+            for (StackTraceElement e1 : ex.getStackTrace()) {
+                trace += "\t at " + e1.toString() + "\n";
+            }
+
+            Loggly.i("RideOngoingOutstation","Uncaught Exception: "+trace);
+            Loggly.forceUpload();
+
+            androidDefaultUEH.uncaughtException(thread, ex);
+        }
+    };
+*/
 
 
     @Override
@@ -169,7 +205,9 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         setContentView(R.layout.activity_specific_outstation_ride_ongoing);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-
+        /*androidDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(handler1);
+*/
         dbAdapter=new DBAdapter(getApplicationContext());
         dbAdapter=dbAdapter.open();
 
@@ -198,10 +236,13 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         mapFragment.getMapAsync(this);
 
         //rideStartingTime=java.text.DateFormat.getTimeInstance().format(new Date());
-
         pref = getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
         city=pref.getString("city",null);
+        debugLogs=pref.getBoolean("debugLogs",true);
+
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        deviceId=telephonyManager.getDeviceId();
 
         cabData= (ArrayList<FormattedAllRidesData>) getIntent().getSerializableExtra("list");
 
@@ -212,6 +253,9 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
             data = cabData.get(pos);
         }
         else {
+
+            Loggly.i("RideOngoingOutstation",stProfileId + " [Cabdata null]");
+
             Toast.makeText(RideOngoingOutstation.this,"Unknown error!Please retry.",Toast.LENGTH_SHORT).show();
             Intent i=new Intent(RideOngoingOutstation.this,HomeActivity.class);
             startActivity(i);
@@ -766,6 +810,16 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
 
         entered=true;
         getGPSLocationUpdates();
+
+        /*try {
+            initAbly(stProfileId);
+        }
+        catch (AblyException e)
+        {
+            e.printStackTrace();
+        }*/
+
+        initPubNub(stProfileId);
     }
 
     public void sendLocationUpdatesToServer()
@@ -846,15 +900,27 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                         mMap.getUiSettings().setMapToolbarEnabled(false);
                     }
 
+                    c_lat=String.valueOf(current_lat);
+                    c_long=String.valueOf(current_long);
+
+                    /*try{
+                        publishMessage("coordinates-"+c_lat+","+c_long);
+                    }
+                    catch (AblyException e)
+                    {
+                        e.printStackTrace();
+                    }*/
+
+                    //publish("coordinates-"+c_lat+","+c_long,stProfileId);
+
                     JsonObject v=new JsonObject();
                     v.addProperty("profileid",stProfileId);
                     v.addProperty("location",city);
-                    c_lat=String.valueOf(current_lat);
-                    c_long=String.valueOf(current_long);
                     v.addProperty("latittude",c_lat);
                     v.addProperty("longitude",c_long);
                     v.addProperty("companyid",companyId);
                     v.addProperty("ReqId",requestId);
+                    v.addProperty("imei",deviceId);
 
                     // System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
 
@@ -875,6 +941,19 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
                                 else
                                 {
                                     tvNewBooking.setVisibility(View.VISIBLE);
+                                }
+
+                                Pojo msg=response.body();
+
+                                if(msg.getMessage().equals("not updated"))
+                                {
+                                    Toast.makeText(RideOngoingOutstation.this,"Profile is active in other device.\nHence,deactivated here!",Toast.LENGTH_SHORT).show();
+
+                                    session.logoutUser();
+                                    Loggly.i("RideOngoingOutstation",stProfileId+" deactivated!");
+                                    Intent i=new Intent(RideOngoingOutstation.this,MainActivity.class);
+                                    startActivity(i);
+                                    finish();
                                 }
 
                             }
@@ -1343,7 +1422,15 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
             g.removeCallbacks(gR);
         }
 
+        if(pubnub!=null)
+        {
+            pubnub.removeListener(subscribeCallback);
+
+            pubnub.unsubscribe();
+        }
+
         gps.stopUsingGPS();
+
     }
 
     public void sendFinishDetailsToServer()
@@ -1361,11 +1448,11 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         }
         else {
 
-        dropLat=String.valueOf(latitude1);
-        dropLong=String.valueOf(longitude1);
+            dropLat=String.valueOf(latitude1);
+            dropLong=String.valueOf(longitude1);
 
             dbAdapter.insertEntry(requestId, latitude1, longitude1, complete_address, resDist, timeUpdated);
-    }
+        }
 
 
         final ProgressDialog progressDialog = new ProgressDialog(RideOngoingOutstation.this);
@@ -1668,6 +1755,196 @@ public class RideOngoingOutstation extends AppCompatActivity implements OnMapRea
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
     }
+
+    /*private void initAbly(String profileid) throws AblyException {
+
+        System.out.println("ABLY IS INITIALISED!!!");
+        System.out.println("driverId is "+profileid);
+
+
+        AblyRealtime realtime = new AblyRealtime(API_KEY);
+
+        channel = realtime.channels.get(profileid);
+        //Toast.makeText(getBaseContext(), "Message received: " + messages.data, Toast.LENGTH_SHORT).show();
+
+        channel.subscribe(new Channel.MessageListener() {
+
+            @Override
+            public void onMessage(final Message messages) {
+
+                System.out.println("****** msg received!!!"+messages.data.toString()+"!!!");
+
+
+            }
+
+        });
+    }
+
+
+    public void publishMessage(String msg) throws AblyException{
+
+        channel.publish("update", msg, new CompletionListener() {
+            @Override
+            public void onSuccess() {
+
+                System.out.println("***************** success");
+
+                //Toast.makeText(getBaseContext(), "Message sent", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(ErrorInfo reason) {
+
+                System.out.println("********************** error");
+
+                // Toast.makeText(getBaseContext(), "Message not sent", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*/
+
+    private final void initPubNub(String driverId) {
+        PNConfiguration config = new PNConfiguration();
+
+        config.setPublishKey(Constants.PUBNUB_PUBLISH_KEY);
+        config.setSubscribeKey(Constants.PUBNUB_SUBSCRIBE_KEY);
+        config.setReconnectionPolicy(PNReconnectionPolicy.LINEAR);
+        // config.setUuid(this.mUsername);
+        config.setSecure(true);
+
+        pubnub=new PubNub(config);
+
+        pubnub.subscribe()
+                .channels(Arrays.asList(driverId)) // subscribe to channels
+                .execute();
+
+        pubnub.addListener(subscribeCallback);
+
+        if(debugLogs)
+        {
+            Loggly.i("RideOngoingOutstation",stProfileId+" "+requestId+" [Pubnub initialised]");
+        }
+
+    }
+
+    public void publish(final String msg,String profileId)
+    {
+       /* JsonObject position = new JsonObject();
+        position.addProperty("lat", 32L);
+        position.addProperty("lng", 32L);
+
+        String p="Hello";
+
+        System.out.println("before pub: " + position);*/
+        pubnub.publish()
+                .message(msg)
+                .channel(profileId)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError() to see if error happened
+                        if(!status.isError()) {
+                            //System.out.println("pub timetoken: " + result.getTimetoken());
+                            if(debugLogs)
+                            {
+                                Loggly.i("RideOngoingOutstation",stProfileId+" "+requestId+" "+msg+" [published]");
+                            }
+                        }
+                        else {
+                            Loggly.i("RideOngoingOutstation",stProfileId+" "+requestId+" "+msg+" [error,published] "+status.isError());
+                        }
+
+                        //System.out.println("pub status code: " + status.getStatusCode());
+                    }
+                });
+    }
+
+    SubscribeCallback subscribeCallback=new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubnub, PNStatus status) {
+            /*switch (status.getOperation()) {
+                // let's combine unsubscribe and subscribe handling for ease of use
+                case PNSubscribeOperation:
+                case PNUnsubscribeOperation:
+                    // note: subscribe statuses never have traditional
+                    // errors, they just have categories to represent the
+                    // different issues or successes that occur as part of subscribe
+*/
+                    switch (status.getCategory()) {
+                        case PNConnectedCategory:
+                            //Toast.makeText(MainActivity.this, "hey", Toast.LENGTH_SHORT).show();
+                            // this is expected for a subscribe, this means there is no error or issue whatsoever
+                            break;
+                        case PNReconnectedCategory:
+                            // this usually occurs if subscribe temporarily fails but reconnects. This means
+                            // there was an error but there is no longer any issue
+                            break;
+                        case PNDisconnectedCategory:
+                            // this is the expected category for an unsubscribe. This means there
+                            // was no error in unsubscribing from everything
+                            break;
+
+                        case PNUnexpectedDisconnectCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        // this is usually an issue with the internet connection, this is an error, handle appropriately
+                        case PNTimeoutCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        case PNAccessDeniedCategory:
+                            // this means that PAM does allow this client to subscribe to this
+                            // channel and channel group configuration. This is another explicit error
+                            break;
+                        default:
+                            // More errors can be directly specified by creating explicit cases for other
+                            // error categories of `PNStatusCategory` such as `PNTimeoutCategory` or `PNMalformedFilterExpressionCategory` or `PNDecryptionErrorCategory`
+                            break;
+                    }
+
+
+               /* case PNHeartbeatOperation:
+                    // heartbeat operations can in fact have errors, so it is important to check first for an error.
+                    // For more information on how to configure heartbeat notifications through the status
+                    // PNObjectEventListener callback, consult <link to the PNCONFIGURATION heartbeart config>
+                    if (status.isError()) {
+                        // There was an error with the heartbeat operation, handle here
+                    } else {
+                        // heartbeat operation was successful
+                    }
+                default: {
+                    // Encountered unknown status type
+                }
+            }*/
+        }
+
+        @Override
+        public void message(PubNub pubnub, PNMessageResult message) {
+
+            System.out.println(message.toString());
+
+            JsonElement msg = message.getMessage();
+            String s=message.toString();
+
+            if(msg.getAsString().equals("Hello"))
+            {
+                //mainUIThread("Hurray");
+            }
+
+
+            //getHistory();
+
+        }
+
+        @Override
+        public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+
+        }
+
+    };
 
 }
 

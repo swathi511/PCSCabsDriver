@@ -15,7 +15,15 @@
             android:textSize="40sp"
             android:gravity="center"
             android:textColor="@color/colorWhite"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:src="@drawable/logo_new"
+            android:padding="24dp" />
+
         <TextView android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"

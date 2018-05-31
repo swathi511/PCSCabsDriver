@@ -24,6 +24,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -42,9 +43,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -54,7 +53,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.hjsoft.driverbooktaxi.Constants;
 import com.hjsoft.driverbooktaxi.GPSTracker;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
@@ -71,12 +72,23 @@ import com.hjsoft.driverbooktaxi.model.Route;
 import com.hjsoft.driverbooktaxi.service.OutStationRideStartOverlayService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
+import com.inrista.loggliest.Loggly;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNReconnectionPolicy;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -159,6 +171,32 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
     int totalKms;
     String billing="-";
     long idleTime=0;
+    //private final static String API_KEY = "kcfhRA.H13JVA:pX7G9-lrgVftOHBZ";
+
+    PubNub pubnub;
+    boolean debugLogs;
+    String deviceId;
+
+    /*private Thread.UncaughtExceptionHandler androidDefaultUEH;
+
+    private Thread.UncaughtExceptionHandler handler1 = new Thread.UncaughtExceptionHandler() {
+        public void uncaughtException(Thread thread, Throwable ex) {
+
+            Log.e("TestApplication", "Uncaught exception is: ", ex);
+            // log it & phone home.
+
+            String trace = ex.toString() + "\n";
+
+            for (StackTraceElement e1 : ex.getStackTrace()) {
+                trace += "\t at " + e1.toString() + "\n";
+            }
+
+            Loggly.i("RideOutstation","Uncaught Exception: "+trace);
+            Loggly.forceUpload();
+
+            androidDefaultUEH.uncaughtException(thread, ex);
+        }
+    };*/
 
 
     @Override
@@ -167,6 +205,8 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         setContentView(R.layout.activity_outstation_ride_start);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        /*androidDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(handler1);*/
 
         btDrop=(Button)findViewById(R.id.aors_bt_drop);
         tvCurrentLoc=(TextView)findViewById(R.id.aors_tv_cloc);
@@ -198,9 +238,13 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         pref = getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
         city=pref.getString("city",null);
+        debugLogs=pref.getBoolean("debugLogs",true);
 
         dbAdapter=new DBAdapter(getApplicationContext());
         dbAdapter=dbAdapter.open();
+
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        deviceId=telephonyManager.getDeviceId();
 
         cabData= (ArrayList<GuestData>) getIntent().getSerializableExtra("cabData");
 
@@ -213,6 +257,8 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
             }
             else {
 
+                Loggly.i("RideOutstation",stProfileId+" "+requestId+" [Cabdata.get(0) null]");
+
                 Toast.makeText(RideOutstation.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
                 Intent i=new Intent(RideOutstation.this,HomeActivity.class);
                 startActivity(i);
@@ -220,6 +266,8 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
             }
         }
         else {
+
+            Loggly.i("RideOutstation",stProfileId + " [Cabdata null-RO]");
 
             Toast.makeText(RideOutstation.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
             Intent i=new Intent(RideOutstation.this,HomeActivity.class);
@@ -810,6 +858,16 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
 
         entered=true;
         getGPSLocationUpdates();
+
+       /* try {
+            initAbly(stProfileId);
+        }
+        catch (AblyException e)
+        {
+            e.printStackTrace();
+        }*/
+
+        initPubNub(stProfileId);
     }
 
     public void sendLocationUpdatesToServer()
@@ -893,15 +951,27 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                         // dbAdapter.insertEntry(0.0, 0.0, complete_address, resDist, timeUpdated);
                     }
 
+                    c_lat = String.valueOf(current_lat);
+                    c_long = String.valueOf(current_long);
+
+                    /*try{
+                        publishMessage("coordinates-"+c_lat+","+c_long);
+                    }
+                    catch (AblyException e)
+                    {
+                        e.printStackTrace();
+                    }*/
+
+                    //publish("coordinates-"+c_lat+","+c_long,stProfileId);
+
                     JsonObject v = new JsonObject();
                     v.addProperty("profileid", stProfileId);
                     v.addProperty("location", city);
-                    c_lat = String.valueOf(current_lat);
-                    c_long = String.valueOf(current_long);
                     v.addProperty("latittude", c_lat);
                     v.addProperty("longitude", c_long);
                     v.addProperty("companyid", companyId);
                     v.addProperty("ReqId",requestId);
+                    v.addProperty("imei",deviceId);
 
                     //System.out.println("*****"+stProfileId+"**"+city+"**"+c_lat+"**"+c_long+"******");
 
@@ -920,7 +990,21 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                                     tvNewBooking.setVisibility(View.VISIBLE);
                                 }
 
-                            } else {
+                                Pojo msg=response.body();
+
+                                if(msg.getMessage().equals("not updated"))
+                                {
+                                    Toast.makeText(RideOutstation.this,"Profile is active in other device.\nHence,deactivated here!",Toast.LENGTH_SHORT).show();
+
+                                    session.logoutUser();
+                                    Loggly.i("RideOutstation",stProfileId+" deactivated!");
+                                    Intent i=new Intent(RideOutstation.this,MainActivity.class);
+                                    startActivity(i);
+                                    finish();
+                                }
+
+                            }
+                            else {
                             }
                         }
 
@@ -1233,6 +1317,12 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
             g.removeCallbacks(gR);
         }
 
+        if(pubnub!=null)
+        {
+            pubnub.removeListener(subscribeCallback);
+
+            pubnub.unsubscribe();
+        }
 
         gps.stopUsingGPS();
     }
@@ -1609,14 +1699,13 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                         totalKms=Integer.parseInt(pref.getString("closingKms","0"))-Integer.parseInt(pref.getString("startingKms","0"));
 
                         String missingCoordinates=dbAdapter.getNetworkIssueData(requestId);
-                       // System.out.println("missing data is "+missingCoordinates);
-                       // System.out.println("billing is "+billing);
+                        // System.out.println("missing data is "+missingCoordinates);
+                        // System.out.println("billing is "+billing);
 
 //                        System.out.println("sKms"+Integer.parseInt(pref.getString("startingKms","0")));
 //                        System.out.println("cKms"+Integer.parseInt(pref.getString("closingKms","0")));
 //                        System.out.println("totalKms"+totalKms);
 
-                        System.out.println("moving time format iss "+movingTimeFormat);
                         JsonObject v = new JsonObject();
                         v.addProperty("profileid", stProfileId);
                         v.addProperty("requestid", pref.getString("request_id", requestId));
@@ -1634,7 +1723,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                         v.addProperty("missingcoordinates",missingCoordinates);
 
 
-                       // System.out.println("missing data is "+dbAdapter.getNetworkIssueData(requestId));
+                        // System.out.println("missing data is "+dbAdapter.getNetworkIssueData(requestId));
 
 
                         Call<Pojo> call2 = REST_CLIENT.sendRideDetails(v);
@@ -1677,7 +1766,7 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
                                 }
                                 else {
                                     progressDialog.dismiss();
-                                   // System.out.println("data iss"+response.message());
+                                    // System.out.println("data iss"+response.message());
                                 }
                             }
 
@@ -1732,6 +1821,194 @@ public class RideOutstation extends AppCompatActivity implements OnMapReadyCallb
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
     }
+
+    /*private void initAbly(String profileid) throws AblyException {
+
+        System.out.println("ABLY IS INITIALISED!!!");
+        System.out.println("driverId is "+profileid);
+
+
+        AblyRealtime realtime = new AblyRealtime(API_KEY);
+
+        channel = realtime.channels.get(profileid);
+        //Toast.makeText(getBaseContext(), "Message received: " + messages.data, Toast.LENGTH_SHORT).show();
+
+        channel.subscribe(new Channel.MessageListener() {
+
+            @Override
+            public void onMessage(final Message messages) {
+
+                System.out.println("****** msg received!!!"+messages.data.toString()+"!!!");
+
+
+            }
+
+        });
+    }
+
+
+    public void publishMessage(String msg) throws AblyException{
+
+        channel.publish("update", msg, new CompletionListener() {
+            @Override
+            public void onSuccess() {
+
+                System.out.println("***************** success");
+
+                //Toast.makeText(getBaseContext(), "Message sent", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(ErrorInfo reason) {
+
+                System.out.println("********************** error");
+
+                // Toast.makeText(getBaseContext(), "Message not sent", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*/
+
+    private final void initPubNub(String driverId) {
+        PNConfiguration config = new PNConfiguration();
+
+        config.setPublishKey(Constants.PUBNUB_PUBLISH_KEY);
+        config.setSubscribeKey(Constants.PUBNUB_SUBSCRIBE_KEY);
+        config.setReconnectionPolicy(PNReconnectionPolicy.LINEAR);
+        // config.setUuid(this.mUsername);
+        config.setSecure(true);
+
+        pubnub=new PubNub(config);
+
+        pubnub.subscribe()
+                .channels(Arrays.asList(driverId)) // subscribe to channels
+                .execute();
+
+        pubnub.addListener(subscribeCallback);
+
+        if(debugLogs)
+        {
+            Loggly.i("RideOutstation",stProfileId+" "+requestId+" [Pubnub initialised]");
+        }
+
+    }
+
+    public void publish(final String msg,String profileId)
+    {
+       /* JsonObject position = new JsonObject();
+        position.addProperty("lat", 32L);
+        position.addProperty("lng", 32L);
+
+        String p="Hello";
+
+        System.out.println("before pub: " + position);*/
+        pubnub.publish()
+                .message(msg)
+                .channel(profileId)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError() to see if error happened
+                        if(!status.isError()) {
+                            //System.out.println("pub timetoken: " + result.getTimetoken());
+
+                            if(debugLogs)
+                            {
+                                Loggly.i("RideOutstation",stProfileId+" "+requestId+" "+msg+" [published]");
+                            }
+                        }
+                        else {
+                            Loggly.i("RideOutstation",stProfileId+" "+requestId+" "+msg+" [error,published] "+status.isError());
+                        }
+
+                        //System.out.println("pub status code: " + status.getStatusCode());
+                    }
+                });
+    }
+
+    SubscribeCallback subscribeCallback=new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubnub, PNStatus status) {
+           /* switch (status.getOperation()) {
+                // let's combine unsubscribe and subscribe handling for ease of use
+                case PNSubscribeOperation:
+                case PNUnsubscribeOperation:
+                    // note: subscribe statuses never have traditional
+                    // errors, they just have categories to represent the
+                    // different issues or successes that occur as part of subscribe*/
+
+                    switch (status.getCategory()) {
+                        case PNConnectedCategory:
+                            //Toast.makeText(MainActivity.this, "hey", Toast.LENGTH_SHORT).show();
+                            // this is expected for a subscribe, this means there is no error or issue whatsoever
+                            break;
+                        case PNReconnectedCategory:
+                            // this usually occurs if subscribe temporarily fails but reconnects. This means
+                            // there was an error but there is no longer any issue
+                            break;
+                        case PNDisconnectedCategory:
+                            // this is the expected category for an unsubscribe. This means there
+                            // was no error in unsubscribing from everything
+                            break;
+
+                        case PNUnexpectedDisconnectCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        // this is usually an issue with the internet connection, this is an error, handle appropriately
+                        case PNTimeoutCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        case PNAccessDeniedCategory:
+                            // this means that PAM does allow this client to subscribe to this
+                            // channel and channel group configuration. This is another explicit error
+                            break;
+                        default:
+                            // More errors can be directly specified by creating explicit cases for other
+                            // error categories of `PNStatusCategory` such as `PNTimeoutCategory` or `PNMalformedFilterExpressionCategory` or `PNDecryptionErrorCategory`
+                            break;
+                    }
+
+
+                /*case PNHeartbeatOperation:
+                    // heartbeat operations can in fact have errors, so it is important to check first for an error.
+                    // For more information on how to configure heartbeat notifications through the status
+                    // PNObjectEventListener callback, consult <link to the PNCONFIGURATION heartbeart config>
+                    if (status.isError()) {
+                        // There was an error with the heartbeat operation, handle here
+                    } else {
+                        // heartbeat operation was successful
+                    }
+                default: {
+                    // Encountered unknown status type
+                }
+            }*/
+        }
+
+        @Override
+        public void message(PubNub pubnub, PNMessageResult message) {
+
+            JsonElement msg = message.getMessage();
+            String s=message.toString();
+
+            if(msg.getAsString().equals("Hello"))
+            {
+                //mainUIThread("Hurray");
+            }
+
+            //getHistory();
+
+        }
+
+        @Override
+        public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+
+        }
+
+    };
 
 
 }

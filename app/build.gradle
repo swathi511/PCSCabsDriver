@@ -8,8 +8,8 @@ android {
         applicationId "com.hjsoft.driverbooktaxi"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 56
-        versionName "1.6.9"
+        versionCode 62
+        versionName "1.7.5"
 
     }
     buildTypes {
@@ -33,6 +33,9 @@ dependencies {
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile group: 'com.pubnub', name: 'pubnub-gson', version: '4.12.0'
+    //compile 'com.github.tony19:timber-loggly:1.0.1'
+    compile 'com.inrista.loggliest:loggliest:0.2'
 
 
 

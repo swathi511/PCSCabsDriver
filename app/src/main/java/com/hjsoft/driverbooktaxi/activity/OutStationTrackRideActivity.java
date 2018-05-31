@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -29,6 +30,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +67,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.hjsoft.driverbooktaxi.Constants;
 import com.hjsoft.driverbooktaxi.MyBottomSheetDialogFragment;
 import com.hjsoft.driverbooktaxi.R;
 import com.hjsoft.driverbooktaxi.SessionManager;
@@ -76,22 +80,31 @@ import com.hjsoft.driverbooktaxi.service.OutStationRideOverlayService;
 import com.hjsoft.driverbooktaxi.service.RideOverlayService;
 import com.hjsoft.driverbooktaxi.webservices.API;
 import com.hjsoft.driverbooktaxi.webservices.RestClient;
+import com.inrista.loggliest.Loggly;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNReconnectionPolicy;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.POST;
 
 
 public class OutStationTrackRideActivity  extends FragmentActivity implements OnMapReadyCallback,
@@ -151,12 +164,42 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
     String pickupLat,pickupLong,rideStartingTime,cancelOption="";
     DBAdapter dbAdapter;
     boolean checked=false;
+    //private final static String API_KEY = "3PzQvg.MchECw:Brb2D4FEUuEXMuKs";
+    //prod:private final static String API_KEY = "kcfhRA.H13JVA:pX7G9-lrgVftOHBZ";
 
+    PubNub pubnub;
+    boolean debugLogs;
+    String deviceId;
+
+    /* private Thread.UncaughtExceptionHandler androidDefaultUEH;
+ 
+     private Thread.UncaughtExceptionHandler handler1 = new Thread.UncaughtExceptionHandler() {
+         public void uncaughtException(Thread thread, Throwable ex) {
+ 
+             Log.e("TestApplication", "Uncaught exception is: ", ex);
+             // log it & phone home.
+ 
+             String trace = ex.toString() + "\n";
+ 
+             for (StackTraceElement e1 : ex.getStackTrace()) {
+                 trace += "\t at " + e1.toString() + "\n";
+             }
+ 
+             Loggly.i("OSTrackRideActivity","Uncaught Exception: "+trace);
+             Loggly.forceUpload();
+ 
+             androidDefaultUEH.uncaughtException(thread, ex);
+         }
+     };
+ */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_outstation_track_ride);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        /*androidDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(handler1);*/
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         geocoder = new Geocoder(this, Locale.getDefault());
@@ -192,8 +235,12 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         editor = pref.edit();
 
         city = pref.getString("city", null);
+        debugLogs=pref.getBoolean("debugLogs",true);
         dbAdapter=new DBAdapter(getApplicationContext());
         dbAdapter=dbAdapter.open();
+
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        deviceId=telephonyManager.getDeviceId();
 
         cabData = (ArrayList<GuestData>) getIntent().getSerializableExtra("cabData");
 
@@ -227,12 +274,22 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 catch (ParseException e)
                 {
                     e.printStackTrace();
+
+                    String trace = e.toString() + "\n";
+
+                    for (StackTraceElement e1 : e.getStackTrace()) {
+                        trace += "\t at " + e1.toString() + "\n";
+                    }
+
+                    Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+ "[Exception,data!= null] "+trace);
                 }
 
                 requestId = data.getgRequestId();
 
             }
             else {
+
+                Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" [Cabdata.get(0) null]");
 
                 Toast.makeText(OutStationTrackRideActivity.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
                 Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
@@ -241,6 +298,8 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
             }
         }
         else {
+
+            Loggly.i("OSTrackRideActivity",stProfileId +" "+requestId+" [Cabdata null]");
 
             Toast.makeText(OutStationTrackRideActivity.this,"Unknown error!Please reopen the booking.",Toast.LENGTH_SHORT).show();
             Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
@@ -331,7 +390,7 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        System.out.println(rg.getCheckedRadioButtonId()+"::"+checkedId);
+
                         int checkedRadioButtonId =rg.getCheckedRadioButtonId();
                         RadioButton radioBtn = (RadioButton)dialogView.findViewById(checkedId);
                         //System.out.println("++++"+radioBtn.getText());
@@ -350,61 +409,75 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                         if(checked) {
 
-                        alertDialog.dismiss();
+                           /* try {
 
-                        final ProgressDialog progressDialog = new ProgressDialog(OutStationTrackRideActivity.this);
-                        progressDialog.setIndeterminate(true);
-                        progressDialog.setMessage("Please Wait..!");
-                        progressDialog.show();
+                                publishMessage(requestId+"cancelled_driver");
 
-                        //System.out.println("+++++++++++++ 0" + dbAdapter.getCancelId(cancelOption));
+                            }catch (AblyException e)
+                            {
+                                e.printStackTrace();
+                            }*/
+
+                            publish(requestId+"cancelled_driver",stProfileId);
+
+                            alertDialog.dismiss();
+
+                            final ProgressDialog progressDialog = new ProgressDialog(OutStationTrackRideActivity.this);
+                            progressDialog.setIndeterminate(true);
+                            progressDialog.setMessage("Please Wait..!");
+                            progressDialog.show();
+
                             String id=dbAdapter.getCancelId(cancelOption);
-                            System.out.println("id "+id);
 
+                            JsonObject j = new JsonObject();
+                            j.addProperty("requestid", requestId);
+                            j.addProperty("companyid", companyId);
+                            j.addProperty("reasonid", id);
+                            j.addProperty("source", "driver");
+                            j.addProperty("profileid", stProfileId);
+                            j.addProperty("reason", cancelOption);
 
-                            //Toast.makeText(TrackRideActivity.this,cancelOption,Toast.LENGTH_SHORT).show();
+                            Call<Pojo> call = REST_CLIENT.sendCancelStatus(j);
+                            call.enqueue(new Callback<Pojo>() {
+                                @Override
+                                public void onResponse(Call<Pojo> call, Response<Pojo> response) {
 
-                        JsonObject j = new JsonObject();
-                        j.addProperty("requestid", requestId);
-                        j.addProperty("companyid", companyId);
-                        j.addProperty("reasonid", id);
-                        j.addProperty("source", "driver");
-                        j.addProperty("profileid", stProfileId);
-                        j.addProperty("reason", cancelOption);
+                                    progressDialog.dismiss();
 
-                        Call<Pojo> call = REST_CLIENT.sendCancelStatus(j);
-                        call.enqueue(new Callback<Pojo>() {
-                            @Override
-                            public void onResponse(Call<Pojo> call, Response<Pojo> response) {
+                                    if (response.isSuccessful()) {
 
-                                progressDialog.dismiss();
+                                        if (h != null) {
+                                            h.removeCallbacks(r);
+                                        }
+                                        stopLocationUpdates();
+                                        //mGoogleApiClient.disconnect();
 
-                                if (response.isSuccessful()) {
+                                        editor.putString("booking", "out");
+                                        editor.commit();
 
-                                    if (h != null) {
-                                        h.removeCallbacks(r);
+                                        Intent i = new Intent(OutStationTrackRideActivity.this, HomeActivity.class);
+                                        startActivity(i);
+                                        finish();
                                     }
-                                    stopLocationUpdates();
-                                    //mGoogleApiClient.disconnect();
-
-                                    editor.putString("booking", "out");
-                                    editor.commit();
-
-                                    Intent i = new Intent(OutStationTrackRideActivity.this, HomeActivity.class);
-                                    startActivity(i);
-                                    finish();
                                 }
-                            }
 
-                            @Override
-                            public void onFailure(Call<Pojo> call, Throwable t) {
+                                @Override
+                                public void onFailure(Call<Pojo> call, Throwable t1) {
 
-                                progressDialog.dismiss();
-                                Toast.makeText(OutStationTrackRideActivity.this, "Check Internet connection..Please retry!", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
 
-                            }
-                        });
-                    }
+                                    String trace = t1.toString() + "\n";
+
+                                    for (StackTraceElement e1 : t1.getStackTrace()) {
+                                        trace += "\t at " + e1.toString() + "\n";
+                                    }
+                                    Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" [API failed,CancelBooking] "+trace);
+
+                                    Toast.makeText(OutStationTrackRideActivity.this, "Check Internet connection..Please retry!", Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+                        }
                         else {
 
                             Toast.makeText(OutStationTrackRideActivity.this,"Please select a reason!",Toast.LENGTH_SHORT).show();
@@ -655,6 +728,16 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                                 }
                                                 else {
 
+                                                    /*try{
+                                                        publishMessage(requestId+"arrived");
+                                                    }
+                                                    catch (AblyException e)
+                                                    {
+                                                        e.printStackTrace();
+                                                    }*/
+
+                                                    publish(requestId+"arrived",stProfileId);
+
                                                     btArrived.setVisibility(View.GONE);
                                                     btPickup.setVisibility(View.VISIBLE);
                                                     progressDialog.dismiss();
@@ -683,15 +766,18 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                         }
 
                         @Override
-                        public void onFailure(Call<Pojo> call, Throwable t) {
+                        public void onFailure(Call<Pojo> call, Throwable t1) {
+
+                            progressDialog.dismiss();
 
                             Toast.makeText(OutStationTrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
 
-                            /*if (myBottomSheet.isAdded()) {
-                                //return;
-                            } else {
-                                myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
-                            }*/
+                            String trace = t1.toString() + "\n";
+
+                            for (StackTraceElement e1 : t1.getStackTrace()) {
+                                trace += "\t at " + e1.toString() + "\n";
+                            }
+                            Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" [API failed,I_have_Arrived] "+trace);
                         }
                     });
                 }
@@ -849,6 +935,16 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
 
                                                     if (response.isSuccessful()) {
 
+                                                        /*try{
+                                                            publishMessage(requestId+"otp_validated");
+                                                        }
+                                                        catch (AblyException e)
+                                                        {
+                                                            e.printStackTrace();
+                                                        }*/
+
+                                                        publish(requestId+"otp_validated",stProfileId);
+
                                                         alertDialog.dismiss();
                                                         //btPickup.setVisibility(View.GONE);
                                                         // btDrop.setVisibility(View.VISIBLE);
@@ -903,9 +999,16 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                         }
 
                         @Override
-                        public void onFailure(Call<Pojo> call, Throwable t) {
+                        public void onFailure(Call<Pojo> call, Throwable t1) {
 
                             progressDialog.dismiss();
+
+                            String trace = t1.toString() + "\n";
+
+                            for (StackTraceElement e1 : t1.getStackTrace()) {
+                                trace += "\t at " + e1.toString() + "\n";
+                            }
+                            Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" [API failed,OTP_validation] "+trace);
 
                             Toast.makeText(OutStationTrackRideActivity.this,"Check Internet connection!",Toast.LENGTH_LONG).show();
 
@@ -965,6 +1068,16 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         buildLocationSettingsRequest();
         entered=true;
         sendLocationUpdatesToServer();
+
+        /*try {
+            initAbly(stProfileId);
+        }
+        catch (AblyException e)
+        {
+            e.printStackTrace();
+        }*/
+
+        initPubNub(stProfileId);
     }
 
     public void sendLocationUpdatesToServer()
@@ -1049,6 +1162,7 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                 v.addProperty("longitude",c_long);
                 v.addProperty("companyid",companyId);
                 v.addProperty("ReqId",requestId);
+                v.addProperty("imei",deviceId);
 
                 Call<Pojo> call=REST_CLIENT.sendStatus(v);
                 call.enqueue(new Callback<Pojo>() {
@@ -1166,8 +1280,17 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
                                     }
                                 });
 
+                            }
 
+                            if(msg.getMessage().equals("not updated"))
+                            {
+                                Toast.makeText(OutStationTrackRideActivity.this,"Profile is active in other device.\nHence,deactivated here!",Toast.LENGTH_SHORT).show();
 
+                                session.logoutUser();
+                                Loggly.i("OSTrackRideActivity",stProfileId+" deactivated!");
+                                Intent i=new Intent(OutStationTrackRideActivity.this,MainActivity.class);
+                                startActivity(i);
+                                finish();
                             }
                         }
                         else
@@ -1299,6 +1422,14 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         {
             h.removeCallbacks(r);
         }
+
+        if(pubnub!=null)
+        {
+            pubnub.removeListener(subscribeCallback);
+
+            pubnub.unsubscribe();
+        }
+
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -1793,5 +1924,325 @@ public class OutStationTrackRideActivity  extends FragmentActivity implements On
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
     }
+
+    /*private void initAbly(String profileid) throws AblyException {
+
+        System.out.println("ABLY IS INITIALISED!!!");
+        System.out.println("driverId is "+profileid);
+
+
+        AblyRealtime realtime = new AblyRealtime(API_KEY);
+
+        channel = realtime.channels.get(profileid);
+        //Toast.makeText(getBaseContext(), "Message received: " + messages.data, Toast.LENGTH_SHORT).show();
+
+        channel.subscribe(new Channel.MessageListener() {
+
+            @Override
+            public void onMessage(final Message messages) {
+
+                System.out.println("****** msg received!!!"+messages.data.toString()+"!!!");
+
+                if(messages.data.toString().equals(requestId+"cancelled_guest"))
+                {
+                    //getDetails();
+
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Toast.makeText(getActivity(), "New Booking Request", Toast.LENGTH_SHORT).show();
+
+                            // System.out.println("cab size isssssssss "+cabData.size());
+
+
+                            mp.start();
+                            mp.setLooping(true);
+
+                            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationTrackRideActivity.this);
+
+                            LayoutInflater inflater = getLayoutInflater();
+                            final View dialogView = inflater.inflate(R.layout.alert_ride_cancelled, null);
+                            dialogBuilder.setView(dialogView);
+
+                            final AlertDialog alertDialog = dialogBuilder.create();
+                            alertDialog.show();
+                            alertDialog.setCancelable(false);
+                            alertDialog.setCanceledOnTouchOutside(false);
+
+                            Button btOk=(Button)dialogView.findViewById(R.id.arc_bt_ok);
+                            // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
+                            if(h!=null) {
+                                h.removeCallbacks(r);
+                            }
+                            stopLocationUpdates();
+                            //mGoogleApiClient.disconnect();
+
+                            editor.putString("booking","out");
+                            editor.commit();
+
+                            btOk.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                    if (mp.isPlaying()) {
+                                        mp.stop();
+                                        mp.release();
+                                        //mp = MediaPlayer.create(TrackRideActivity.this, R.raw.beep);
+                                        mp=null;
+                                    }
+
+                                    Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
+                                    startActivity(i);
+
+                                    alertDialog.dismiss();
+                                    finish();
+                                }
+                            });
+
+
+                        }
+                    });
+                }
+
+
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Toast.makeText(getActivity(), "Msg "+messages.data, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+
+        });
+    }
+
+
+    public void publishMessage(String msg) throws AblyException{
+
+        channel.publish("update", msg, new CompletionListener() {
+            @Override
+            public void onSuccess() {
+
+                System.out.println("***************** success");
+
+                //Toast.makeText(getBaseContext(), "Message sent", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(ErrorInfo reason) {
+
+                System.out.println("********************** error");
+
+                // Toast.makeText(getBaseContext(), "Message not sent", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*/
+
+    private final void initPubNub(String driverId) {
+        PNConfiguration config = new PNConfiguration();
+
+        config.setPublishKey(Constants.PUBNUB_PUBLISH_KEY);
+        config.setSubscribeKey(Constants.PUBNUB_SUBSCRIBE_KEY);
+        config.setReconnectionPolicy(PNReconnectionPolicy.LINEAR);
+        // config.setUuid(this.mUsername);
+        config.setSecure(true);
+
+        pubnub=new PubNub(config);
+
+        pubnub.subscribe()
+                .channels(Arrays.asList(driverId)) // subscribe to channels
+                .execute();
+
+        pubnub.addListener(subscribeCallback);
+
+        if(debugLogs)
+        {
+            Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" [Pubnub initialised]");
+        }
+
+    }
+
+    public void publish(final String msg,String profileId)
+    {
+       /* JsonObject position = new JsonObject();
+        position.addProperty("lat", 32L);
+        position.addProperty("lng", 32L);
+
+        String p="Hello";
+
+        System.out.println("before pub: " + position);*/
+        pubnub.publish()
+                .message(msg)
+                .channel(profileId)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError() to see if error happened
+                        if(!status.isError()) {
+                            //System.out.println("pub timetoken: " + result.getTimetoken());
+
+                            if(debugLogs)
+                            {
+                                Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" "+msg+" [published]");
+                            }
+                        }
+                        else {
+                            Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" "+msg+" [error,published]"+status.isError());
+                        }
+
+                        //System.out.println("pub status code: " + status.getStatusCode());
+                    }
+                });
+    }
+
+    SubscribeCallback subscribeCallback=new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubnub, PNStatus status) {
+           /* switch (status.getOperation()) {
+                // let's combine unsubscribe and subscribe handling for ease of use
+                case PNSubscribeOperation:
+                case PNUnsubscribeOperation:
+                    // note: subscribe statuses never have traditional
+                    // errors, they just have categories to represent the
+                    // different issues or successes that occur as part of subscribe*/
+
+                    switch (status.getCategory()) {
+                        case PNConnectedCategory:
+                            //Toast.makeText(MainActivity.this, "hey", Toast.LENGTH_SHORT).show();
+                            // this is expected for a subscribe, this means there is no error or issue whatsoever
+                            break;
+                        case PNReconnectedCategory:
+                            // this usually occurs if subscribe temporarily fails but reconnects. This means
+                            // there was an error but there is no longer any issue
+                            break;
+                        case PNDisconnectedCategory:
+                            // this is the expected category for an unsubscribe. This means there
+                            // was no error in unsubscribing from everything
+                            break;
+
+                        case PNUnexpectedDisconnectCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        // this is usually an issue with the internet connection, this is an error, handle appropriately
+                        case PNTimeoutCategory:
+
+                            pubnub.reconnect();
+
+                            break;
+                        case PNAccessDeniedCategory:
+                            // this means that PAM does allow this client to subscribe to this
+                            // channel and channel group configuration. This is another explicit error
+                            break;
+                        default:
+                            // More errors can be directly specified by creating explicit cases for other
+                            // error categories of `PNStatusCategory` such as `PNTimeoutCategory` or `PNMalformedFilterExpressionCategory` or `PNDecryptionErrorCategory`
+                            break;
+                    }
+
+
+                /*case PNHeartbeatOperation:
+                    // heartbeat operations can in fact have errors, so it is important to check first for an error.
+                    // For more information on how to configure heartbeat notifications through the status
+                    // PNObjectEventListener callback, consult <link to the PNCONFIGURATION heartbeart config>
+                    if (status.isError()) {
+                        // There was an error with the heartbeat operation, handle here
+                    } else {
+                        // heartbeat operation was successful
+                    }
+                default: {
+                    // Encountered unknown status type
+                }
+            }*/
+        }
+
+        @Override
+        public void message(PubNub pubnub, PNMessageResult message) {
+
+            System.out.println(message.toString());
+
+            JsonElement msg = message.getMessage();
+            String s=message.toString();
+
+            if(debugLogs)
+            {
+                Loggly.i("OSTrackRideActivity",stProfileId+" "+requestId+" "+msg.getAsString()+" [subscribe msg]");
+            }
+
+            if(msg.getAsString().equals(requestId+"cancelled_guest"))
+            {
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Toast.makeText(getActivity(), "New Booking Request", Toast.LENGTH_SHORT).show();
+
+                        // System.out.println("cab size isssssssss "+cabData.size());
+
+
+                        mp.start();
+                        mp.setLooping(true);
+
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OutStationTrackRideActivity.this);
+
+                        LayoutInflater inflater = getLayoutInflater();
+                        final View dialogView = inflater.inflate(R.layout.alert_ride_cancelled, null);
+                        dialogBuilder.setView(dialogView);
+
+                        final AlertDialog alertDialog = dialogBuilder.create();
+                        alertDialog.show();
+                        alertDialog.setCancelable(false);
+                        alertDialog.setCanceledOnTouchOutside(false);
+
+                        Button btOk=(Button)dialogView.findViewById(R.id.arc_bt_ok);
+                        // Toast.makeText(TrackRideActivity.this,"Ride Cancelled !",Toast.LENGTH_LONG).show();
+                        if(h!=null) {
+                            h.removeCallbacks(r);
+                        }
+                        stopLocationUpdates();
+                        //mGoogleApiClient.disconnect();
+
+                        editor.putString("booking","out");
+                        editor.commit();
+
+                        btOk.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                if (mp.isPlaying()) {
+                                    mp.stop();
+                                    mp.release();
+                                    //mp = MediaPlayer.create(TrackRideActivity.this, R.raw.beep);
+                                    mp=null;
+                                }
+
+                                Intent i=new Intent(OutStationTrackRideActivity.this,HomeActivity.class);
+                                startActivity(i);
+
+                                alertDialog.dismiss();
+                                finish();
+                            }
+                        });
+
+
+                    }
+                });
+            }
+
+
+            //getHistory();
+
+        }
+
+        @Override
+        public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+
+        }
+
+    };
 }
 
